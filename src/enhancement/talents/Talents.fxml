@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fx:id="pane" hbarPolicy="NEVER" vbarPolicy="ALWAYS" fitToWidth="true" xmlns:fx="http://javafx.com/fxml" >
+   <VBox fx:id="box" spacing="2" maxWidth="Infinity" fillWidth="true" />
+</ScrollPane>

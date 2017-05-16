@@ -1,0 +1,4 @@
+{
+	"releaseDate" : "@releaseDate@",
+	"releaseLink" : "https://raw.githubusercontent.com/DSATool/EnhancementPlugin/master/release/Enhancement_@releaseDate@.zip"
+}
