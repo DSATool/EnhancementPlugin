@@ -42,7 +42,7 @@ public class SpellsController extends EnhancementTabController {
 	private final JSONListener listener;
 	private final EnhancementController enhancementController;
 
-	public SpellsController(TabPane tabPane, EnhancementController controller) {
+	public SpellsController(final TabPane tabPane, final EnhancementController controller) {
 		this.tabPane = tabPane;
 		enhancementController = controller;
 		listener = o -> setTab(tabPane);
@@ -76,21 +76,21 @@ public class SpellsController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateCost(JSONObject hero) {
+	public void recalculateCost(final JSONObject hero) {
 		if (controller != null) {
 			controller.recalculateCost(hero);
 		}
 	}
 
 	@Override
-	public void recalculateValid(JSONObject hero) {
+	public void recalculateValid(final JSONObject hero) {
 		if (controller != null) {
 			controller.recalculateValid(hero);
 		}
 	}
 
 	@Override
-	public void setHero(JSONObject hero) {
+	public void setHero(final JSONObject hero) {
 		if (this.hero != null) {
 			this.hero.getObj("Vorteile").removeListener(listener);
 		}
@@ -98,7 +98,7 @@ public class SpellsController extends EnhancementTabController {
 	}
 
 	@Override
-	protected void setTab(TabPane tabPane) {
+	protected void setTab(final TabPane tabPane) {
 		if (HeroUtil.isMagical(hero)) {
 			if (tab == null) {
 				tab = new Tab(getText());
@@ -109,7 +109,7 @@ public class SpellsController extends EnhancementTabController {
 			if (!tabPane.getTabs().contains(tab)) {
 				tab.setContent(getControl());
 				tab.setClosable(false);
-				tabPane.getTabs().add(3, tab);
+				tabPane.getTabs().add(4, tab);
 			}
 		} else {
 			tabPane.getTabs().remove(tab);
@@ -117,8 +117,9 @@ public class SpellsController extends EnhancementTabController {
 	}
 
 	@Override
-	protected void update() {
+	public void update() {
 		setTab(tabPane);
+		hero.getObj("Vorteile").removeListener(listener);
 		if (controller != null) {
 			controller.setHero(hero);
 		}

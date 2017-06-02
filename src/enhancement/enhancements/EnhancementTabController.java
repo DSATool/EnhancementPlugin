@@ -34,17 +34,17 @@ public abstract class EnhancementTabController implements HeroController {
 	public abstract void recalculateValid(JSONObject hero);
 
 	@Override
-	public void setHero(JSONObject hero) {
+	public void setHero(final JSONObject hero) {
 		this.hero = hero;
 		update();
 	}
 
-	protected void setTab(TabPane pane) {
+	protected void setTab(final TabPane pane) {
 		final Tab tab = new Tab(getText());
 		tab.setContent(getControl());
 		tab.setClosable(false);
 		pane.getTabs().add(tab);
 	}
 
-	protected abstract void update();
+	public abstract void update();
 }

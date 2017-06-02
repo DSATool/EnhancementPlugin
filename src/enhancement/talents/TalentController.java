@@ -45,7 +45,7 @@ public class TalentController extends EnhancementTabController {
 
 	private final JSONListener listener = o -> updateVisibility();
 
-	public TalentController(TabPane tabPane, EnhancementController controller) {
+	public TalentController(final TabPane tabPane, final EnhancementController controller) {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);
@@ -89,21 +89,21 @@ public class TalentController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateCost(JSONObject hero) {
+	public void recalculateCost(final JSONObject hero) {
 		for (final TalentGroupController controller : talentControllers) {
 			controller.recalculateCost(hero);
 		}
 	}
 
 	@Override
-	public void recalculateValid(JSONObject hero) {
+	public void recalculateValid(final JSONObject hero) {
 		for (final TalentGroupController controller : talentControllers) {
 			controller.recalculateValid(hero);
 		}
 	}
 
 	@Override
-	public void setHero(JSONObject hero) {
+	public void setHero(final JSONObject hero) {
 		if (this.hero != null) {
 			this.hero.getObj("Vorteile").removeListener(listener);
 			this.hero.getObj("Sonderfertigkeiten").removeListener(listener);
@@ -113,7 +113,9 @@ public class TalentController extends EnhancementTabController {
 	}
 
 	@Override
-	protected void update() {
+	public void update() {
+		hero.getObj("Vorteile").removeListener(listener);
+		hero.getObj("Sonderfertigkeiten").removeListener(listener);
 		for (final TalentGroupController controller : talentControllers) {
 			controller.setHero(hero);
 		}

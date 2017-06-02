@@ -166,6 +166,9 @@ public class EnhancementController extends HeroSelector {
 		alert.setContentText("Sollen die Steigerungen wirklich zurückgesetzt werden?");
 		alert.showAndWait().filter(response -> response == ButtonType.OK).ifPresent(response -> {
 			enhancementTable.getItems().clear();
+			for (final HeroController controller : controllers) {
+				((EnhancementTabController) controller).update();
+			}
 		});
 	}
 

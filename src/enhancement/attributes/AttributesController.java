@@ -77,7 +77,7 @@ public class AttributesController extends EnhancementTabController {
 
 	private final EnhancementController controller;
 
-	public AttributesController(TabPane tabPane, EnhancementController controller) {
+	public AttributesController(final TabPane tabPane, final EnhancementController controller) {
 		this.controller = controller;
 
 		final FXMLLoader fxmlLoader = new FXMLLoader();
@@ -100,7 +100,7 @@ public class AttributesController extends EnhancementTabController {
 		GUIUtil.cellValueFactories(attributesTable, "description", "ses", "start", "target", "cost", "valid", "cheaper");
 
 		attributesSesColumn.setCellFactory(IntegerSpinnerTableCell.<AttributeEnhancement> forTableColumn(0, 0, 1, false,
-				(IntegerSpinnerTableCell<AttributeEnhancement> cell, Boolean empty) -> {
+				(final IntegerSpinnerTableCell<AttributeEnhancement> cell, final Boolean empty) -> {
 					if (empty) return new Tuple<>(0, 0);
 					final int seMin = cell.getTableView().getItems().get(cell.getIndex()).getSeMin();
 					return new Tuple<>(seMin, 99);
@@ -110,10 +110,11 @@ public class AttributesController extends EnhancementTabController {
 		});
 
 		attributesTargetColumn
-				.setCellFactory(IntegerSpinnerTableCell.forTableColumn(0, 50, 1, false, (IntegerSpinnerTableCell<AttributeEnhancement> cell, Boolean empty) -> {
-					if (empty) return new Tuple<>(0, 0);
-					return new Tuple<>(cell.getTableView().getItems().get(cell.getIndex()).getStart() + 1, 50);
-				}));
+				.setCellFactory(IntegerSpinnerTableCell.forTableColumn(0, 50, 1, false,
+						(final IntegerSpinnerTableCell<AttributeEnhancement> cell, final Boolean empty) -> {
+							if (empty) return new Tuple<>(0, 0);
+							return new Tuple<>(cell.getTableView().getItems().get(cell.getIndex()).getStart() + 1, 50);
+						}));
 		attributesTargetColumn.setOnEditCommit(t -> {
 			t.getTableView().getItems().get(t.getTablePosition().getRow()).setTarget(t.getNewValue(), hero);
 		});
@@ -132,7 +133,7 @@ public class AttributesController extends EnhancementTabController {
 
 		attributesValidColumn.setCellFactory(tableColumn -> new TextFieldTableCell<AttributeEnhancement, Boolean>() {
 			@Override
-			public void updateItem(Boolean valid, boolean empty) {
+			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
 				@SuppressWarnings("all")
 				final TableRow<AttributeEnhancement> row = getTableRow();
@@ -146,7 +147,7 @@ public class AttributesController extends EnhancementTabController {
 
 		attributesCheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<AttributeEnhancement, Boolean>() {
 			@Override
-			public void updateItem(Boolean cheaper, boolean empty) {
+			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
 				@SuppressWarnings("all")
 				final TableRow<AttributeEnhancement> row = getTableRow();
@@ -167,20 +168,22 @@ public class AttributesController extends EnhancementTabController {
 		GUIUtil.cellValueFactories(energiesTable, "description", "ses", "start", "target", "cost", "valid", "cheaper");
 
 		energiesSesColumn.setCellFactory(
-				IntegerSpinnerTableCell.<EnergyEnhancement> forTableColumn(0, 0, 1, false, (IntegerSpinnerTableCell<EnergyEnhancement> cell, Boolean empty) -> {
-					if (empty) return new Tuple<>(0, 0);
-					final int seMin = cell.getTableView().getItems().get(cell.getIndex()).getSeMin();
-					return new Tuple<>(seMin, 99);
-				}));
+				IntegerSpinnerTableCell.<EnergyEnhancement> forTableColumn(0, 0, 1, false,
+						(final IntegerSpinnerTableCell<EnergyEnhancement> cell, final Boolean empty) -> {
+							if (empty) return new Tuple<>(0, 0);
+							final int seMin = cell.getTableView().getItems().get(cell.getIndex()).getSeMin();
+							return new Tuple<>(seMin, 99);
+						}));
 		energiesSesColumn.setOnEditCommit(t -> {
 			t.getTableView().getItems().get(t.getTablePosition().getRow()).setSes(t.getNewValue(), hero);
 		});
 
 		energiesTargetColumn
-				.setCellFactory(IntegerSpinnerTableCell.forTableColumn(0, 99, 1, false, (IntegerSpinnerTableCell<EnergyEnhancement> cell, Boolean empty) -> {
-					if (empty) return new Tuple<>(0, 0);
-					return new Tuple<>(cell.getTableView().getItems().get(cell.getIndex()).getStart() + 1, 99);
-				}));
+				.setCellFactory(IntegerSpinnerTableCell.forTableColumn(0, 99, 1, false,
+						(final IntegerSpinnerTableCell<EnergyEnhancement> cell, final Boolean empty) -> {
+							if (empty) return new Tuple<>(0, 0);
+							return new Tuple<>(cell.getTableView().getItems().get(cell.getIndex()).getStart() + 1, 99);
+						}));
 		energiesTargetColumn.setOnEditCommit(t -> {
 			t.getTableView().getItems().get(t.getTablePosition().getRow()).setTarget(t.getNewValue(), hero);
 		});
@@ -199,7 +202,7 @@ public class AttributesController extends EnhancementTabController {
 
 		energiesValidColumn.setCellFactory(tableColumn -> new TextFieldTableCell<EnergyEnhancement, Boolean>() {
 			@Override
-			public void updateItem(Boolean valid, boolean empty) {
+			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
 				@SuppressWarnings("all")
 				final TableRow<EnergyEnhancement> row = getTableRow();
@@ -213,7 +216,7 @@ public class AttributesController extends EnhancementTabController {
 
 		energiesCheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<EnergyEnhancement, Boolean>() {
 			@Override
-			public void updateItem(Boolean cheaper, boolean empty) {
+			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
 				@SuppressWarnings("all")
 				final TableRow<EnergyEnhancement> row = getTableRow();
@@ -238,7 +241,7 @@ public class AttributesController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateCost(JSONObject hero) {
+	public void recalculateCost(final JSONObject hero) {
 		for (final AttributeEnhancement enhancement : attributesTable.getItems()) {
 			enhancement.resetCost(hero);
 		}
@@ -248,7 +251,7 @@ public class AttributesController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateValid(JSONObject hero) {
+	public void recalculateValid(final JSONObject hero) {
 		for (final AttributeEnhancement enhancement : attributesTable.getItems()) {
 			enhancement.recalculateValid(hero);
 		}
@@ -258,7 +261,7 @@ public class AttributesController extends EnhancementTabController {
 	}
 
 	@Override
-	protected void update() {
+	public void update() {
 		attributesTable.getItems().clear();
 		energiesTable.getItems().clear();
 

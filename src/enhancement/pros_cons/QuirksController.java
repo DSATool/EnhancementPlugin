@@ -61,7 +61,7 @@ public class QuirksController extends EnhancementTabController {
 
 	private final EnhancementController controller;
 
-	public QuirksController(TabPane tabPane, EnhancementController controller) {
+	public QuirksController(final TabPane tabPane, final EnhancementController controller) {
 		this.controller = controller;
 
 		final FXMLLoader fxmlLoader = new FXMLLoader();
@@ -85,7 +85,7 @@ public class QuirksController extends EnhancementTabController {
 
 		nameColumn.setCellFactory(c -> new TextFieldTableCell<QuirkEnhancement, String>() {
 			@Override
-			public void updateItem(String item, boolean empty) {
+			public void updateItem(final String item, final boolean empty) {
 				super.updateItem(item, empty);
 				final QuirkEnhancement quirk = (QuirkEnhancement) getTableRow().getItem();
 				if (quirk != null) {
@@ -95,19 +95,21 @@ public class QuirksController extends EnhancementTabController {
 		});
 
 		sesColumn.setCellFactory(
-				IntegerSpinnerTableCell.<QuirkEnhancement> forTableColumn(0, 0, 1, false, (IntegerSpinnerTableCell<QuirkEnhancement> cell, Boolean empty) -> {
-					if (empty) return new Tuple<>(0, 0);
-					final int seMax = cell.getTableView().getItems().get(cell.getIndex()).getStart();
-					return new Tuple<>(0, seMax);
-				}));
+				IntegerSpinnerTableCell.<QuirkEnhancement> forTableColumn(0, 0, 1, false,
+						(final IntegerSpinnerTableCell<QuirkEnhancement> cell, final Boolean empty) -> {
+							if (empty) return new Tuple<>(0, 0);
+							final int seMax = cell.getTableView().getItems().get(cell.getIndex()).getStart();
+							return new Tuple<>(0, seMax);
+						}));
 		sesColumn.setOnEditCommit(t -> {
 			t.getTableView().getItems().get(t.getTablePosition().getRow()).setSes(t.getNewValue(), hero);
 		});
 
-		targetColumn.setCellFactory(IntegerSpinnerTableCell.forTableColumn(0, 50, 1, false, (IntegerSpinnerTableCell<QuirkEnhancement> cell, Boolean empty) -> {
-			if (empty) return new Tuple<>(0, 0);
-			return new Tuple<>(0, cell.getTableView().getItems().get(cell.getIndex()).getStart() - 1);
-		}));
+		targetColumn.setCellFactory(
+				IntegerSpinnerTableCell.forTableColumn(0, 50, 1, false, (final IntegerSpinnerTableCell<QuirkEnhancement> cell, final Boolean empty) -> {
+					if (empty) return new Tuple<>(0, 0);
+					return new Tuple<>(0, cell.getTableView().getItems().get(cell.getIndex()).getStart() - 1);
+				}));
 		targetColumn.setOnEditCommit(t -> {
 			t.getTableView().getItems().get(t.getTablePosition().getRow()).setTarget(t.getNewValue(), hero, controller.getEnhancements());
 		});
@@ -126,7 +128,7 @@ public class QuirksController extends EnhancementTabController {
 
 		validColumn.setCellFactory(tableColumn -> new TextFieldTableCell<QuirkEnhancement, Boolean>() {
 			@Override
-			public void updateItem(Boolean valid, boolean empty) {
+			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
 				@SuppressWarnings("all")
 				final TableRow<QuirkEnhancement> row = getTableRow();
@@ -140,7 +142,7 @@ public class QuirksController extends EnhancementTabController {
 
 		cheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<QuirkEnhancement, Boolean>() {
 			@Override
-			public void updateItem(Boolean cheaper, boolean empty) {
+			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
 				@SuppressWarnings("all")
 				final TableRow<QuirkEnhancement> row = getTableRow();
@@ -165,21 +167,21 @@ public class QuirksController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateCost(JSONObject hero) {
+	public void recalculateCost(final JSONObject hero) {
 		for (final QuirkEnhancement enhancement : table.getItems()) {
 			enhancement.resetCost(hero);
 		}
 	}
 
 	@Override
-	public void recalculateValid(JSONObject hero) {
+	public void recalculateValid(final JSONObject hero) {
 		for (final QuirkEnhancement enhancement : table.getItems()) {
 			enhancement.recalculateValid(hero);
 		}
 	}
 
 	@Override
-	protected void update() {
+	public void update() {
 		table.getItems().clear();
 
 		final JSONObject cons = ResourceManager.getResource("data/Nachteile");

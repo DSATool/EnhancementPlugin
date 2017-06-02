@@ -41,7 +41,7 @@ public class SkillController extends EnhancementTabController {
 
 	private final List<SkillGroupController> skillControllers = new ArrayList<>();
 
-	public SkillController(TabPane tabPane, EnhancementController controller) {
+	public SkillController(final TabPane tabPane, final EnhancementController controller) {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);
@@ -89,21 +89,21 @@ public class SkillController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateCost(JSONObject hero) {
+	public void recalculateCost(final JSONObject hero) {
 		for (final SkillGroupController controller : skillControllers) {
 			controller.recalculateCost(hero);
 		}
 	}
 
 	@Override
-	public void recalculateValid(JSONObject hero) {
+	public void recalculateValid(final JSONObject hero) {
 		for (final SkillGroupController controller : skillControllers) {
 			controller.recalculateValid(hero);
 		}
 	}
 
 	@Override
-	protected void update() {
+	public void update() {
 		for (final SkillGroupController controller : skillControllers) {
 			controller.setHero(hero);
 		}
