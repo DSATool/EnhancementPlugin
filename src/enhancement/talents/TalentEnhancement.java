@@ -24,7 +24,6 @@ import dsa41basis.util.DSAUtil;
 import dsa41basis.util.HeroUtil;
 import dsa41basis.util.RequirementsUtil;
 import dsatool.resources.Settings;
-import dsatool.util.Tuple;
 import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import javafx.beans.property.IntegerProperty;
@@ -47,10 +46,11 @@ public class TalentEnhancement extends Enhancement {
 	private final StringProperty method;
 	private final IntegerProperty ses;
 	private final int seMin;
+	private final boolean temporary;
 
 	private final ChangeListener<Boolean> chargenListener;
 
-	public TalentEnhancement(Talent talent, String talentGroupName, JSONObject hero) {
+	public TalentEnhancement(final Talent talent, final String talentGroupName, final JSONObject hero) {
 		this.talent = talent;
 		this.talentGroupName = talentGroupName;
 		int value = talent.getValue();
@@ -75,42 +75,26 @@ public class TalentEnhancement extends Enhancement {
 		cost.set(getCalculatedCost(hero));
 		recalculateValid(hero);
 		cheaper.bind(ses.greaterThan(0));
+		temporary = talent.getActual() == null;
 		chargenListener = (o, oldV, newV) -> resetCost(hero);
 		EnhancementController.usesChargenRules.addListener(chargenListener);
 	}
 
 	@Override
-	public void apply(JSONObject hero) {
-		JSONObject actual = HeroUtil.findActualTalent(hero, talent.getName())._1;
-		if (actual == null) {
-			final JSONObject talentGroup = hero.getObj("Talente").getObj(talentGroupName);
-			actual = new JSONObject(talentGroup);
-			talentGroup.put(talent.getName(), actual);
-		}
-		actual.put("TaW", target.get());
-		final int resultSes = ses.get() - (target.get() - start.get());
-		if (resultSes <= 0) {
-			actual.removeKey("SEs");
-		} else {
-			actual.put("SEs", resultSes);
-		}
-		actual.notifyListeners(null);
+	public void apply(final JSONObject hero) {
+		final int resultSes = Math.max(ses.get() - (target.get() - start.get()), 0);
+		talent.insertTalent(true);
+		talent.setValue(target.get());
+		talent.setSes(resultSes);
 	}
 
 	@Override
-	public void applyTemporarily(JSONObject hero) {
-		JSONObject actual = HeroUtil.findActualTalent(hero, talent.getName())._1;
-		if (actual == null) {
-			final JSONObject talentGroup = hero.getObj("Talente").getObj(talentGroupName);
-			actual = new JSONObject(talentGroup);
-			actual.put("Temporär", true);
-			talentGroup.put(talent.getName(), actual);
-		}
-		actual.put("TaW", target.get());
+	public void applyTemporarily(final JSONObject hero) {
+		talent.setValue(target.get());
 	}
 
 	@Override
-	protected boolean calculateValid(JSONObject hero) {
+	protected boolean calculateValid(final JSONObject hero) {
 		final JSONObject talent = this.talent.getTalent();
 		boolean valid = target.get() <= this.talent.getMaximum(hero);
 		if (!talent.containsKey("Voraussetzungen")) return valid;
@@ -124,13 +108,13 @@ public class TalentEnhancement extends Enhancement {
 		return valid;
 	}
 
-	public TalentEnhancement clone(JSONObject hero, Collection<Enhancement> enhancements) {
+	public TalentEnhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
 		final TalentEnhancement result = new TalentEnhancement(talent, talentGroupName, hero);
 		result.setTarget(target.get(), hero, enhancements);
 		return result;
 	}
 
-	private int fromOfficial(String taw) {
+	private int fromOfficial(final String taw) {
 		if ("n.a.".equals(taw)) return -1;
 		int value = Integer.parseInt(taw);
 		if (value < 0 && !basis) {
@@ -140,7 +124,7 @@ public class TalentEnhancement extends Enhancement {
 	}
 
 	@Override
-	public int getCalculatedCost(JSONObject hero) {
+	public int getCalculatedCost(final JSONObject hero) {
 		int modifier = 0;
 		int maxLevel = 10;
 		if (EnhancementController.usesChargenRules.get()) {
@@ -228,7 +212,7 @@ public class TalentEnhancement extends Enhancement {
 		return talent.getName();
 	}
 
-	private String getOfficial(int taw) {
+	private String getOfficial(final int taw) {
 		if (basis) return String.valueOf(taw);
 		if (taw == -1)
 			return "n.a.";
@@ -270,17 +254,17 @@ public class TalentEnhancement extends Enhancement {
 		return ses;
 	}
 
-	public void setMethod(String method, JSONObject hero) {
+	public void setMethod(final String method, final JSONObject hero) {
 		this.method.set(method);
 		resetCost(hero);
 	}
 
-	public void setSes(int ses, JSONObject hero) {
+	public void setSes(final int ses, final JSONObject hero) {
 		this.ses.set(ses);
 		resetCost(hero);
 	}
 
-	public void setTarget(int target, JSONObject hero, Collection<Enhancement> enhancements) {
+	public void setTarget(final int target, final JSONObject hero, final Collection<Enhancement> enhancements) {
 		final Stack<Enhancement> enhancementStack = new Stack<>();
 		for (final Enhancement e : enhancements) {
 			e.applyTemporarily(hero);
@@ -298,7 +282,7 @@ public class TalentEnhancement extends Enhancement {
 		}
 	}
 
-	public void setTarget(String newValue, JSONObject hero, Collection<Enhancement> enhancements) {
+	public void setTarget(final String newValue, final JSONObject hero, final Collection<Enhancement> enhancements) {
 		setTarget(fromOfficial(newValue), hero, enhancements);
 	}
 
@@ -319,13 +303,10 @@ public class TalentEnhancement extends Enhancement {
 	}
 
 	@Override
-	public void unapply(JSONObject hero) {
-		final Tuple<JSONObject, JSONObject> talentAndGroup = HeroUtil.findActualTalent(hero, talent.getName());
-		final JSONObject actual = talentAndGroup._1;
-		if (actual.getBoolOrDefault("Temporär", false)) {
-			talentAndGroup._2.removeKey(talent.getName());
-		} else {
-			actual.put("TaW", start.get());
+	public void unapply(final JSONObject hero) {
+		talent.setValue(start.get());
+		if (temporary) {
+			talent.removeTalent();
 		}
 	}
 
@@ -334,7 +315,7 @@ public class TalentEnhancement extends Enhancement {
 	}
 
 	protected void updateDescription() {
-		final String desc = talent.getName() + " (" + startString.get() + "->" + targetString.get() + ")";
+		final String desc = talent.getDisplayName() + " (" + startString.get() + "->" + targetString.get() + ")";
 		description.set(desc);
 	}
 }

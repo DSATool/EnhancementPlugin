@@ -15,6 +15,7 @@
  */
 package enhancement.talents;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -50,6 +51,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.Region;
+import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
 
 public class TalentGroupController {
@@ -87,7 +89,7 @@ public class TalentGroupController {
 	private final String talentGroup;
 	protected JSONObject hero;
 
-	public TalentGroupController(ScrollPane parent, EnhancementController controller, String name, JSONObject talents) {
+	public TalentGroupController(final ScrollPane parent, final EnhancementController controller, final String name, final JSONObject talents) {
 		this.controller = controller;
 		this.talents = talents;
 		talentGroup = name;
@@ -122,7 +124,7 @@ public class TalentGroupController {
 
 		nameColumn.setCellFactory(c -> new TextFieldTableCell<TalentEnhancement, String>() {
 			@Override
-			public void updateItem(String item, boolean empty) {
+			public void updateItem(final String item, final boolean empty) {
 				super.updateItem(item, empty);
 				final TalentEnhancement talent = (TalentEnhancement) getTableRow().getItem();
 				if (talent != null) {
@@ -132,11 +134,12 @@ public class TalentGroupController {
 		});
 
 		sesColumn.setCellFactory(
-				IntegerSpinnerTableCell.<TalentEnhancement> forTableColumn(0, 0, 1, false, (IntegerSpinnerTableCell<TalentEnhancement> cell, Boolean empty) -> {
-					if (empty) return new Tuple<>(0, 0);
-					final int seMin = cell.getTableView().getItems().get(cell.getIndex()).getSeMin();
-					return new Tuple<>(seMin, 99);
-				}));
+				IntegerSpinnerTableCell.<TalentEnhancement> forTableColumn(0, 0, 1, false,
+						(final IntegerSpinnerTableCell<TalentEnhancement> cell, final Boolean empty) -> {
+							if (empty) return new Tuple<>(0, 0);
+							final int seMin = cell.getTableView().getItems().get(cell.getIndex()).getSeMin();
+							return new Tuple<>(seMin, 99);
+						}));
 		sesColumn.setOnEditCommit(t -> {
 			t.getTableView().getItems().get(t.getTablePosition().getRow()).setSes(t.getNewValue(), hero);
 		});
@@ -187,7 +190,7 @@ public class TalentGroupController {
 		});
 
 		methodColumn.setCellFactory(ComboBoxTableCell.forTableColumn("Lehrmeister", "Gegenseitiges Lehren", "Selbststudium"));
-		methodColumn.setOnEditCommit((CellEditEvent<TalentEnhancement, String> t) -> {
+		methodColumn.setOnEditCommit((final CellEditEvent<TalentEnhancement, String> t) -> {
 			t.getTableView().getItems().get(t.getTablePosition().getRow()).setMethod(t.getNewValue(), hero);
 		});
 
@@ -205,7 +208,7 @@ public class TalentGroupController {
 
 		validColumn.setCellFactory(tableColumn -> new TextFieldTableCell<TalentEnhancement, Boolean>() {
 			@Override
-			public void updateItem(Boolean valid, boolean empty) {
+			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
 				@SuppressWarnings("all")
 				final TableRow<TalentEnhancement> row = getTableRow();
@@ -219,7 +222,7 @@ public class TalentGroupController {
 
 		cheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<TalentEnhancement, Boolean>() {
 			@Override
-			public void updateItem(Boolean cheaper, boolean empty) {
+			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
 				@SuppressWarnings("all")
 				final TableRow<TalentEnhancement> row = getTableRow();
@@ -236,14 +239,15 @@ public class TalentGroupController {
 			talentsList.getSelectionModel().selectedItemProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
 				if (newValue != null) {
 					representationsList.getItems().clear();
-					final Set<String> representations = talents.getObj(newValue).getObj("Repräsentationen").keySet();
+					final JSONObject spell = talents.getObj(newValue);
+					final Set<String> representations = spell.getObj("Repräsentationen").keySet();
 					final JSONObject actual = hero.getObj("Zauber");
 					final JSONObject actualSpell = actual.getObjOrDefault(newValue, null);
 					if (actualSpell == null) {
 						representationsList.getItems().setAll(representations);
 					} else {
 						for (final String representation : representations) {
-							if (!actualSpell.containsKey(representation)) {
+							if (!actualSpell.containsKey(representation) || spell.containsKey("Auswahl") || spell.containsKey("Freitext")) {
 								representationsList.getItems().add(representation);
 							}
 						}
@@ -257,67 +261,107 @@ public class TalentGroupController {
 	@FXML
 	private void addTalent() {
 		final String talentName = talentsList.getSelectionModel().getSelectedItem();
-		final String representation = representationsList.getSelectionModel().getSelectedItem();
-		final JSONObject spells = ResourceManager.getResource("data/Zauber");
-		final JSONObject actual = hero.getObj("Zauber");
+		final JSONObject talentGroups = ResourceManager.getResource("data/Talente");
+		final JSONObject group = "Zauber".equals(talentGroup) ? ResourceManager.getResource("data/Zauber") : talentGroups.getObj(talentGroup);
+		final JSONObject actual = "Zauber".equals(talentGroup) ? hero.getObj("Zauber") : hero.getObj("Talente").getObj(talentGroup);
 
-		table.getItems().add(
-				new SpellEnhancement(new Spell(talentName, spells.getObj(talentName), actual.getObjOrDefault(talentName, null), actual, representation), hero));
+		if ("Zauber".equals(talentGroup)) {
+			final String representation = representationsList.getSelectionModel().getSelectedItem();
+			table.getItems()
+					.add(new SpellEnhancement(new Spell(talentName, group.getObj(talentName), null, actual.getObj(talentName), actual, representation), hero));
+		} else {
+			table.getItems()
+					.add(new TalentEnhancement(new Talent(talentName, group, group.getObj(talentName), null, actual), talentGroup, hero));
+		}
 		table.setPrefHeight(table.getItems().size() * 28 + 26);
 	}
 
 	protected void fillTable() {
-		if (talentsList != null) {
-			talentsList.getItems().clear();
-		}
+		talentsList.getItems().clear();
 		table.getItems().forEach(e -> e.unregister());
 		table.getItems().clear();
 
 		final JSONObject talentGroups = ResourceManager.getResource("data/Talentgruppen");
-		final JSONObject actual = "Zauber".equals(talentGroup) ? hero.getObj("Zauber") : hero.getObj("Talente").getObj(talentGroup);
+		final JSONObject actualGroup = "Zauber".equals(talentGroup) ? hero.getObj("Zauber") : hero.getObj("Talente").getObj(talentGroup);
 
 		DSAUtil.foreach(talent -> true, (talentName, talent) -> {
-			JSONObject actualTalent;
-			if (actual == null) {
-				actualTalent = null;
+			final List<JSONObject> actualTalents;
+			if (actualGroup == null) {
+				actualTalents = null;
+			} else if (!"Zauber".equals(talentGroup) && actualGroup.containsKey(talentName)
+					&& (talent.containsKey("Auswahl") || talent.containsKey("Freitext"))) {
+				actualTalents = new LinkedList<>();
+				final JSONArray choiceTalent = actualGroup.getArrOrDefault(talentName, null);
+				if (choiceTalent != null) {
+					for (int i = 0; i < choiceTalent.size(); ++i) {
+						actualTalents.add(choiceTalent.getObj(i));
+					}
+				}
+				talentsList.getItems().add(talentName);
+			} else if (actualGroup.containsKey(talentName)) {
+				actualTalents = Collections.singletonList(actualGroup.getObj(talentName));
 			} else {
-				actualTalent = actual.getObjOrDefault(talentName, null);
+				actualTalents = null;
 			}
-			if (talentsList != null && actualTalent == null) {
+			if (actualTalents == null) {
 				talentsList.getItems().add(talentName);
 				return;
 			}
 
-			for (final Enhancement enhancement : controller.getEnhancements()) {
-				if (enhancement instanceof TalentEnhancement && talentName.equals(enhancement.getName())) return;
-			}
-
-			if ("Zauber".equals(talentGroup)) {
-				boolean notFound = false;
-				for (final String representation : talent.getObj("Repräsentationen").keySet()) {
-					if (actualTalent.containsKey(representation)) {
-						table.getItems().add(new SpellEnhancement(new Spell(talentName, talent, actualTalent, actual, representation), hero));
-					} else {
-						notFound = true;
+			talents: for (final JSONObject actualTalent : actualTalents) {
+				if ("Zauber".equals(talentGroup)) {
+					boolean notFound = false;
+					reps: for (final String rep : talent.getObj("Repräsentationen").keySet()) {
+						if (actualTalent.containsKey(rep)) {
+							if (talent.containsKey("Auswahl") || talent.containsKey("Freitext")) {
+								final JSONArray choiceTalent = actualTalent.getArrOrDefault(rep, null);
+								if (choiceTalent != null) {
+									choices: for (int i = 0; i < choiceTalent.size(); ++i) {
+										for (final Enhancement enhancement : controller.getEnhancements()) {
+											if (enhancement instanceof SpellEnhancement
+													&& ((SpellEnhancement) enhancement).getTalent().getActual() == choiceTalent.getObj(i)) {
+												continue choices;
+											}
+										}
+										table.getItems().add(new SpellEnhancement(
+												new Spell(talentName, talent, choiceTalent.getObj(i), actualTalent, actualGroup, rep), hero));
+									}
+								}
+							} else {
+								for (final Enhancement enhancement : controller.getEnhancements()) {
+									if (enhancement instanceof SpellEnhancement
+											&& ((SpellEnhancement) enhancement).getTalent().getActual() == actualTalent.getObj(rep)) {
+										continue reps;
+									}
+								}
+								table.getItems().add(
+										new SpellEnhancement(new Spell(talentName, talent, actualTalent.getObj(rep), actualTalent, actualGroup, rep), hero));
+							}
+						} else {
+							notFound = true;
+						}
 					}
+					if (notFound) {
+						talentsList.getItems().add(talentName);
+					}
+				} else {
+					for (final Enhancement enhancement : controller.getEnhancements()) {
+						if (enhancement instanceof TalentEnhancement && ((TalentEnhancement) enhancement).getTalent().getActual() == actualTalent) {
+							continue talents;
+						}
+					}
+					table.getItems().add(new TalentEnhancement(
+							new Talent(talentName, talentGroups.getObj(talentGroup), talents.getObj(talentName), actualTalent, actualGroup),
+							talentGroup, hero));
 				}
-				if (notFound) {
-					talentsList.getItems().add(talentName);
-				}
-			} else {
-				table.getItems().add(new TalentEnhancement(
-						new Talent(talentName, talentGroups.getObj(talentGroup), talents.getObj(talentName), actual.getObjOrDefault(talentName, null), actual),
-						talentGroup, hero));
 			}
 		}, talents);
 
-		if (talentsList != null) {
-			if (talentsList.getItems().size() > 0) {
-				talentsList.getSelectionModel().select(0);
-				addButton.setDisable(false);
-			} else {
-				addButton.setDisable(true);
-			}
+		if (talentsList.getItems().size() > 0) {
+			talentsList.getSelectionModel().select(0);
+			addButton.setDisable(false);
+		} else {
+			addButton.setDisable(true);
 		}
 
 		table.setPrefHeight(table.getItems().size() * 28 + 26);
@@ -327,19 +371,19 @@ public class TalentGroupController {
 		return pane;
 	}
 
-	public void recalculateCost(JSONObject hero2) {
+	public void recalculateCost(final JSONObject hero2) {
 		for (final TalentEnhancement enhancement : table.getItems()) {
 			enhancement.resetCost(hero);
 		}
 	}
 
-	public void recalculateValid(JSONObject hero) {
+	public void recalculateValid(final JSONObject hero) {
 		for (final TalentEnhancement enhancement : table.getItems()) {
 			enhancement.recalculateValid(hero);
 		}
 	}
 
-	public void setHero(JSONObject hero) {
+	public void setHero(final JSONObject hero) {
 		this.hero = hero;
 		fillTable();
 	}
