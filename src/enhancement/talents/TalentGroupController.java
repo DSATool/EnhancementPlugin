@@ -83,14 +83,11 @@ public class TalentGroupController {
 	@FXML
 	private Button addButton;
 
-	private final EnhancementController controller;
-
 	private final JSONObject talents;
 	private final String talentGroup;
 	protected JSONObject hero;
 
-	public TalentGroupController(final ScrollPane parent, final EnhancementController controller, final String name, final JSONObject talents) {
-		this.controller = controller;
+	public TalentGroupController(final ScrollPane parent, final String name, final JSONObject talents) {
 		this.talents = talents;
 		talentGroup = name;
 
@@ -186,7 +183,7 @@ public class TalentGroupController {
 			}
 		});
 		targetColumn.setOnEditCommit(t -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).setTarget(t.getNewValue(), hero, controller.getEnhancements());
+			t.getTableView().getItems().get(t.getTablePosition().getRow()).setTarget(t.getNewValue(), hero, EnhancementController.instance.getEnhancements());
 		});
 
 		methodColumn.setCellFactory(ComboBoxTableCell.forTableColumn("Lehrmeister", "Gegenseitiges Lehren", "Selbststudium"));
@@ -200,7 +197,7 @@ public class TalentGroupController {
 		contextMenuItem.setOnAction(o -> {
 			final TalentEnhancement item = table.getSelectionModel().getSelectedItem();
 			if (item != null) {
-				controller.addEnhancement(item.clone(hero, controller.getEnhancements()));
+				EnhancementController.instance.addEnhancement(item.clone(hero, EnhancementController.instance.getEnhancements()));
 				fillTable();
 			}
 		});
@@ -261,12 +258,27 @@ public class TalentGroupController {
 	@FXML
 	private void addTalent() {
 		final String talentName = talentsList.getSelectionModel().getSelectedItem();
+		final String representation = "Zauber".equals(talentGroup) ? representationsList.getSelectionModel().getSelectedItem() : null;
+		if ("Zauber".equals(talentGroup)) {
+			representationsList.getItems().remove(representation);
+			if (representationsList.getItems().size() == 0) {
+				talentsList.getItems().remove(talentName);
+			}
+		} else {
+			talentsList.getItems().remove(talentName);
+		}
+
+		if (talentsList.getItems().size() > 0) {
+			talentsList.getSelectionModel().select(0);
+		} else {
+			addButton.setDisable(true);
+		}
+
 		final JSONObject talentGroups = ResourceManager.getResource("data/Talente");
 		final JSONObject group = "Zauber".equals(talentGroup) ? ResourceManager.getResource("data/Zauber") : talentGroups.getObj(talentGroup);
 		final JSONObject actual = "Zauber".equals(talentGroup) ? hero.getObj("Zauber") : hero.getObj("Talente").getObj(talentGroup);
 
 		if ("Zauber".equals(talentGroup)) {
-			final String representation = representationsList.getSelectionModel().getSelectedItem();
 			table.getItems()
 					.add(new SpellEnhancement(new Spell(talentName, group.getObj(talentName), null, actual.getObj(talentName), actual, representation), hero));
 		} else {
@@ -304,7 +316,17 @@ public class TalentGroupController {
 				actualTalents = null;
 			}
 			if (actualTalents == null) {
-				talentsList.getItems().add(talentName);
+				boolean found = false;
+				for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
+					if (enhancement instanceof TalentEnhancement
+							&& talentName.equals(((TalentEnhancement) enhancement).getName())) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					talentsList.getItems().add(talentName);
+				}
 				return;
 			}
 
@@ -317,7 +339,7 @@ public class TalentGroupController {
 								final JSONArray choiceTalent = actualTalent.getArrOrDefault(rep, null);
 								if (choiceTalent != null) {
 									choices: for (int i = 0; i < choiceTalent.size(); ++i) {
-										for (final Enhancement enhancement : controller.getEnhancements()) {
+										for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
 											if (enhancement instanceof SpellEnhancement
 													&& ((SpellEnhancement) enhancement).getTalent().getActual() == choiceTalent.getObj(i)) {
 												continue choices;
@@ -328,7 +350,7 @@ public class TalentGroupController {
 									}
 								}
 							} else {
-								for (final Enhancement enhancement : controller.getEnhancements()) {
+								for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
 									if (enhancement instanceof SpellEnhancement
 											&& ((SpellEnhancement) enhancement).getTalent().getActual() == actualTalent.getObj(rep)) {
 										continue reps;
@@ -345,7 +367,7 @@ public class TalentGroupController {
 						talentsList.getItems().add(talentName);
 					}
 				} else {
-					for (final Enhancement enhancement : controller.getEnhancements()) {
+					for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
 						if (enhancement instanceof TalentEnhancement && ((TalentEnhancement) enhancement).getTalent().getActual() == actualTalent) {
 							continue talents;
 						}
