@@ -18,7 +18,6 @@ package enhancement.talents;
 import dsa41basis.util.HeroUtil;
 import dsatool.resources.ResourceManager;
 import dsatool.util.ErrorLogger;
-import enhancement.enhancements.EnhancementController;
 import enhancement.enhancements.EnhancementTabController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -40,11 +39,9 @@ public class SpellsController extends EnhancementTabController {
 	private final TabPane tabPane;
 	private TalentGroupController controller;
 	private final JSONListener listener;
-	private final EnhancementController enhancementController;
 
-	public SpellsController(final TabPane tabPane, final EnhancementController controller) {
+	public SpellsController(final TabPane tabPane) {
 		this.tabPane = tabPane;
-		enhancementController = controller;
 		listener = o -> setTab(tabPane);
 		setTab(tabPane);
 	}
@@ -61,7 +58,7 @@ public class SpellsController extends EnhancementTabController {
 		}
 
 		final JSONObject talents = ResourceManager.getResource("data/Zauber");
-		controller = new TalentGroupController(pane, enhancementController, "Zauber", talents);
+		controller = new TalentGroupController(pane, "Zauber", talents);
 		box.getChildren().add(controller.getControl());
 	}
 

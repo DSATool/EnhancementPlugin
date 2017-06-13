@@ -20,7 +20,6 @@ import java.util.List;
 
 import dsatool.resources.ResourceManager;
 import dsatool.util.ErrorLogger;
-import enhancement.enhancements.EnhancementController;
 import enhancement.enhancements.EnhancementTabController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -41,7 +40,7 @@ public class SkillController extends EnhancementTabController {
 
 	private final List<SkillGroupController> skillControllers = new ArrayList<>();
 
-	public SkillController(final TabPane tabPane, final EnhancementController controller) {
+	public SkillController(final TabPane tabPane) {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);
@@ -54,23 +53,23 @@ public class SkillController extends EnhancementTabController {
 
 		final JSONObject specialSkills = ResourceManager.getResource("data/Sonderfertigkeiten");
 		for (final String skillGroup : specialSkills.keySet()) {
-			final SkillGroupController groupController = new SkillGroupController(pane, controller, skillGroup, specialSkills.getObj(skillGroup),
+			final SkillGroupController groupController = new SkillGroupController(pane, skillGroup, specialSkills.getObj(skillGroup),
 					showAll.selectedProperty());
 			skillControllers.add(groupController);
 			box.getChildren().add(groupController.getControl());
 		}
 		final JSONObject rituals = ResourceManager.getResource("data/Rituale");
 		for (final String skillGroup : rituals.keySet()) {
-			final SkillGroupController groupController = new SkillGroupController(pane, controller, skillGroup, rituals.getObj(skillGroup),
+			final SkillGroupController groupController = new SkillGroupController(pane, skillGroup, rituals.getObj(skillGroup),
 					showAll.selectedProperty());
 			skillControllers.add(groupController);
 			box.getChildren().add(groupController.getControl());
 		}
-		SkillGroupController groupController = new SkillGroupController(pane, controller, "Liturgien", ResourceManager.getResource("data/Liturgien"),
+		SkillGroupController groupController = new SkillGroupController(pane, "Liturgien", ResourceManager.getResource("data/Liturgien"),
 				showAll.selectedProperty());
 		skillControllers.add(groupController);
 		box.getChildren().add(groupController.getControl());
-		groupController = new SkillGroupController(pane, controller, "Schamanen-Rituale", ResourceManager.getResource("data/Schamanenrituale"),
+		groupController = new SkillGroupController(pane, "Schamanen-Rituale", ResourceManager.getResource("data/Schamanenrituale"),
 				showAll.selectedProperty());
 		skillControllers.add(groupController);
 		box.getChildren().add(groupController.getControl());

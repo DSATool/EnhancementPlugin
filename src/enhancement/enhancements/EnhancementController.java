@@ -54,6 +54,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import jsonant.event.JSONListener;
 import jsonant.value.JSONObject;
 
 public class EnhancementController extends HeroSelector {
@@ -65,6 +66,8 @@ public class EnhancementController extends HeroSelector {
 
 	public static BooleanProperty usesChargenRules = new SimpleBooleanProperty();
 
+	public static EnhancementController instance;
+
 	private VBox pane;
 	@FXML
 	private TableView<Enhancement> enhancementTable;
@@ -73,11 +76,15 @@ public class EnhancementController extends HeroSelector {
 	@FXML
 	private TableColumn<Enhancement, Integer> costColumn;
 	@FXML
+	private Label apLabel;
+	@FXML
 	private Label costLabel;
 	@FXML
 	private CheckBox chargenRules;
 
 	private JSONObject hero;
+
+	private final JSONListener apListener = o -> apLabel.setText(Integer.toString(hero.getObj("Biografie").getIntOrDefault("Abenteuerpunkte-Guthaben", 0)));
 
 	public EnhancementController() {
 		super(false);
@@ -90,6 +97,8 @@ public class EnhancementController extends HeroSelector {
 		} catch (final Exception e) {
 			ErrorLogger.logError(e);
 		}
+
+		instance = this;
 
 		setContent(pane);
 
@@ -137,17 +146,7 @@ public class EnhancementController extends HeroSelector {
 
 	private boolean applyChargenRules(final JSONObject hero) {
 		final JSONObject bio = hero.getObj("Biografie");
-		final JSONObject attributes = hero.getObj("Eigenschaften");
-		final JSONObject educated = hero.getObj("Vorteile").getObjOrDefault("Gebildet", null);
-		final JSONObject uneducated = hero.getObj("Nachteile").getObjOrDefault("Ungebildet", null);
-		int expectedAP = (attributes.getObj("KL").getIntOrDefault("Start", 0) + attributes.getObj("IN").getIntOrDefault("Start", 0)) * 20;
-		if (educated != null) {
-			expectedAP += 40 * educated.getIntOrDefault("Stufe", 0);
-		}
-		if (uneducated != null) {
-			expectedAP -= 40 * uneducated.getIntOrDefault("Stufe", 0);
-		}
-		return bio.getIntOrDefault("Abenteuerpunkte", 0) == expectedAP;
+		return bio.getIntOrDefault("Abenteuerpunkte", 0).equals(bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0));
 	}
 
 	private int calculateCost() {
@@ -184,7 +183,7 @@ public class EnhancementController extends HeroSelector {
 
 		try {
 			for (final Class<? extends EnhancementTabController> controller : tabControllers) {
-				controllers.add(controller.getDeclaredConstructor(TabPane.class, EnhancementController.class).newInstance(tabs, this));
+				controllers.add(controller.getDeclaredConstructor(TabPane.class).newInstance(tabs));
 			}
 		} catch (final Exception e) {
 			ErrorLogger.logError(e);
@@ -334,8 +333,13 @@ public class EnhancementController extends HeroSelector {
 	@Override
 	protected void setHero(final int index) {
 		enhancementTable.getItems().clear();
+		if (hero != null) {
+			hero.getObj("Biografie").removeListener(apListener);
+		}
 		hero = heroes.get(index);
 		chargenRules.setSelected(applyChargenRules(hero));
+		apLabel.setText(Integer.toString(hero.getObj("Biografie").getIntOrDefault("Abenteuerpunkte-Guthaben", 0)));
+		hero.getObj("Biografie").addListener(apListener);
 		super.setHero(index);
 	}
 

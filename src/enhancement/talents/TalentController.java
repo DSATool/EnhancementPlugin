@@ -21,7 +21,6 @@ import java.util.List;
 import dsa41basis.util.HeroUtil;
 import dsatool.resources.ResourceManager;
 import dsatool.util.ErrorLogger;
-import enhancement.enhancements.EnhancementController;
 import enhancement.enhancements.EnhancementTabController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -45,7 +44,7 @@ public class TalentController extends EnhancementTabController {
 
 	private final JSONListener listener = o -> updateVisibility();
 
-	public TalentController(final TabPane tabPane, final EnhancementController controller) {
+	public TalentController(final TabPane tabPane) {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);
@@ -62,7 +61,7 @@ public class TalentController extends EnhancementTabController {
 			if ("Meta-Talente".equals(talentGroup)) {
 				continue;
 			}
-			final TalentGroupController talentController = new TalentGroupController(pane, controller, talentGroup, talents.getObj(talentGroup));
+			final TalentGroupController talentController = new TalentGroupController(pane, talentGroup, talents.getObj(talentGroup));
 			talentControllers.add(talentController);
 			switch (talentGroup) {
 			case "Ritualkenntnis":

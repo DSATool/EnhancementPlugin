@@ -75,11 +75,7 @@ public class AttributesController extends EnhancementTabController {
 	@FXML
 	private TableColumn<EnergyEnhancement, Boolean> energiesCheaperColumn;
 
-	private final EnhancementController controller;
-
-	public AttributesController(final TabPane tabPane, final EnhancementController controller) {
-		this.controller = controller;
-
+	public AttributesController(final TabPane tabPane) {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);
@@ -125,7 +121,7 @@ public class AttributesController extends EnhancementTabController {
 		attributesContextMenuItem.setOnAction(o -> {
 			final AttributeEnhancement item = attributesTable.getSelectionModel().getSelectedItem();
 			if (item != null) {
-				controller.addEnhancement(item.clone(hero));
+				EnhancementController.instance.addEnhancement(item.clone(hero));
 				update();
 			}
 		});
@@ -194,7 +190,7 @@ public class AttributesController extends EnhancementTabController {
 		energiesContextMenuItem.setOnAction(o -> {
 			final EnergyEnhancement item = energiesTable.getSelectionModel().getSelectedItem();
 			if (item != null) {
-				controller.addEnhancement(item.clone(hero));
+				EnhancementController.instance.addEnhancement(item.clone(hero));
 				update();
 			}
 		});
@@ -271,7 +267,7 @@ public class AttributesController extends EnhancementTabController {
 		final JSONObject basicValues = hero.getObj("Basiswerte");
 
 		attributes: for (final String attribute : attributes.keySet()) {
-			for (final Enhancement enhancement : controller.getEnhancements()) {
+			for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
 				if (enhancement instanceof AttributeEnhancement && attribute.equals(enhancement.getName())) {
 					continue attributes;
 				}
@@ -285,7 +281,7 @@ public class AttributesController extends EnhancementTabController {
 			if ("Astralenergie".equals(derivedValue) && !HeroUtil.isMagical(hero)) {
 				continue;
 			}
-			for (final Enhancement enhancement : controller.getEnhancements()) {
+			for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
 				if (enhancement instanceof EnergyEnhancement && derivedValue.equals(enhancement.getName())) {
 					continue energies;
 				}

@@ -59,11 +59,7 @@ public class QuirksController extends EnhancementTabController {
 	@FXML
 	private TableColumn<QuirkEnhancement, Boolean> cheaperColumn;
 
-	private final EnhancementController controller;
-
-	public QuirksController(final TabPane tabPane, final EnhancementController controller) {
-		this.controller = controller;
-
+	public QuirksController(final TabPane tabPane) {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);
@@ -111,7 +107,7 @@ public class QuirksController extends EnhancementTabController {
 					return new Tuple<>(0, cell.getTableView().getItems().get(cell.getIndex()).getStart() - 1);
 				}));
 		targetColumn.setOnEditCommit(t -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).setTarget(t.getNewValue(), hero, controller.getEnhancements());
+			t.getTableView().getItems().get(t.getTablePosition().getRow()).setTarget(t.getNewValue(), hero, EnhancementController.instance.getEnhancements());
 		});
 
 		final ContextMenu attributesContextMenu = new ContextMenu();
@@ -120,7 +116,7 @@ public class QuirksController extends EnhancementTabController {
 		attributesContextMenuItem.setOnAction(o -> {
 			final QuirkEnhancement item = table.getSelectionModel().getSelectedItem();
 			if (item != null) {
-				controller.addEnhancement(item.clone(hero, controller.getEnhancements()));
+				EnhancementController.instance.addEnhancement(item.clone(hero, EnhancementController.instance.getEnhancements()));
 				update();
 			}
 		});
@@ -194,7 +190,7 @@ public class QuirksController extends EnhancementTabController {
 					final JSONArray conArray = actualCons.getArr(conName);
 					for (int i = 0; i < conArray.size(); ++i) {
 						final JSONObject actualCon = conArray.getObj(i);
-						for (final Enhancement enhancement : controller.getEnhancements()) {
+						for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
 							if (enhancement instanceof QuirkEnhancement && conName.equals(enhancement.getName())) {
 								final QuirkEnhancement quirkEnhancement = (QuirkEnhancement) enhancement;
 								if (con.containsKey("Auswahl")
@@ -211,7 +207,7 @@ public class QuirksController extends EnhancementTabController {
 						table.getItems().add(new QuirkEnhancement(new ProOrCon(conName, hero, con, actualCon), hero));
 					}
 				} else {
-					for (final Enhancement enhancement : controller.getEnhancements()) {
+					for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
 						if (enhancement instanceof QuirkEnhancement && conName.equals(enhancement.getName())) {
 							continue quirks;
 						}

@@ -66,15 +66,11 @@ public class SkillGroupController {
 	private final BooleanProperty showAll;
 	private JSONObject hero;
 
-	private final EnhancementController controller;
-
 	private final JSONListener listener = o -> {
 		fillTable();
 	};
 
-	public SkillGroupController(ScrollPane parent, EnhancementController controller, String name, JSONObject skills, BooleanProperty showAll) {
-		this.controller = controller;
-
+	public SkillGroupController(final ScrollPane parent, final String name, final JSONObject skills, final BooleanProperty showAll) {
 		this.skills = skills;
 		this.showAll = showAll;
 
@@ -101,7 +97,7 @@ public class SkillGroupController {
 		nameColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("description"));
 		nameColumn.setCellFactory(c -> new TextFieldTableCell<SkillEnhancement, String>() {
 			@Override
-			public void updateItem(String item, boolean empty) {
+			public void updateItem(final String item, final boolean empty) {
 				super.updateItem(item, empty);
 				if (getTableRow() != null) {
 					final SkillEnhancement skill = (SkillEnhancement) getTableRow().getItem();
@@ -180,7 +176,7 @@ public class SkillGroupController {
 		contextMenuItem.setOnAction(o -> {
 			final SkillEnhancement item = table.getSelectionModel().getSelectedItem();
 			if (item != null) {
-				controller.addEnhancement(item.clone(hero));
+				EnhancementController.instance.addEnhancement(item.clone(hero));
 				fillTable();
 			}
 		});
@@ -191,7 +187,7 @@ public class SkillGroupController {
 
 		validColumn.setCellFactory(tableColumn -> new TextFieldTableCell<SkillEnhancement, Boolean>() {
 			@Override
-			public void updateItem(Boolean valid, boolean empty) {
+			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
 				@SuppressWarnings("all")
 				final TableRow<SkillEnhancement> row = getTableRow();
@@ -205,7 +201,7 @@ public class SkillGroupController {
 
 		cheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<SkillEnhancement, Boolean>() {
 			@Override
-			public void updateItem(Boolean cheaper, boolean empty) {
+			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
 				@SuppressWarnings("all")
 				final TableRow<SkillEnhancement> row = getTableRow();
@@ -229,7 +225,7 @@ public class SkillGroupController {
 		DSAUtil.foreach(skill -> true, (skillName, skill) -> {
 			if (!actual.containsKey(skillName) || skill.containsKey("Auswahl") || skill.containsKey("Freitext")) {
 				if (!skill.containsKey("Auswahl") && !skill.containsKey("Freitext")) {
-					for (final Enhancement enhancement : controller.getEnhancements()) {
+					for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
 						if (enhancement instanceof SkillEnhancement && skillName.equals(enhancement.getName())) return;
 					}
 				}
@@ -250,19 +246,19 @@ public class SkillGroupController {
 		return pane;
 	}
 
-	public void recalculateCost(JSONObject hero2) {
+	public void recalculateCost(final JSONObject hero2) {
 		for (final SkillEnhancement enhancement : table.getItems()) {
 			enhancement.resetCost(hero);
 		}
 	}
 
-	public void recalculateValid(JSONObject hero) {
+	public void recalculateValid(final JSONObject hero) {
 		for (final SkillEnhancement enhancement : table.getItems()) {
 			enhancement.recalculateValid(hero);
 		}
 	}
 
-	public void setHero(JSONObject hero) {
+	public void setHero(final JSONObject hero) {
 		if (this.hero != null) {
 			this.hero.getObj("Sonderfertigkeiten").removeListener(listener);
 		}
