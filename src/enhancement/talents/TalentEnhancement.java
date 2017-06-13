@@ -15,13 +15,11 @@
  */
 package enhancement.talents;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Stack;
 
 import dsa41basis.hero.Talent;
 import dsa41basis.util.DSAUtil;
-import dsa41basis.util.HeroUtil;
 import dsa41basis.util.RequirementsUtil;
 import dsatool.resources.Settings;
 import enhancement.enhancements.Enhancement;
@@ -72,8 +70,18 @@ public class TalentEnhancement extends Enhancement {
 		fullDescription.bind(description);
 		method = new SimpleStringProperty(Settings.getSettingStringOrDefault("Gegenseitiges Lehren", "Steigerung", "Lernmethode"));
 		updateDescription();
+
+		final Stack<Enhancement> enhancements = new Stack<>();
+		for (final Enhancement e : EnhancementController.instance.getEnhancements()) {
+			e.applyTemporarily(hero);
+			enhancements.push(e);
+		}
 		cost.set(getCalculatedCost(hero));
 		recalculateValid(hero);
+		for (final Enhancement e : enhancements) {
+			e.unapply(hero);
+		}
+
 		cheaper.bind(ses.greaterThan(0));
 		temporary = talent.getActual() == null;
 		chargenListener = (o, oldV, newV) -> resetCost(hero);
@@ -90,6 +98,7 @@ public class TalentEnhancement extends Enhancement {
 
 	@Override
 	public void applyTemporarily(final JSONObject hero) {
+		talent.insertTalent(true);
 		talent.setValue(target.get());
 	}
 
@@ -125,81 +134,14 @@ public class TalentEnhancement extends Enhancement {
 
 	@Override
 	public int getCalculatedCost(final JSONObject hero) {
-		int modifier = 0;
-		int maxLevel = 10;
-		if (EnhancementController.usesChargenRules.get()) {
-			final JSONObject pros = hero.getObj("Vorteile");
-			if (pros.containsKey("Breitgefächerte Bildung") || pros.containsKey("Veteran")) {
-				maxLevel = 15;
-			}
-			if (pros.containsKey("Akademische Ausbildung (Gelehrter)") || pros.containsKey("Akademische Ausbildung (Magier)")) {
-				final String talentGroup = HeroUtil.findTalent(talent.getName())._2;
-				if (Arrays.asList("Wissenstalente", "Sprachen und Schriften").contains(talentGroup)) {
-					--modifier;
-
-					final JSONArray proGroup = pros.getArrOrDefault("Begabung für Talentgruppe", null);
-					final JSONArray proSingle = pros.getArrOrDefault("Begabung für Talent", null);
-					if (proGroup != null) {
-						for (int i = 0; i < proGroup.size(); ++i) {
-							final JSONObject pro = proGroup.getObj(i);
-							final String choice = pro.getString("Auswahl");
-							if (talentGroup.equals(choice)) {
-								++modifier;
-								break;
-							}
-						}
-					}
-					if (modifier == -1 && proSingle != null) {
-						for (int i = 0; i < proGroup.size(); ++i) {
-							final JSONObject pro = proGroup.getObj(i);
-							if (talent.getName().equals(pro.getString("Auswahl"))) {
-								++modifier;
-								break;
-							}
-						}
-					}
-				}
-			}
-			if (pros.containsKey("Akademische Ausbildung (Krieger)")) {
-				final String talentGroup = HeroUtil.findTalent(talent.getName())._2;
-				if (Arrays.asList("Nahkampftalente", "Fernkampftalente").contains(talentGroup)) {
-					modifier -= 2;
-
-					final JSONArray proGroup = pros.getArrOrDefault("Begabung für Talentgruppe", null);
-					final JSONArray proSingle = pros.getArrOrDefault("Begabung für Talent", null);
-					if (proGroup != null) {
-						for (int i = 0; i < proGroup.size(); ++i) {
-							final JSONObject pro = proGroup.getObj(i);
-							final String choice = pro.getString("Auswahl");
-							if (talentGroup.equals(choice) || "Kampftalente".equals(choice)) {
-								++modifier;
-								break;
-							}
-						}
-					}
-					if (modifier == -2 && proSingle != null) {
-						for (int i = 0; i < proGroup.size(); ++i) {
-							final JSONObject pro = proGroup.getObj(i);
-							if (talent.getName().equals(pro.getString("Auswahl"))) {
-								++modifier;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
+		int cost = 0;
+		final String method = EnhancementController.usesChargenRules.get() ? "Gegenseitiges Lehren" : this.method.get();
 
 		final int SELevel = start.get() + Math.min(target.get() - start.get(), ses.get());
-		int cost = 0;
-		cost += DSAUtil.getEnhancementCost(talent, hero, "Lehrmeister", modifier, start.get(), Math.max(Math.min(maxLevel, SELevel), start.get()));
-		if (maxLevel < SELevel) {
-			cost += DSAUtil.getEnhancementCost(talent, hero, "Lehrmeister", 0, Math.max(maxLevel, start.get()), SELevel);
-		}
-		cost += DSAUtil.getEnhancementCost(talent, hero, method.get(), modifier, SELevel, Math.max(Math.min(maxLevel, target.get()), SELevel));
-		if (maxLevel < target.get()) {
-			cost += DSAUtil.getEnhancementCost(talent, hero, method.get(), 0, Math.max(maxLevel, SELevel), target.get());
-		}
+		cost += DSAUtil.getEnhancementCost(talent, hero, "Lehrmeister", start.get(), Math.max(SELevel, start.get()),
+				EnhancementController.usesChargenRules.get());
+		cost += DSAUtil.getEnhancementCost(talent, hero, method, SELevel, Math.max(target.get(), SELevel),
+				EnhancementController.usesChargenRules.get());
 		return cost;
 	}
 

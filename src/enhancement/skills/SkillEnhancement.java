@@ -15,12 +15,15 @@
  */
 package enhancement.skills;
 
+import java.util.Stack;
+
 import dsa41basis.hero.ProOrCon;
 import dsa41basis.hero.ProOrCon.ChoiceOrTextEnum;
 import dsa41basis.util.DSAUtil;
 import dsa41basis.util.HeroUtil;
 import dsa41basis.util.RequirementsUtil;
 import enhancement.enhancements.Enhancement;
+import enhancement.enhancements.EnhancementController;
 import javafx.beans.property.StringProperty;
 import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
@@ -28,17 +31,27 @@ import jsonant.value.JSONObject;
 public class SkillEnhancement extends Enhancement {
 	private final ProOrCon skill;
 
-	public SkillEnhancement(ProOrCon skill, JSONObject hero) {
+	public SkillEnhancement(final ProOrCon skill, final JSONObject hero) {
 		this.skill = skill;
 		description.set(skill.getDisplayName());
 		updateDescription();
+
+		final Stack<Enhancement> enhancements = new Stack<>();
+		for (final Enhancement e : EnhancementController.instance.getEnhancements()) {
+			e.applyTemporarily(hero);
+			enhancements.push(e);
+		}
 		recalculateValid(hero);
+		for (final Enhancement e : enhancements) {
+			e.unapply(hero);
+		}
+
 		skill.descriptionProperty().addListener(o -> updateDescription());
 		skill.variantProperty().addListener(o -> updateDescription());
 	}
 
 	@Override
-	public void apply(JSONObject hero) {
+	public void apply(final JSONObject hero) {
 		final JSONObject newSkill = applyInternal(hero);
 
 		final JSONObject skill = this.skill.getProOrCon();
@@ -72,7 +85,7 @@ public class SkillEnhancement extends Enhancement {
 		skills.notifyListeners(null);
 	}
 
-	private JSONObject applyInternal(JSONObject hero) {
+	private JSONObject applyInternal(final JSONObject hero) {
 		final JSONObject actual = skill.getActual();
 		final JSONObject skills = hero.getObj("Sonderfertigkeiten");
 		final JSONObject skill = this.skill.getProOrCon();
@@ -96,12 +109,12 @@ public class SkillEnhancement extends Enhancement {
 	}
 
 	@Override
-	public void applyTemporarily(JSONObject hero) {
+	public void applyTemporarily(final JSONObject hero) {
 		applyInternal(hero);
 	}
 
 	@Override
-	protected boolean calculateValid(JSONObject hero) {
+	protected boolean calculateValid(final JSONObject hero) {
 		final JSONObject actualSkill = skill.getProOrCon();
 		if (!actualSkill.containsKey("Voraussetzungen")) return true;
 		final String choice = skill.firstChoiceOrText() == ChoiceOrTextEnum.CHOICE ? skill.getDescription() : null;
@@ -110,12 +123,12 @@ public class SkillEnhancement extends Enhancement {
 		return RequirementsUtil.isRequirementFulfilled(hero, actualSkill.getObj("Voraussetzungen"), choice, text);
 	}
 
-	public SkillEnhancement clone(JSONObject hero) {
+	public SkillEnhancement clone(final JSONObject hero) {
 		return new SkillEnhancement(new ProOrCon(skill.getName(), hero, skill.getProOrCon(), skill.getActual().clone(null)), hero);
 	}
 
 	@Override
-	protected int getCalculatedCost(JSONObject hero) {
+	protected int getCalculatedCost(final JSONObject hero) {
 		cheaper.set(skill.getCost() < skill.getProOrCon().getIntOrDefault("Kosten", 0));
 		return skill.getCost();
 	}
@@ -138,7 +151,7 @@ public class SkillEnhancement extends Enhancement {
 	}
 
 	@Override
-	public void unapply(JSONObject hero) {
+	public void unapply(final JSONObject hero) {
 		final JSONObject actual = skill.getActual();
 		final JSONObject skills = hero.getObj("Sonderfertigkeiten");
 		final JSONObject skill = this.skill.getProOrCon();
