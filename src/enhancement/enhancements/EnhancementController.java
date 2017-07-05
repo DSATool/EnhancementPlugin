@@ -15,6 +15,7 @@
  */
 package enhancement.enhancements;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -132,12 +133,13 @@ public class EnhancementController extends HeroSelector {
 		alert.setContentText("Sollen die Steigerungen wirklich angewendet werden?");
 		alert.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
 		alert.showAndWait().filter(response -> response.equals(ButtonType.OK)).ifPresent(response -> {
-			for (final Enhancement enhancement : enhancementTable.getItems()) {
+			bio.put("Abenteuerpunkte-Guthaben", bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) - calculateCost());
+			final ArrayList<Enhancement> enhancements = new ArrayList<>(enhancementTable.getItems());
+			enhancementTable.getItems().clear();
+			for (final Enhancement enhancement : enhancements) {
 				enhancement.apply(hero);
 			}
-			bio.put("Abenteuerpunkte-Guthaben", bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) - calculateCost());
 			bio.notifyListeners(null);
-			enhancementTable.getItems().clear();
 			for (final HeroController controller : controllers) {
 				((EnhancementTabController) controller).update();
 			}
