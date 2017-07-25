@@ -120,7 +120,7 @@ public class SkillEnhancement extends Enhancement {
 		final String choice = skill.firstChoiceOrText() == ChoiceOrTextEnum.CHOICE ? skill.getDescription() : null;
 		final String text = skill.firstChoiceOrText() == ChoiceOrTextEnum.TEXT ? skill.getDescription()
 				: skill.secondChoiceOrText() == ChoiceOrTextEnum.TEXT ? skill.getVariant() : null;
-		return RequirementsUtil.isRequirementFulfilled(hero, actualSkill.getObj("Voraussetzungen"), choice, text);
+		return RequirementsUtil.isRequirementFulfilled(hero, actualSkill.getObj("Voraussetzungen"), choice, text, false);
 	}
 
 	public SkillEnhancement clone(final JSONObject hero) {

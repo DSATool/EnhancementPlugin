@@ -34,6 +34,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -170,22 +171,8 @@ public class SkillGroupController {
 
 		costColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Integer>("cost"));
 
-		final ContextMenu contextMenu = new ContextMenu();
-		final MenuItem contextMenuItem = new MenuItem("Erlernen");
-		contextMenu.getItems().add(contextMenuItem);
-		contextMenuItem.setOnAction(o -> {
-			final SkillEnhancement item = table.getSelectionModel().getSelectedItem();
-			if (item != null) {
-				EnhancementController.instance.addEnhancement(item.clone(hero));
-				fillTable();
-			}
-		});
-		table.setContextMenu(contextMenu);
-
 		validColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Boolean>("valid"));
-		cheaperColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Boolean>("cheaper"));
-
-		validColumn.setCellFactory(tableColumn -> new TextFieldTableCell<SkillEnhancement, Boolean>() {
+		validColumn.setCellFactory(tableColumn -> new TableCell<SkillEnhancement, Boolean>() {
 			@Override
 			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
@@ -199,7 +186,8 @@ public class SkillGroupController {
 			}
 		});
 
-		cheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<SkillEnhancement, Boolean>() {
+		cheaperColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Boolean>("cheaper"));
+		cheaperColumn.setCellFactory(tableColumn -> new TableCell<SkillEnhancement, Boolean>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
@@ -213,6 +201,18 @@ public class SkillGroupController {
 				}
 			}
 		});
+
+		final ContextMenu contextMenu = new ContextMenu();
+		final MenuItem contextMenuItem = new MenuItem("Erlernen");
+		contextMenu.getItems().add(contextMenuItem);
+		contextMenuItem.setOnAction(o -> {
+			final SkillEnhancement item = table.getSelectionModel().getSelectedItem();
+			if (item != null) {
+				EnhancementController.instance.addEnhancement(item.clone(hero));
+				fillTable();
+			}
+		});
+		table.setContextMenu(contextMenu);
 
 		showAll.addListener((o, oldV, newV) -> fillTable());
 	}

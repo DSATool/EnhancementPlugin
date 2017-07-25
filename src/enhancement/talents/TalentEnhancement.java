@@ -111,7 +111,7 @@ public class TalentEnhancement extends Enhancement {
 		for (int i = 0; i < requirements.size(); ++i) {
 			final JSONObject requirement = requirements.getObj(i);
 			if (!requirement.containsKey("Ab") || target.get() > requirement.getInt("Ab")) {
-				valid = valid && RequirementsUtil.isRequirementFulfilled(hero, requirement, null, null);
+				valid = valid && RequirementsUtil.isRequirementFulfilled(hero, requirement, null, null, false);
 			}
 		}
 		return valid;
