@@ -38,28 +38,25 @@ public class TalentEnhancement extends Enhancement {
 	protected final IntegerProperty start;
 	protected final StringProperty startString;
 	protected final IntegerProperty target;
-	private final StringProperty targetString;
-	private final boolean basis;
-	private final String talentGroupName;
-	private final StringProperty method;
-	private final IntegerProperty ses;
-	private final int seMin;
-	private final boolean temporary;
+	protected final StringProperty targetString;
+	protected boolean basis;
+	protected final String talentGroupName;
+	protected StringProperty method;
+	protected IntegerProperty ses;
+	protected int seMin;
+	protected boolean temporary;
 
 	private final ChangeListener<Boolean> chargenListener;
 
 	public TalentEnhancement(final Talent talent, final String talentGroupName, final JSONObject hero) {
 		this.talent = talent;
 		this.talentGroupName = talentGroupName;
+		basis = talent.getTalent().getBoolOrDefault("Basis", false);
 		int value = talent.getValue();
 		if (value == Integer.MIN_VALUE) {
 			value = -1;
-			basis = false;
-		} else if (value < 0 && !talent.getTalent().getBoolOrDefault("Basis", false)) {
+		} else if (value < 0 && !basis) {
 			value -= 1;
-			basis = false;
-		} else {
-			basis = true;
 		}
 		startString = new SimpleStringProperty(getOfficial(value));
 		start = new SimpleIntegerProperty(value);
@@ -119,7 +116,15 @@ public class TalentEnhancement extends Enhancement {
 
 	public TalentEnhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
 		final TalentEnhancement result = new TalentEnhancement(talent, talentGroupName, hero);
-		result.setTarget(target.get(), hero, enhancements);
+		result.start.set(start.get());
+		result.startString.set(startString.get());
+		result.target.set(target.get());
+		result.targetString.set(targetString.get());
+		result.basis = basis;
+		result.method = method;
+		result.ses = ses;
+		result.seMin = seMin;
+		result.temporary = temporary;
 		return result;
 	}
 
@@ -154,11 +159,10 @@ public class TalentEnhancement extends Enhancement {
 		return talent.getName();
 	}
 
-	private String getOfficial(final int taw) {
-		if (basis) return String.valueOf(taw);
+	protected String getOfficial(final int taw) {
 		if (taw == -1)
 			return "n.a.";
-		else if (taw < -1)
+		else if (taw < -1 && !basis)
 			return String.valueOf(taw + 1);
 		else
 			return String.valueOf(taw);
