@@ -167,9 +167,7 @@ public class EnhancementController extends HeroSelector {
 		alert.setContentText("Sollen die Steigerungen wirklich zurückgesetzt werden?");
 		alert.showAndWait().filter(response -> response == ButtonType.OK).ifPresent(response -> {
 			enhancementTable.getItems().clear();
-			for (final HeroController controller : controllers) {
-				((EnhancementTabController) controller).update();
-			}
+			recalculateValid();
 		});
 	}
 
@@ -220,9 +218,7 @@ public class EnhancementController extends HeroSelector {
 		contextMenu.getItems().add(removeItem);
 		removeItem.setOnAction(o -> {
 			enhancementTable.getItems().remove(enhancementTable.getSelectionModel().getSelectedItem());
-			for (final HeroController controller : controllers) {
-				((EnhancementTabController) controller).update();
-			}
+			recalculateValid();
 		});
 		contextMenu.setOnShowing(e -> {
 			final Enhancement enhancement = enhancementTable.getSelectionModel().getSelectedItem();
@@ -292,7 +288,10 @@ public class EnhancementController extends HeroSelector {
 
 		costLabel.setText("0");
 		enhancementTable.getItems().addListener((final Change<? extends Enhancement> c) -> {
-			recalculateValid();
+			c.next();
+			if (c.wasAdded()) {
+				recalculateValid();
+			}
 			recalculateCost();
 		});
 

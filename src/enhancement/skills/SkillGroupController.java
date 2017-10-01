@@ -15,13 +15,15 @@
  */
 package enhancement.skills;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dsa41basis.hero.ProOrCon;
 import dsa41basis.util.DSAUtil;
 import dsatool.gui.GUIUtil;
 import dsatool.util.ErrorLogger;
 import dsatool.util.GraphicTableCell;
 import dsatool.util.Util;
-import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
@@ -67,6 +69,8 @@ public class SkillGroupController {
 	private final BooleanProperty showAll;
 	private JSONObject hero;
 
+	private final List<SkillEnhancement> invalid = new ArrayList<>();
+
 	private final JSONListener listener = o -> {
 		fillTable();
 	};
@@ -88,12 +92,13 @@ public class SkillGroupController {
 		pane.setText(name);
 
 		table.prefWidthProperty().bind(parent.widthProperty().subtract(17));
+		table.getSortOrder().add(nameColumn);
 
 		nameColumn.getStyleClass().add("left-aligned");
 		descColumn.getStyleClass().add("left-aligned");
 		variantColumn.getStyleClass().add("left-aligned");
 
-		GUIUtil.autosizeTable(table, 2, 0);
+		GUIUtil.autosizeTable(table, 1, 0);
 
 		nameColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("description"));
 		nameColumn.setCellFactory(c -> new TextFieldTableCell<SkillEnhancement, String>() {
@@ -137,7 +142,10 @@ public class SkillGroupController {
 				}
 			}
 		});
-		descColumn.setOnEditCommit(t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).getSkill().setDescription(t.getNewValue()));
+		descColumn.setOnEditCommit(t -> {
+			t.getTableView().getItems().get(t.getTablePosition().getRow()).getSkill().setDescription(t.getNewValue());
+			t.getTableView().getItems().get(t.getTablePosition().getRow()).resetCost(hero);
+		});
 
 		variantColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("skillVariant"));
 		variantColumn.setCellFactory(c -> new GraphicTableCell<SkillEnhancement, String>(false) {
@@ -167,7 +175,10 @@ public class SkillGroupController {
 				}
 			}
 		});
-		variantColumn.setOnEditCommit(t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).getSkill().setVariant(t.getNewValue()));
+		variantColumn.setOnEditCommit(t -> {
+			t.getTableView().getItems().get(t.getTablePosition().getRow()).getSkill().setVariant(t.getNewValue());
+			t.getTableView().getItems().get(t.getTablePosition().getRow()).resetCost(hero);
+		});
 
 		costColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Integer>("cost"));
 
@@ -209,7 +220,6 @@ public class SkillGroupController {
 			final SkillEnhancement item = table.getSelectionModel().getSelectedItem();
 			if (item != null) {
 				EnhancementController.instance.addEnhancement(item.clone(hero));
-				fillTable();
 			}
 		});
 		table.setContextMenu(contextMenu);
@@ -218,20 +228,18 @@ public class SkillGroupController {
 	}
 
 	protected void fillTable() {
+		invalid.clear();
 		table.getItems().clear();
 
 		final JSONObject actual = hero.getObj("Sonderfertigkeiten");
 
 		DSAUtil.foreach(skill -> true, (skillName, skill) -> {
 			if (!actual.containsKey(skillName) || skill.containsKey("Auswahl") || skill.containsKey("Freitext")) {
-				if (!skill.containsKey("Auswahl") && !skill.containsKey("Freitext")) {
-					for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
-						if (enhancement instanceof SkillEnhancement && skillName.equals(enhancement.getName())) return;
-					}
-				}
-				final SkillEnhancement enhancement = new SkillEnhancement(new ProOrCon(skillName, hero, skill, new JSONObject(null)), hero);
-				if (showAll.get() || enhancement.isValid()) {
-					table.getItems().add(enhancement);
+				final SkillEnhancement newEnhancement = new SkillEnhancement(new ProOrCon(skillName, hero, skill, new JSONObject(null)), hero);
+				if (showAll.get() || newEnhancement.isValid()) {
+					table.getItems().add(newEnhancement);
+				} else if (!actual.containsKey(skillName)) {
+					invalid.add(newEnhancement);
 				}
 			}
 		}, skills);
@@ -253,9 +261,33 @@ public class SkillGroupController {
 	}
 
 	public void recalculateValid(final JSONObject hero) {
-		for (final SkillEnhancement enhancement : table.getItems()) {
+		final JSONObject actual = hero.getObj("Sonderfertigkeiten");
+		final List<SkillEnhancement> newValid = new ArrayList<>();
+		for (final SkillEnhancement enhancement : invalid) {
 			enhancement.recalculateValid(hero);
+			if (enhancement.isValid()) {
+				final JSONObject skill = enhancement.getSkill().getProOrCon();
+				if (!actual.containsKey(enhancement.getName()) || skill.containsKey("Auswahl") || skill.containsKey("Freitext")) {
+					newValid.add(enhancement);
+				}
+			}
 		}
+		for (final SkillEnhancement enhancement : table.getItems()) {
+			final JSONObject skill = enhancement.getSkill().getProOrCon();
+			if (actual.containsKey(enhancement.getName()) && !skill.containsKey("Auswahl") && !skill.containsKey("Freitext")) {
+				invalid.add(enhancement);
+			} else {
+				enhancement.recalculateValid(hero);
+				if (!enhancement.isValid() && !showAll.get()) {
+					invalid.add(enhancement);
+				}
+			}
+		}
+		invalid.removeAll(newValid);
+		table.getItems().removeAll(invalid);
+		table.getItems().addAll(newValid);
+		table.setPrefHeight(table.getItems().size() * 28 + 26);
+		table.sort();
 	}
 
 	public void setHero(final JSONObject hero) {

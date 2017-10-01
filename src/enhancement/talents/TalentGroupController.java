@@ -15,7 +15,7 @@
  */
 package enhancement.talents;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -42,7 +42,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableRow;
@@ -87,7 +86,9 @@ public class TalentGroupController {
 	private final String talentGroup;
 	protected JSONObject hero;
 
-	public TalentGroupController(final ScrollPane parent, final String name, final JSONObject talents) {
+	private final List<TalentEnhancement> alreadyEnhanced = new ArrayList<>();
+
+	public TalentGroupController(final String name, final JSONObject talents) {
 		this.talents = talents;
 		talentGroup = name;
 
@@ -97,7 +98,7 @@ public class TalentGroupController {
 
 		try {
 			if ("Zauber".equals(name)) {
-				fxmlLoader.load(getClass().getResource("Spells.fxml").openStream());
+				fxmlLoader.load(getClass().getResource("SpellsGroup.fxml").openStream());
 			} else {
 				fxmlLoader.load(getClass().getResource("TalentGroup.fxml").openStream());
 			}
@@ -110,6 +111,7 @@ public class TalentGroupController {
 		}
 
 		table.prefWidthProperty().bind(pane.widthProperty().subtract(2));
+		table.getSortOrder().add(nameColumn);
 
 		nameColumn.getStyleClass().add("left-aligned");
 		if ("Zauber".equals(name)) {
@@ -197,8 +199,9 @@ public class TalentGroupController {
 		contextMenuItem.setOnAction(o -> {
 			final TalentEnhancement item = table.getSelectionModel().getSelectedItem();
 			if (item != null) {
+				table.getItems().remove(item);
+				alreadyEnhanced.add(item);
 				EnhancementController.instance.addEnhancement(item.clone(hero, EnhancementController.instance.getEnhancements()));
-				fillTable();
 			}
 		});
 		table.setContextMenu(contextMenu);
@@ -280,15 +283,17 @@ public class TalentGroupController {
 
 		if ("Zauber".equals(talentGroup)) {
 			table.getItems()
-					.add(new SpellEnhancement(new Spell(talentName, group.getObj(talentName), null, actual.getObj(talentName), actual, representation), hero));
+					.add(new SpellEnhancement(new Spell(talentName, group.getObj(talentName), null, null, actual, representation), hero));
 		} else {
 			table.getItems()
 					.add(new TalentEnhancement(new Talent(talentName, group, group.getObj(talentName), null, actual), talentGroup, hero));
 		}
 		table.setPrefHeight(table.getItems().size() * 28 + 26);
+		table.sort();
 	}
 
 	protected void fillTable() {
+		alreadyEnhanced.clear();
 		talentsList.getItems().clear();
 		table.getItems().forEach(e -> e.unregister());
 		table.getItems().clear();
@@ -297,67 +302,21 @@ public class TalentGroupController {
 		final JSONObject actualGroup = "Zauber".equals(talentGroup) ? hero.getObj("Zauber") : hero.getObj("Talente").getObj(talentGroup);
 
 		DSAUtil.foreach(talent -> true, (talentName, talent) -> {
-			final List<JSONObject> actualTalents;
-			if (actualGroup == null) {
-				actualTalents = null;
-			} else if (!"Zauber".equals(talentGroup) && actualGroup.containsKey(talentName)
-					&& (talent.containsKey("Auswahl") || talent.containsKey("Freitext"))) {
-				actualTalents = new LinkedList<>();
-				final JSONArray choiceTalent = actualGroup.getArrOrDefault(talentName, null);
-				if (choiceTalent != null) {
-					for (int i = 0; i < choiceTalent.size(); ++i) {
-						actualTalents.add(choiceTalent.getObj(i));
-					}
-				}
-				talentsList.getItems().add(talentName);
-			} else if (actualGroup.containsKey(talentName)) {
-				actualTalents = Collections.singletonList(actualGroup.getObj(talentName));
-			} else {
-				actualTalents = null;
-			}
-			if (actualTalents == null) {
-				boolean found = false;
-				for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
-					if (enhancement instanceof TalentEnhancement
-							&& talentName.equals(((TalentEnhancement) enhancement).getName())) {
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					talentsList.getItems().add(talentName);
-				}
-				return;
-			}
-
-			talents: for (final JSONObject actualTalent : actualTalents) {
+			if (actualGroup.containsKey(talentName)) {
 				if ("Zauber".equals(talentGroup)) {
+					final JSONObject actualSpell = actualGroup.getObj(talentName);
 					boolean notFound = false;
-					reps: for (final String rep : talent.getObj("Repräsentationen").keySet()) {
-						if (actualTalent.containsKey(rep)) {
+					for (final String rep : talent.getObj("Repräsentationen").keySet()) {
+						if (actualSpell.containsKey(rep)) {
 							if (talent.containsKey("Auswahl") || talent.containsKey("Freitext")) {
-								final JSONArray choiceTalent = actualTalent.getArrOrDefault(rep, null);
-								if (choiceTalent != null) {
-									choices: for (int i = 0; i < choiceTalent.size(); ++i) {
-										for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
-											if (enhancement instanceof SpellEnhancement
-													&& ((SpellEnhancement) enhancement).getTalent().getActual() == choiceTalent.getObj(i)) {
-												continue choices;
-											}
-										}
-										table.getItems().add(new SpellEnhancement(
-												new Spell(talentName, talent, choiceTalent.getObj(i), actualTalent, actualGroup, rep), hero));
-									}
+								final JSONArray choiceTalent = actualSpell.getArr(rep);
+								for (int i = 0; i < choiceTalent.size(); ++i) {
+									table.getItems().add(new SpellEnhancement(
+											new Spell(talentName, talent, choiceTalent.getObj(i), actualSpell, actualGroup, rep), hero));
 								}
 							} else {
-								for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
-									if (enhancement instanceof SpellEnhancement
-											&& ((SpellEnhancement) enhancement).getTalent().getActual() == actualTalent.getObj(rep)) {
-										continue reps;
-									}
-								}
 								table.getItems().add(
-										new SpellEnhancement(new Spell(talentName, talent, actualTalent.getObj(rep), actualTalent, actualGroup, rep), hero));
+										new SpellEnhancement(new Spell(talentName, talent, actualSpell.getObj(rep), actualSpell, actualGroup, rep), hero));
 							}
 						} else {
 							notFound = true;
@@ -367,15 +326,24 @@ public class TalentGroupController {
 						talentsList.getItems().add(talentName);
 					}
 				} else {
-					for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
-						if (enhancement instanceof TalentEnhancement && ((TalentEnhancement) enhancement).getTalent().getActual() == actualTalent) {
-							continue talents;
+					if (talent.containsKey("Auswahl") || talent.containsKey("Freitext")) {
+						final JSONArray choiceTalent = actualGroup.getArr(talentName);
+						for (int i = 0; i < choiceTalent.size(); ++i) {
+							table.getItems().add(new TalentEnhancement(
+									new Talent(talentName, talentGroups.getObj(talentGroup), talents.getObj(talentName), choiceTalent.getObj(i),
+											actualGroup),
+									talentGroup, hero));
 						}
+						talentsList.getItems().add(talentName);
+					} else {
+						table.getItems().add(new TalentEnhancement(
+								new Talent(talentName, talentGroups.getObj(talentGroup), talents.getObj(talentName), actualGroup.getObj(talentName),
+										actualGroup),
+								talentGroup, hero));
 					}
-					table.getItems().add(new TalentEnhancement(
-							new Talent(talentName, talentGroups.getObj(talentGroup), talents.getObj(talentName), actualTalent, actualGroup),
-							talentGroup, hero));
 				}
+			} else {
+				talentsList.getItems().add(talentName);
 			}
 		}, talents);
 
@@ -387,6 +355,7 @@ public class TalentGroupController {
 		}
 
 		table.setPrefHeight(table.getItems().size() * 28 + 26);
+		table.sort();
 	}
 
 	public Node getControl() {
@@ -400,9 +369,22 @@ public class TalentGroupController {
 	}
 
 	public void recalculateValid(final JSONObject hero) {
+		enhancements: for (final TalentEnhancement enhanced : alreadyEnhanced) {
+			for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
+				if (enhancement instanceof TalentEnhancement && ((TalentEnhancement) enhancement).getTalent().getActual() == enhanced.getTalent().getActual()) {
+					continue enhancements;
+				}
+			}
+			table.getItems().add(enhanced);
+		}
+		alreadyEnhanced.removeAll(table.getItems());
+
 		for (final TalentEnhancement enhancement : table.getItems()) {
 			enhancement.recalculateValid(hero);
 		}
+
+		table.setPrefHeight(table.getItems().size() * 28 + 26);
+		table.sort();
 	}
 
 	public void setHero(final JSONObject hero) {
