@@ -21,7 +21,7 @@
          <Label minHeight="0" />
       </placeholder>
       <columns>
-         <TableColumn fx:id="nameColumn" text="Sonderfertigkeit" minWidth="200" prefWidth="200" sortable="false" editable="false" />
+         <TableColumn fx:id="nameColumn" text="Sonderfertigkeit" minWidth="200" prefWidth="200" editable="false" />
          <TableColumn fx:id="descColumn" text="Beschreibung" minWidth="150" prefWidth="150" sortable="false" />
          <TableColumn fx:id="variantColumn" text="Variante" minWidth="60" sortable="false" />
          <TableColumn fx:id="costColumn" text="Kosten" prefWidth="75" resizable="false" style="-fx-alignment: CENTER;" />

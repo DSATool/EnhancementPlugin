@@ -248,6 +248,7 @@ public class AttributesController extends EnhancementTabController {
 
 	@Override
 	public void recalculateValid(final JSONObject hero) {
+		update();
 		for (final AttributeEnhancement enhancement : attributesTable.getItems()) {
 			enhancement.recalculateValid(hero);
 		}
