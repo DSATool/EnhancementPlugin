@@ -17,24 +17,14 @@ package enhancement.talents;
 
 import dsa41basis.util.HeroUtil;
 import dsatool.resources.ResourceManager;
-import dsatool.util.ErrorLogger;
 import enhancement.enhancements.EnhancementTabController;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.VBox;
 import jsonant.event.JSONListener;
 import jsonant.value.JSONObject;
 
 public class SpellsController extends EnhancementTabController {
-	@FXML
-	private ScrollPane pane;
-	@FXML
-	private VBox box;
-
 	private Tab tab;
 	private final TabPane tabPane;
 	private TalentGroupController controller;
@@ -46,25 +36,9 @@ public class SpellsController extends EnhancementTabController {
 		setTab(tabPane);
 	}
 
-	private void createPane() {
-		final FXMLLoader fxmlLoader = new FXMLLoader();
-
-		fxmlLoader.setController(this);
-
-		try {
-			fxmlLoader.load(getClass().getResource("Talents.fxml").openStream());
-		} catch (final Exception e) {
-			ErrorLogger.logError(e);
-		}
-
-		final JSONObject talents = ResourceManager.getResource("data/Zauber");
-		controller = new TalentGroupController(pane, "Zauber", talents);
-		box.getChildren().add(controller.getControl());
-	}
-
 	@Override
 	protected Node getControl() {
-		return pane;
+		return controller.getControl();
 	}
 
 	@Override
@@ -100,8 +74,9 @@ public class SpellsController extends EnhancementTabController {
 			if (tab == null) {
 				tab = new Tab(getText());
 			}
-			if (pane == null) {
-				createPane();
+			if (controller == null) {
+				final JSONObject talents = ResourceManager.getResource("data/Zauber");
+				controller = new TalentGroupController("Zauber", talents);
 			}
 			if (!tabPane.getTabs().contains(tab)) {
 				tab.setContent(getControl());

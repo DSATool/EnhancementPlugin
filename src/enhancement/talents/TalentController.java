@@ -61,7 +61,7 @@ public class TalentController extends EnhancementTabController {
 			if ("Meta-Talente".equals(talentGroup)) {
 				continue;
 			}
-			final TalentGroupController talentController = new TalentGroupController(pane, talentGroup, talents.getObj(talentGroup));
+			final TalentGroupController talentController = new TalentGroupController(talentGroup, talents.getObj(talentGroup));
 			talentControllers.add(talentController);
 			switch (talentGroup) {
 			case "Ritualkenntnis":
