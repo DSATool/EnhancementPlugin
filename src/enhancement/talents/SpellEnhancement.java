@@ -30,7 +30,15 @@ public class SpellEnhancement extends TalentEnhancement {
 	@Override
 	public SpellEnhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
 		final SpellEnhancement result = new SpellEnhancement((Spell) talent, hero);
-		result.setTarget(target.get(), hero, enhancements);
+		result.start.set(start.get());
+		result.startString.set(startString.get());
+		result.target.set(target.get());
+		result.targetString.set(targetString.get());
+		result.basis = basis;
+		result.method = method;
+		result.ses = ses;
+		result.seMin = seMin;
+		result.temporary = temporary;
 		return result;
 	}
 
