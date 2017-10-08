@@ -17,6 +17,7 @@ package enhancement.talents;
 
 import dsa41basis.util.HeroUtil;
 import dsatool.resources.ResourceManager;
+import enhancement.enhancements.EnhancementController;
 import enhancement.enhancements.EnhancementTabController;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
@@ -30,7 +31,7 @@ public class SpellsController extends EnhancementTabController {
 	private TalentGroupController controller;
 	private final JSONListener listener;
 
-	public SpellsController(final TabPane tabPane) {
+	public SpellsController(final EnhancementController controller, final TabPane tabPane) {
 		this.tabPane = tabPane;
 		listener = o -> setTab(tabPane);
 		setTab(tabPane);

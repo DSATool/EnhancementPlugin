@@ -20,6 +20,7 @@ import java.util.List;
 
 import dsatool.resources.ResourceManager;
 import dsatool.util.ErrorLogger;
+import enhancement.enhancements.EnhancementController;
 import enhancement.enhancements.EnhancementTabController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -40,7 +41,7 @@ public class SkillController extends EnhancementTabController {
 
 	private final List<SkillGroupController> skillControllers = new ArrayList<>();
 
-	public SkillController(final TabPane tabPane) {
+	public SkillController(final EnhancementController controller, final TabPane tabPane) {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);

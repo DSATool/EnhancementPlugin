@@ -15,37 +15,54 @@
  */
 package enhancement.attributes;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import dsa41basis.hero.Energy;
 import dsa41basis.util.DSAUtil;
+import dsatool.resources.ResourceManager;
 import enhancement.enhancements.Enhancement;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import jsonant.value.JSONObject;
 
 public class EnergyEnhancement extends Enhancement {
+	public static EnergyEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
+		final String energyName = enhancement.getString("Basiswert");
+		final Energy energy = new Energy(energyName, ResourceManager.getResource("data/Basiswerte").getObj(energyName), hero.getObj("Eigenschaften"),
+				hero.getObj("Basiswerte"));
+		final EnergyEnhancement result = new EnergyEnhancement(energy, hero);
+		result.start.set(enhancement.getInt("Von"));
+		result.target.set(enhancement.getInt("Auf"));
+		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
+		result.cost.set(enhancement.getInt("AP"));
+		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
+		result.updateDescription();
+		return result;
+	}
+
 	private final Energy energy;
 	private final IntegerProperty start;
 	private final IntegerProperty target;
-	private final int boughtStart;
 	private final IntegerProperty ses;
-	private final int seMin;
 
-	public EnergyEnhancement(Energy energy, JSONObject hero) {
+	private int seMin;
+
+	public EnergyEnhancement(final Energy energy, final JSONObject hero) {
 		this.energy = energy;
-		start = new SimpleIntegerProperty(energy.getMax());
+		start = new SimpleIntegerProperty(energy.getBought());
 		target = new SimpleIntegerProperty(start.get() + 1);
 		seMin = energy.getSes();
 		ses = new SimpleIntegerProperty(seMin);
 		fullDescription.bind(description);
 		updateDescription();
-		boughtStart = energy.getBought();
 		cost.set(getCalculatedCost(hero));
 		recalculateValid(hero);
 		cheaper.set(energy.getSes() > 0);
 	}
 
 	@Override
-	public void apply(JSONObject hero) {
+	public void apply(final JSONObject hero) {
 		final JSONObject actual = hero.getObj("Basiswerte").getObj(energy.getName());
 		final int resultSes = ses.get() - (target.get() - start.get());
 		if (resultSes <= 0) {
@@ -53,36 +70,36 @@ public class EnergyEnhancement extends Enhancement {
 		} else {
 			actual.put("SEs", resultSes);
 		}
-		actual.put("Kauf", getBoughtTarget());
+		actual.put("Kauf", target.getValue());
 		actual.notifyListeners(null);
 	}
 
 	@Override
-	public void applyTemporarily(JSONObject hero) {
+	public void applyTemporarily(final JSONObject hero) {
 		final JSONObject actual = hero.getObj("Basiswerte").getObj(energy.getName());
-		actual.put("Kauf", getBoughtTarget());
+		actual.put("Kauf", target.getValue());
 	}
 
 	@Override
-	protected boolean calculateValid(JSONObject hero) {
-		return getBoughtTarget() <= energy.getBuyableMaximum();
+	protected boolean calculateValid(final JSONObject hero) {
+		return target.getValue() <= energy.getBuyableMaximum();
 	}
 
-	public EnergyEnhancement clone(JSONObject hero) {
+	public EnergyEnhancement clone(final JSONObject hero) {
 		final EnergyEnhancement result = new EnergyEnhancement(energy, hero);
-		result.setTarget(target.get(), hero);
+		result.start.set(start.get());
+		result.target.set(target.get());
+		result.ses.set(ses.get());
+		result.seMin = seMin;
+		result.updateDescription();
 		return result;
 	}
 
-	private int getBoughtTarget() {
-		return boughtStart + target.get() - start.get();
-	}
-
 	@Override
-	protected int getCalculatedCost(JSONObject hero) {
-		final int SELevel = boughtStart + Math.min(getBoughtTarget() - boughtStart, ses.get());
-		return DSAUtil.getEnhancementCost(energy.getEnhancementCost() - 1, boughtStart, SELevel)
-				+ DSAUtil.getEnhancementCost(energy.getEnhancementCost(), SELevel, getBoughtTarget());
+	protected int getCalculatedCost(final JSONObject hero) {
+		final int SELevel = energy.getBought() + Math.min(target.getValue() - energy.getBought(), ses.get());
+		return DSAUtil.getEnhancementCost(energy.getEnhancementCost() - 1, energy.getBought(), SELevel)
+				+ DSAUtil.getEnhancementCost(energy.getEnhancementCost(), SELevel, target.getValue());
 	}
 
 	@Override
@@ -99,45 +116,62 @@ public class EnergyEnhancement extends Enhancement {
 	}
 
 	public int getStart() {
-		return start.get();
+		return energy.getMax() - energy.getBought() + start.get();
 	}
 
 	public int getTarget() {
-		return target.get();
+		return energy.getMax() - energy.getBought() + target.get();
 	}
 
 	public IntegerProperty sesProperty() {
 		return ses;
 	}
 
-	public void setSes(int ses, JSONObject hero) {
+	public void setSes(final int ses, final JSONObject hero) {
 		this.ses.set(ses);
 		resetCost(hero);
 	}
 
-	public void setTarget(int target, JSONObject hero) {
-		this.target.set(target);
+	public void setTarget(final int target, final JSONObject hero) {
+		this.target.set(target + energy.getBought() - energy.getMax());
 		updateDescription();
 		recalculateValid(hero);
 		resetCost(hero);
 	}
 
-	public IntegerProperty startProperty() {
-		return start;
-	}
-
-	public IntegerProperty targetProperty() {
-		return target;
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see enhancement.enhancements.Enhancement#toJSON()
+	 */
+	@Override
+	public JSONObject toJSON() {
+		final JSONObject result = new JSONObject(null);
+		result.put("Typ", "Basiswert");
+		result.put("Basiswert", energy.getName());
+		result.put("Von", start.get());
+		result.put("Auf", target.get());
+		final int resultSes = ses.get() - (target.get() - start.get());
+		if (resultSes > 0) {
+			result.put("SEs", resultSes);
+		}
+		result.put("AP", cost.get());
+		final LocalDate currentDate = LocalDate.now();
+		result.put("Datum", currentDate.toString());
+		return result;
 	}
 
 	@Override
-	public void unapply(JSONObject hero) {
+	public void unapply(final JSONObject hero) {
 		final JSONObject actual = hero.getObj("Basiswerte").getObj(energy.getName());
-		actual.put("Kauf", boughtStart);
+		actual.put("Kauf", start.get());
+		actual.put("SEs", ses.get());
+		actual.notifyListeners(null);
 	}
 
 	private void updateDescription() {
-		final String desc = energy.getName() + " (" + start.get() + "->" + target.get() + ")";
+		final String desc = energy.getName() + " (" + (energy.getMax() - energy.getBought() + start.getValue()) + "->"
+				+ (energy.getMax() - energy.getBought() + target.get()) + ")";
 		description.set(desc);
 	}
 }

@@ -15,13 +15,18 @@
  */
 package enhancement.talents;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Stack;
 
 import dsa41basis.hero.Talent;
 import dsa41basis.util.DSAUtil;
+import dsa41basis.util.HeroUtil;
 import dsa41basis.util.RequirementsUtil;
+import dsatool.resources.ResourceManager;
 import dsatool.resources.Settings;
+import dsatool.util.Tuple;
 import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import javafx.beans.property.IntegerProperty;
@@ -32,8 +37,77 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
+import jsonant.value.JSONValue;
 
 public class TalentEnhancement extends Enhancement {
+	public static TalentEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero, final Collection<Enhancement> enhancements) {
+		final String talentName = enhancement.getString("Talent");
+		final Tuple<JSONObject, String> talentAndGroup = HeroUtil.findTalent(talentName);
+		final String groupName = talentAndGroup._2;
+		final JSONObject talentGroups = ResourceManager.getResource("data/Talentgruppen");
+		final Tuple<JSONValue, JSONObject> actualTalentAndGroup = HeroUtil.findActualTalent(hero, talentName);
+		JSONObject actual = null;
+		if (talentAndGroup._1.containsKey("Auswahl")) {
+			for (int i = 0; i < actualTalentAndGroup._1.size(); ++i) {
+				final JSONObject choiceTalent = ((JSONArray) actualTalentAndGroup._1).getObj(i);
+				if (choiceTalent.getString("Auswahl").equals(enhancement.getString("Auswahl"))) {
+					actual = choiceTalent;
+					break;
+				}
+			}
+		} else if (talentAndGroup._1.containsKey("Freitext")) {
+			for (int i = 0; i < actualTalentAndGroup._1.size(); ++i) {
+				final JSONObject choiceTalent = ((JSONArray) actualTalentAndGroup._1).getObj(i);
+				if (choiceTalent.getString("Freitext").equals(enhancement.getString("Freitext"))) {
+					actual = choiceTalent;
+					break;
+				}
+			}
+		} else {
+			actual = (JSONObject) actualTalentAndGroup._1;
+		}
+		final Talent newTalent = new Talent(talentName, talentGroups.getObj(groupName), talentAndGroup._1, actual, actualTalentAndGroup._2);
+		final TalentEnhancement result = new TalentEnhancement(newTalent, talentAndGroup._2, hero);
+		final boolean basis = talentAndGroup._1.getBoolOrDefault("Basis", false);
+		if (enhancement.containsKey("Von")) {
+			final int start = enhancement.getInt("Von");
+			result.start.set(start < 0 && !basis ? start - 1 : start);
+		} else {
+			result.start.set(-1);
+		}
+		result.startString.set(getOfficial(result.start.get(), basis));
+		if (enhancement.containsKey("Auf")) {
+			final int target = enhancement.getInt("Auf");
+			result.setTarget(target < 0 && !basis ? target - 1 : target, hero, enhancements);
+		} else {
+			result.setTarget(-1, hero, enhancements);
+		}
+		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
+		result.method.set(enhancement.getString("Methode"));
+		result.cost.set(enhancement.getInt("AP"));
+		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
+		result.updateDescription();
+		return result;
+	}
+
+	protected static int fromOfficial(final String taw, final boolean basis) {
+		if ("n.a.".equals(taw)) return -1;
+		int value = Integer.parseInt(taw);
+		if (value < 0 && !basis) {
+			value -= 1;
+		}
+		return value;
+	}
+
+	protected static String getOfficial(final int taw, final boolean basis) {
+		if (taw == -1)
+			return "n.a.";
+		else if (taw < -1 && !basis)
+			return String.valueOf(taw + 1);
+		else
+			return String.valueOf(taw);
+	}
+
 	protected final Talent talent;
 	protected final IntegerProperty start;
 	protected final StringProperty startString;
@@ -41,10 +115,9 @@ public class TalentEnhancement extends Enhancement {
 	protected final StringProperty targetString;
 	protected boolean basis;
 	protected final String talentGroupName;
-	protected StringProperty method;
-	protected IntegerProperty ses;
+	protected final StringProperty method;
+	protected final IntegerProperty ses;
 	protected int seMin;
-	protected boolean temporary;
 
 	private final ChangeListener<Boolean> chargenListener;
 
@@ -58,10 +131,10 @@ public class TalentEnhancement extends Enhancement {
 		} else if (value < 0 && !basis) {
 			value -= 1;
 		}
-		startString = new SimpleStringProperty(getOfficial(value));
+		startString = new SimpleStringProperty(getOfficial(value, basis));
 		start = new SimpleIntegerProperty(value);
 		target = new SimpleIntegerProperty(value + 1);
-		targetString = new SimpleStringProperty(getOfficial(value + 1));
+		targetString = new SimpleStringProperty(getOfficial(value + 1, basis));
 		seMin = talent.getSes();
 		ses = new SimpleIntegerProperty(seMin);
 		fullDescription.bind(description);
@@ -80,7 +153,6 @@ public class TalentEnhancement extends Enhancement {
 		}
 
 		cheaper.bind(ses.greaterThan(0));
-		temporary = talent.getActual() == null;
 		chargenListener = (o, oldV, newV) -> resetCost(hero);
 		EnhancementController.usesChargenRules.addListener(chargenListener);
 	}
@@ -118,23 +190,14 @@ public class TalentEnhancement extends Enhancement {
 		final TalentEnhancement result = new TalentEnhancement(talent, talentGroupName, hero);
 		result.start.set(start.get());
 		result.startString.set(startString.get());
-		result.target.set(target.get());
+		result.setTarget(target.get(), hero, enhancements);
 		result.targetString.set(targetString.get());
 		result.basis = basis;
-		result.method = method;
-		result.ses = ses;
+		result.method.set(method.get());
+		result.ses.set(ses.get());
 		result.seMin = seMin;
-		result.temporary = temporary;
+		result.updateDescription();
 		return result;
-	}
-
-	private int fromOfficial(final String taw) {
-		if ("n.a.".equals(taw)) return -1;
-		int value = Integer.parseInt(taw);
-		if (value < 0 && !basis) {
-			value -= 1;
-		}
-		return value;
 	}
 
 	@Override
@@ -157,15 +220,6 @@ public class TalentEnhancement extends Enhancement {
 	@Override
 	public String getName() {
 		return talent.getName();
-	}
-
-	protected String getOfficial(final int taw) {
-		if (taw == -1)
-			return "n.a.";
-		else if (taw < -1 && !basis)
-			return String.valueOf(taw + 1);
-		else
-			return String.valueOf(taw);
 	}
 
 	public int getSeMin() {
@@ -218,7 +272,7 @@ public class TalentEnhancement extends Enhancement {
 		}
 
 		this.target.set(target);
-		targetString.set(getOfficial(target));
+		targetString.set(getOfficial(target, basis));
 		updateDescription();
 		recalculateValid(hero);
 		resetCost(hero);
@@ -229,7 +283,7 @@ public class TalentEnhancement extends Enhancement {
 	}
 
 	public void setTarget(final String newValue, final JSONObject hero, final Collection<Enhancement> enhancements) {
-		setTarget(fromOfficial(newValue), hero, enhancements);
+		setTarget(fromOfficial(newValue, basis), hero, enhancements);
 	}
 
 	public IntegerProperty startProperty() {
@@ -248,10 +302,52 @@ public class TalentEnhancement extends Enhancement {
 		return targetString;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see enhancement.enhancements.Enhancement#toJSON()
+	 */
+	@Override
+	public JSONObject toJSON() {
+		final JSONObject result = new JSONObject(null);
+		result.put("Typ", "Talent");
+		result.put("Talent", talent.getName());
+		if (talent.getTalent().containsKey("Auswahl")) {
+			result.put("Auswahl", talent.getActual().getString("Auswahl"));
+		}
+		if (talent.getTalent().containsKey("Freitext")) {
+			result.put("Freitext", talent.getActual().getString("Freitext"));
+		}
+		if (start.get() != -1 || basis) {
+			result.put("Von", start.get() < 0 && !basis ? start.get() + 1 : start.get());
+		}
+		if (target.get() != -1 || basis) {
+			result.put("Auf", target.get() < 0 && !basis ? target.get() + 1 : target.get());
+		}
+		final int resultSes = ses.get() - (target.get() - start.get());
+		if (resultSes > 0) {
+			result.put("SEs", resultSes);
+		}
+		result.put("Methode", method.get());
+		result.put("AP", cost.get());
+		final LocalDate currentDate = LocalDate.now();
+		result.put("Datum", currentDate.toString());
+		return result;
+	}
+
 	@Override
 	public void unapply(final JSONObject hero) {
-		talent.setValue(start.get());
-		if (temporary) {
+		int value = start.get();
+		if (value < 0 && !basis) {
+			if (value == -1) {
+				value = Integer.MIN_VALUE;
+			} else {
+				++value;
+			}
+		}
+		talent.setValue(value);
+		talent.setSes(ses.get());
+		if (value == Integer.MIN_VALUE) {
 			talent.removeTalent();
 		}
 	}

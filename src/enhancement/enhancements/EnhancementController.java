@@ -27,6 +27,7 @@ import dsa41basis.ui.hero.HeroSelector;
 import dsatool.util.ErrorLogger;
 import dsatool.util.IntegerSpinnerTableCell;
 import enhancement.attributes.AttributesController;
+import enhancement.history.HistoryController;
 import enhancement.pros_cons.QuirksController;
 import enhancement.skills.SkillController;
 import enhancement.talents.SpellsController;
@@ -56,12 +57,13 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import jsonant.event.JSONListener;
+import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
 
 public class EnhancementController extends HeroSelector {
 
 	public static List<Class<? extends EnhancementTabController>> tabControllers = Arrays.asList(AttributesController.class, QuirksController.class,
-			SkillController.class, TalentController.class, SpellsController.class);
+			SkillController.class, TalentController.class, SpellsController.class, HistoryController.class);
 
 	private static final DataFormat SERIALIZED = new DataFormat("application/x-java-serialized-object");
 
@@ -133,16 +135,16 @@ public class EnhancementController extends HeroSelector {
 		alert.setContentText("Sollen die Steigerungen wirklich angewendet werden?");
 		alert.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
 		alert.showAndWait().filter(response -> response.equals(ButtonType.OK)).ifPresent(response -> {
+			final JSONArray history = hero.getArr("Steigerungshistorie");
 			bio.put("Abenteuerpunkte-Guthaben", bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) - calculateCost());
 			final ArrayList<Enhancement> enhancements = new ArrayList<>(enhancementTable.getItems());
 			enhancementTable.getItems().clear();
 			for (final Enhancement enhancement : enhancements) {
 				enhancement.apply(hero);
+				history.add(enhancement.toJSON().clone(history));
 			}
 			bio.notifyListeners(null);
-			for (final HeroController controller : controllers) {
-				((EnhancementTabController) controller).update();
-			}
+			update();
 		});
 	}
 
@@ -183,7 +185,7 @@ public class EnhancementController extends HeroSelector {
 
 		try {
 			for (final Class<? extends EnhancementTabController> controller : tabControllers) {
-				controllers.add(controller.getDeclaredConstructor(TabPane.class).newInstance(tabs));
+				controllers.add(controller.getDeclaredConstructor(EnhancementController.class, TabPane.class).newInstance(this, tabs));
 			}
 		} catch (final Exception e) {
 			ErrorLogger.logError(e);
@@ -191,8 +193,6 @@ public class EnhancementController extends HeroSelector {
 
 		tabs.prefHeightProperty().bind(pane.heightProperty().divide(2));
 		enhancementTable.prefHeightProperty().bind(pane.heightProperty().divide(2).subtract(40));
-
-		descriptionColumn.getStyleClass().add("left-aligned");
 
 		DoubleBinding width = enhancementTable.widthProperty().subtract(2);
 		width = width.subtract(costColumn.widthProperty());
@@ -203,7 +203,7 @@ public class EnhancementController extends HeroSelector {
 		costColumn.setCellValueFactory(new PropertyValueFactory<Enhancement, Integer>("cost"));
 		costColumn.setCellFactory(o -> new IntegerSpinnerTableCell<>(0, 9999, 1, false));
 		costColumn.setOnEditCommit(t -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).setCost(t.getNewValue());
+			t.getRowValue().setCost(t.getNewValue());
 			recalculateCost();
 		});
 
@@ -296,6 +296,7 @@ public class EnhancementController extends HeroSelector {
 		});
 
 		usesChargenRules.bindBidirectional(chargenRules.selectedProperty());
+		usesChargenRules.addListener((o, oldV, newV) -> recalculateCost());
 
 		super.load();
 	}
@@ -342,6 +343,12 @@ public class EnhancementController extends HeroSelector {
 		apLabel.setText(Integer.toString(hero.getObj("Biografie").getIntOrDefault("Abenteuerpunkte-Guthaben", 0)));
 		hero.getObj("Biografie").addListener(apListener);
 		super.setHero(index);
+	}
+
+	public void update() {
+		for (final HeroController controller : controllers) {
+			((EnhancementTabController) controller).update();
+		}
 	}
 
 }

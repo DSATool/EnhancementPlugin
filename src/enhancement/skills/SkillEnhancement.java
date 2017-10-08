@@ -15,6 +15,8 @@
  */
 package enhancement.skills;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Stack;
 
 import dsa41basis.hero.ProOrCon;
@@ -29,12 +31,32 @@ import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
 
 public class SkillEnhancement extends Enhancement {
+	public static SkillEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
+		final String skillName = enhancement.getString("Sonderfertigkeit");
+		final JSONObject skill = HeroUtil.findSkill(skillName);
+		final ProOrCon newSkill = new ProOrCon(skillName, hero, skill, new JSONObject(null));
+		final SkillEnhancement result = new SkillEnhancement(newSkill, hero);
+		if (skill.containsKey("Auswahl")) {
+			newSkill.setDescription(enhancement.getString("Auswahl"));
+			if (skill.containsKey("Freitext")) {
+				newSkill.setVariant(enhancement.getString("Freitext"));
+			}
+		} else if (skill.containsKey("Freitext")) {
+			newSkill.setDescription(enhancement.getString("Freitext"));
+		}
+		result.cost.set(enhancement.getInt("AP"));
+		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
+		result.updateDescription();
+		return result;
+	}
+
 	private final ProOrCon skill;
 
 	public SkillEnhancement(final ProOrCon skill, final JSONObject hero) {
 		this.skill = skill;
 		description.set(skill.getDisplayName());
 		updateDescription();
+		resetCost(hero);
 
 		final Stack<Enhancement> enhancements = new Stack<>();
 		for (final Enhancement e : EnhancementController.instance.getEnhancements()) {
@@ -150,6 +172,28 @@ public class SkillEnhancement extends Enhancement {
 		return skill.variantProperty();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see enhancement.enhancements.Enhancement#toJSON()
+	 */
+	@Override
+	public JSONObject toJSON() {
+		final JSONObject result = new JSONObject(null);
+		result.put("Typ", "Sonderfertigkeit");
+		result.put("Sonderfertigkeit", skill.getName());
+		if (skill.getProOrCon().containsKey("Auswahl")) {
+			result.put("Auswahl", skill.getActual().getString("Auswahl"));
+		}
+		if (skill.getProOrCon().containsKey("Freitext")) {
+			result.put("Freitext", skill.getActual().getString("Freitext"));
+		}
+		result.put("AP", cost.get());
+		final LocalDate currentDate = LocalDate.now();
+		result.put("Datum", currentDate.toString());
+		return result;
+	}
+
 	@Override
 	public void unapply(final JSONObject hero) {
 		final JSONObject actual = skill.getActual();
@@ -176,6 +220,5 @@ public class SkillEnhancement extends Enhancement {
 	private void updateDescription() {
 		fullDescription.set(DSAUtil.printProOrCon(skill.getActual(), skill.getDisplayName(), skill.getProOrCon(), false));
 		cheaper.set(skill.getCost() < skill.getProOrCon().getIntOrDefault("Kosten", 0));
-		cost.set(skill.getCost());
 	}
 }

@@ -59,7 +59,7 @@ public class QuirksController extends EnhancementTabController {
 	@FXML
 	private TableColumn<QuirkEnhancement, Boolean> cheaperColumn;
 
-	public QuirksController(final TabPane tabPane) {
+	public QuirksController(final EnhancementController controller, final TabPane tabPane) {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);
@@ -71,8 +71,6 @@ public class QuirksController extends EnhancementTabController {
 		}
 
 		setTab(tabPane);
-
-		nameColumn.getStyleClass().add("left-aligned");
 
 		table.prefWidthProperty().bind(pane.widthProperty().subtract(20));
 
@@ -94,11 +92,12 @@ public class QuirksController extends EnhancementTabController {
 				IntegerSpinnerTableCell.<QuirkEnhancement> forTableColumn(0, 0, 1, false,
 						(final IntegerSpinnerTableCell<QuirkEnhancement> cell, final Boolean empty) -> {
 							if (empty) return new Tuple<>(0, 0);
+							final int seMin = cell.getTableView().getItems().get(cell.getIndex()).getSeMin();
 							final int seMax = cell.getTableView().getItems().get(cell.getIndex()).getStart();
-							return new Tuple<>(0, seMax);
+							return new Tuple<>(seMin, seMax);
 						}));
 		sesColumn.setOnEditCommit(t -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).setSes(t.getNewValue(), hero);
+			t.getRowValue().setSes(t.getNewValue(), hero);
 		});
 
 		targetColumn.setCellFactory(
@@ -107,7 +106,7 @@ public class QuirksController extends EnhancementTabController {
 					return new Tuple<>(0, cell.getTableView().getItems().get(cell.getIndex()).getStart() - 1);
 				}));
 		targetColumn.setOnEditCommit(t -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).setTarget(t.getNewValue(), hero, EnhancementController.instance.getEnhancements());
+			t.getRowValue().setTarget(t.getNewValue(), hero, EnhancementController.instance.getEnhancements());
 		});
 
 		final ContextMenu attributesContextMenu = new ContextMenu();

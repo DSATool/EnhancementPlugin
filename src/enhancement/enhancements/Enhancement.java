@@ -30,6 +30,7 @@ public abstract class Enhancement {
 	protected final IntegerProperty cost = new SimpleIntegerProperty();
 	protected final BooleanProperty valid = new SimpleBooleanProperty(true);
 	protected final BooleanProperty cheaper = new SimpleBooleanProperty(false);
+	protected final StringProperty date = new SimpleStringProperty();
 
 	private boolean hasCustomCost = false;
 
@@ -47,6 +48,10 @@ public abstract class Enhancement {
 		return cost;
 	}
 
+	public ReadOnlyStringProperty dateProperty() {
+		return date;
+	}
+
 	public ReadOnlyStringProperty descriptionProperty() {
 		return description;
 	}
@@ -61,6 +66,10 @@ public abstract class Enhancement {
 		return cost.get();
 	}
 
+	public String getDate() {
+		return date.get();
+	}
+
 	public abstract String getName();
 
 	public boolean isCheaper() {
@@ -71,24 +80,28 @@ public abstract class Enhancement {
 		return valid.get();
 	}
 
-	public void recalculateCost(JSONObject hero) {
+	public void recalculateCost(final JSONObject hero) {
 		if (!hasCustomCost) {
 			resetCost(hero);
 		}
 	}
 
-	public void recalculateValid(JSONObject hero) {
+	public void recalculateValid(final JSONObject hero) {
 		valid.set(calculateValid(hero));
 	}
 
-	public void resetCost(JSONObject hero) {
+	public void resetCost(final JSONObject hero) {
 		cost.set(getCalculatedCost(hero));
 		hasCustomCost = false;
 	}
 
-	public void setCost(int cost) {
+	public void setCost(final int cost) {
 		this.cost.set(cost);
 		hasCustomCost = true;
+	}
+
+	public JSONObject toJSON() {
+		return null;
 	}
 
 	public abstract void unapply(JSONObject hero);
