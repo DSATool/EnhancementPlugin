@@ -75,7 +75,7 @@ public class AttributesController extends EnhancementTabController {
 	@FXML
 	private TableColumn<EnergyEnhancement, Boolean> energiesCheaperColumn;
 
-	public AttributesController(final TabPane tabPane) {
+	public AttributesController(final EnhancementController controller, final TabPane tabPane) {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);
@@ -87,8 +87,6 @@ public class AttributesController extends EnhancementTabController {
 		}
 
 		setTab(tabPane);
-
-		attributesNameColumn.getStyleClass().add("left-aligned");
 
 		attributesTable.prefWidthProperty().bind(pane.widthProperty().subtract(22).divide(2));
 
@@ -102,7 +100,7 @@ public class AttributesController extends EnhancementTabController {
 					return new Tuple<>(seMin, 99);
 				}));
 		attributesSesColumn.setOnEditCommit(t -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).setSes(t.getNewValue(), hero);
+			t.getRowValue().setSes(t.getNewValue(), hero);
 		});
 
 		attributesTargetColumn
@@ -112,7 +110,7 @@ public class AttributesController extends EnhancementTabController {
 							return new Tuple<>(cell.getTableView().getItems().get(cell.getIndex()).getStart() + 1, 50);
 						}));
 		attributesTargetColumn.setOnEditCommit(t -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).setTarget(t.getNewValue(), hero);
+			t.getRowValue().setTarget(t.getNewValue(), hero);
 		});
 
 		final ContextMenu attributesContextMenu = new ContextMenu();
@@ -156,8 +154,6 @@ public class AttributesController extends EnhancementTabController {
 			}
 		});
 
-		energiesNameColumn.getStyleClass().add("left-aligned");
-
 		energiesTable.prefWidthProperty().bind(pane.widthProperty().subtract(22).divide(2));
 
 		GUIUtil.autosizeTable(energiesTable, 0, 2);
@@ -171,7 +167,7 @@ public class AttributesController extends EnhancementTabController {
 							return new Tuple<>(seMin, 99);
 						}));
 		energiesSesColumn.setOnEditCommit(t -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).setSes(t.getNewValue(), hero);
+			t.getRowValue().setSes(t.getNewValue(), hero);
 		});
 
 		energiesTargetColumn
@@ -181,7 +177,8 @@ public class AttributesController extends EnhancementTabController {
 							return new Tuple<>(cell.getTableView().getItems().get(cell.getIndex()).getStart() + 1, 99);
 						}));
 		energiesTargetColumn.setOnEditCommit(t -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).setTarget(t.getNewValue(), hero);
+			t.getRowValue().setTarget(t.getNewValue(), hero);
+			energiesTable.refresh();
 		});
 
 		final ContextMenu energiesContextMenu = new ContextMenu();

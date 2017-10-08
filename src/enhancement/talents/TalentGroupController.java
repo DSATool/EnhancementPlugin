@@ -113,7 +113,6 @@ public class TalentGroupController {
 		table.prefWidthProperty().bind(pane.widthProperty().subtract(2));
 		table.getSortOrder().add(nameColumn);
 
-		nameColumn.getStyleClass().add("left-aligned");
 		if ("Zauber".equals(name)) {
 			nameColumn.setText("Zauber");
 		}
@@ -140,7 +139,7 @@ public class TalentGroupController {
 							return new Tuple<>(seMin, 99);
 						}));
 		sesColumn.setOnEditCommit(t -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).setSes(t.getNewValue(), hero);
+			t.getRowValue().setSes(t.getNewValue(), hero);
 		});
 
 		targetColumn.setCellFactory(o -> new GraphicTableCell<TalentEnhancement, String>(false) {
@@ -185,12 +184,12 @@ public class TalentGroupController {
 			}
 		});
 		targetColumn.setOnEditCommit(t -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).setTarget(t.getNewValue(), hero, EnhancementController.instance.getEnhancements());
+			t.getRowValue().setTarget(t.getNewValue(), hero, EnhancementController.instance.getEnhancements());
 		});
 
 		methodColumn.setCellFactory(ComboBoxTableCell.forTableColumn("Lehrmeister", "Gegenseitiges Lehren", "Selbststudium"));
 		methodColumn.setOnEditCommit((final CellEditEvent<TalentEnhancement, String> t) -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).setMethod(t.getNewValue(), hero);
+			t.getRowValue().setMethod(t.getNewValue(), hero);
 		});
 
 		final ContextMenu contextMenu = new ContextMenu();

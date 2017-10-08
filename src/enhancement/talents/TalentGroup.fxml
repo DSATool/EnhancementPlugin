@@ -25,7 +25,7 @@
             <Label minHeight="0" />
          </placeholder>
          <columns>
-            <TableColumn fx:id="nameColumn" text="Talent" minWidth="100" resizable="false" prefWidth="200" editable="false" />
+            <TableColumn fx:id="nameColumn" text="Talent" minWidth="100" resizable="false" prefWidth="200" editable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
             <TableColumn fx:id="sesColumn" text="SEs" prefWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
             <TableColumn fx:id="startColumn" text="Von" prefWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
             <TableColumn fx:id="targetColumn" text="Auf" prefWidth="65" resizable="false" sortable="false" editable="true" style="-fx-alignment: CENTER;" />

@@ -94,10 +94,6 @@ public class SkillGroupController {
 		table.prefWidthProperty().bind(parent.widthProperty().subtract(17));
 		table.getSortOrder().add(nameColumn);
 
-		nameColumn.getStyleClass().add("left-aligned");
-		descColumn.getStyleClass().add("left-aligned");
-		variantColumn.getStyleClass().add("left-aligned");
-
 		GUIUtil.autosizeTable(table, 1, 0);
 
 		nameColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("description"));
@@ -143,8 +139,8 @@ public class SkillGroupController {
 			}
 		});
 		descColumn.setOnEditCommit(t -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).getSkill().setDescription(t.getNewValue());
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).resetCost(hero);
+			t.getRowValue().getSkill().setDescription(t.getNewValue());
+			t.getRowValue().resetCost(hero);
 		});
 
 		variantColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("skillVariant"));
@@ -176,8 +172,8 @@ public class SkillGroupController {
 			}
 		});
 		variantColumn.setOnEditCommit(t -> {
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).getSkill().setVariant(t.getNewValue());
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).resetCost(hero);
+			t.getRowValue().getSkill().setVariant(t.getNewValue());
+			t.getRowValue().resetCost(hero);
 		});
 
 		costColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Integer>("cost"));

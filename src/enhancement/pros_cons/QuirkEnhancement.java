@@ -15,11 +15,14 @@
  */
 package enhancement.pros_cons;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Stack;
 
 import dsa41basis.hero.ProOrCon;
 import dsa41basis.util.DSAUtil;
+import dsatool.resources.ResourceManager;
 import enhancement.enhancements.Enhancement;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -27,13 +30,26 @@ import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
 
 public class QuirkEnhancement extends Enhancement {
+	public static QuirkEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero, final Collection<Enhancement> enhancements) {
+		final String quirk = enhancement.getString("Schlechte Eigenschaft");
+		final QuirkEnhancement result = new QuirkEnhancement(
+				new ProOrCon(quirk, hero, ResourceManager.getResource("data/Nachteile").getObj("Quirk"), hero.getObj("Nachteile").getObj(quirk)), hero);
+		result.start.set(enhancement.getInt("Von"));
+		result.setTarget(enhancement.getInt("Auf"), hero, enhancements);
+		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
+		result.cost.set(enhancement.getInt("AP"));
+		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
+		result.updateDescription();
+		return result;
+	}
 
 	private final ProOrCon quirk;
 	private final IntegerProperty start;
 	private final IntegerProperty target;
 	private final IntegerProperty ses = new SimpleIntegerProperty(0);
+	private int seMin;
 
-	public QuirkEnhancement(ProOrCon quirk, JSONObject hero) {
+	public QuirkEnhancement(final ProOrCon quirk, final JSONObject hero) {
 		this.quirk = quirk;
 		start = new SimpleIntegerProperty(quirk.getValue());
 		target = new SimpleIntegerProperty(start.get() - 1);
@@ -44,14 +60,14 @@ public class QuirkEnhancement extends Enhancement {
 	}
 
 	@Override
-	public void apply(JSONObject hero) {
+	public void apply(final JSONObject hero) {
 		applyTemporarily(hero);
 		final JSONObject cons = hero.getObj("Nachteile");
 		cons.notifyListeners(null);
 	}
 
 	@Override
-	public void applyTemporarily(JSONObject hero) {
+	public void applyTemporarily(final JSONObject hero) {
 		final JSONObject actual = quirk.getActual();
 		final JSONObject cons = hero.getObj("Nachteile");
 		final JSONObject con = quirk.getProOrCon();
@@ -79,18 +95,22 @@ public class QuirkEnhancement extends Enhancement {
 	}
 
 	@Override
-	protected boolean calculateValid(JSONObject hero) {
+	protected boolean calculateValid(final JSONObject hero) {
 		return true;
 	}
 
-	public QuirkEnhancement clone(JSONObject hero, Collection<Enhancement> enhancements) {
+	public QuirkEnhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
 		final QuirkEnhancement result = new QuirkEnhancement(quirk, hero);
+		result.start.set(start.get());
 		result.setTarget(target.get(), hero, enhancements);
+		result.ses.set(ses.get());
+		result.seMin = seMin;
+		result.updateDescription();
 		return result;
 	}
 
 	@Override
-	protected int getCalculatedCost(JSONObject hero) {
+	protected int getCalculatedCost(final JSONObject hero) {
 		final int SELevel = start.get() - Math.min(ses.get(), start.get() - target.get());
 		return (int) (((start.get() - SELevel) * 50 + (SELevel - target.get()) * 75) * quirk.getProOrCon().getDoubleOrDefault("Kosten", 1.0));
 	}
@@ -102,6 +122,10 @@ public class QuirkEnhancement extends Enhancement {
 
 	public ProOrCon getQuirk() {
 		return quirk;
+	}
+
+	public int getSeMin() {
+		return seMin;
 	}
 
 	public int getSes() {
@@ -120,12 +144,12 @@ public class QuirkEnhancement extends Enhancement {
 		return ses;
 	}
 
-	public void setSes(int ses, JSONObject hero) {
+	public void setSes(final int ses, final JSONObject hero) {
 		this.ses.set(ses);
 		resetCost(hero);
 	}
 
-	public void setTarget(int target, JSONObject hero, Collection<Enhancement> enhancements) {
+	public void setTarget(final int target, final JSONObject hero, final Collection<Enhancement> enhancements) {
 		final Stack<Enhancement> enhancementStack = new Stack<>();
 		for (final Enhancement e : enhancements) {
 			e.applyTemporarily(hero);
@@ -150,8 +174,30 @@ public class QuirkEnhancement extends Enhancement {
 		return target;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see enhancement.enhancements.Enhancement#toJSON()
+	 */
 	@Override
-	public void unapply(JSONObject hero) {
+	public JSONObject toJSON() {
+		final JSONObject result = new JSONObject(null);
+		result.put("Typ", "Schlechte Eigenschaft");
+		result.put("Schlechte Eigenschaft", quirk.getName());
+		result.put("Von", start.get());
+		result.put("Auf", target.get());
+		final int resultSes = ses.get() - (target.get() - start.get());
+		if (resultSes > 0) {
+			result.put("SEs", resultSes);
+		}
+		result.put("AP", cost.get());
+		final LocalDate currentDate = LocalDate.now();
+		result.put("Datum", currentDate.toString());
+		return result;
+	}
+
+	@Override
+	public void unapply(final JSONObject hero) {
 		final JSONObject actual = quirk.getActual();
 		final JSONObject cons = hero.getObj("Nachteile");
 		final JSONObject con = quirk.getProOrCon();
@@ -159,9 +205,12 @@ public class QuirkEnhancement extends Enhancement {
 		if (target.get() == 0) {
 			if (con.containsKey("Auswahl") || con.containsKey("Freitext")) {
 				final JSONArray conArray = cons.getArr(name);
-				conArray.add(actual.clone(conArray));
+				final JSONObject newCon = actual.clone(conArray);
+				conArray.add(newCon);
+				newCon.put("SEs", ses.get());
 			} else {
 				cons.put(name, actual.clone(cons));
+				cons.getObj(name).put("SEs", ses.get());
 			}
 		} else {
 			if (con.containsKey("Auswahl") || con.containsKey("Freitext")) {
@@ -172,11 +221,13 @@ public class QuirkEnhancement extends Enhancement {
 					final JSONObject actualCon = conArray.getObj(i);
 					if (actualCon.equals(cloned)) {
 						actualCon.put("Stufe", target.get());
+						actualCon.put("SEs", ses.get());
 						break;
 					}
 				}
 			} else {
 				cons.getObj(name).put("Stufe", start.get());
+				cons.getObj(name).put("SEs", ses.get());
 			}
 		}
 	}

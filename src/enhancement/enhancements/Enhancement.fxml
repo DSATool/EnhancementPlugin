@@ -17,7 +17,7 @@
             <Label minHeight="0" />
          </placeholder>
          <columns>
-            <TableColumn fx:id="descriptionColumn" text="Steigerung" minWidth="100" sortable="false" />
+            <TableColumn fx:id="descriptionColumn" text="Steigerung" minWidth="100" sortable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
             <TableColumn fx:id="costColumn" text="Kosten" prefWidth="75" resizable="false" editable="true" sortable="false" style="-fx-alignment: CENTER;" />
          </columns>
       </TableView>
