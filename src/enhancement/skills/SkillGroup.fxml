@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.lang.String?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TitledPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
 
 <TitledPane fx:id="pane" xmlns:fx="http://javafx.com/fxml" >
    <TableView fx:id="table" editable="true" fixedCellSize="28" >
@@ -23,8 +19,9 @@
       <columns>
          <TableColumn fx:id="nameColumn" text="Sonderfertigkeit" minWidth="200" prefWidth="200" editable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
          <TableColumn fx:id="descColumn" text="Beschreibung" minWidth="150" prefWidth="150" sortable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
-         <TableColumn fx:id="variantColumn" text="Variante" minWidth="60" sortable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
-         <TableColumn fx:id="costColumn" text="Kosten" prefWidth="75" resizable="false" style="-fx-alignment: CENTER;" />
+         <TableColumn fx:id="variantColumn" text="Variante" minWidth="60" prefWidth="150" sortable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
+         <TableColumn fx:id="costColumn" text="Kosten" prefWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+         <TableColumn fx:id="apColumn" text="AP" prefWidth="75" resizable="false" style="-fx-alignment: CENTER;" />
          <TableColumn fx:id="validColumn" minWidth="0" maxWidth="0" prefWidth="0" />
          <TableColumn fx:id="cheaperColumn" minWidth="0" maxWidth="0" prefWidth="0" />
       </columns>	

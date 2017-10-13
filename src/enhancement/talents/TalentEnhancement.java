@@ -84,7 +84,8 @@ public class TalentEnhancement extends Enhancement {
 		}
 		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
 		result.method.set(enhancement.getString("Methode"));
-		result.cost.set(enhancement.getInt("AP"));
+		result.ap.set(enhancement.getInt("AP"));
+		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
 		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
 		result.updateDescription();
 		return result;
@@ -146,6 +147,7 @@ public class TalentEnhancement extends Enhancement {
 			e.applyTemporarily(hero);
 			enhancements.push(e);
 		}
+		ap.set(getCalculatedAP(hero));
 		cost.set(getCalculatedCost(hero));
 		recalculateValid(hero);
 		for (final Enhancement e : enhancements) {
@@ -153,7 +155,7 @@ public class TalentEnhancement extends Enhancement {
 		}
 
 		cheaper.bind(ses.greaterThan(0));
-		chargenListener = (o, oldV, newV) -> resetCost(hero);
+		chargenListener = (o, oldV, newV) -> reset(hero);
 		EnhancementController.usesChargenRules.addListener(chargenListener);
 	}
 
@@ -201,16 +203,35 @@ public class TalentEnhancement extends Enhancement {
 	}
 
 	@Override
-	public int getCalculatedCost(final JSONObject hero) {
-		int cost = 0;
+	public int getCalculatedAP(final JSONObject hero) {
+		int ap = 0;
 		final String method = EnhancementController.usesChargenRules.get() ? "Gegenseitiges Lehren" : this.method.get();
 
 		final int SELevel = start.get() + Math.min(target.get() - start.get(), ses.get());
-		cost += DSAUtil.getEnhancementCost(talent, hero, "Lehrmeister", start.get(), Math.max(SELevel, start.get()),
+		ap += DSAUtil.getEnhancementCost(talent, hero, "Lehrmeister", start.get(), Math.max(SELevel, start.get()),
 				EnhancementController.usesChargenRules.get());
-		cost += DSAUtil.getEnhancementCost(talent, hero, method, SELevel, Math.max(target.get(), SELevel),
+		ap += DSAUtil.getEnhancementCost(talent, hero, method, SELevel, Math.max(target.get(), SELevel),
 				EnhancementController.usesChargenRules.get());
-		return cost;
+		return ap;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see enhancement.enhancements.Enhancement#getCalculatedCost(jsonant.value.JSONObject)
+	 */
+	@Override
+	protected double getCalculatedCost(final JSONObject hero) {
+		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten")) return 0;
+		if (!"Lehrmeister".equals(method.get())) return 0;
+		if (hasCustomAP)
+			return ap.get() * 7 / 10.0;
+		else {
+			final int SELevel = start.get() + Math.min(target.get() - start.get(), ses.get());
+			final int ap = DSAUtil.getEnhancementCost(talent, hero, "Lehrmeister", SELevel, Math.max(target.get(), SELevel),
+					EnhancementController.usesChargenRules.get());
+			return ap * 7 / 10.0;
+		}
 	}
 
 	public String getMethod() {
@@ -256,12 +277,12 @@ public class TalentEnhancement extends Enhancement {
 
 	public void setMethod(final String method, final JSONObject hero) {
 		this.method.set(method);
-		resetCost(hero);
+		reset(hero);
 	}
 
 	public void setSes(final int ses, final JSONObject hero) {
 		this.ses.set(ses);
-		resetCost(hero);
+		reset(hero);
 	}
 
 	public void setTarget(final int target, final JSONObject hero, final Collection<Enhancement> enhancements) {
@@ -275,7 +296,7 @@ public class TalentEnhancement extends Enhancement {
 		targetString.set(getOfficial(target, basis));
 		updateDescription();
 		recalculateValid(hero);
-		resetCost(hero);
+		reset(hero);
 
 		for (final Enhancement e : enhancementStack) {
 			e.unapply(hero);
@@ -329,7 +350,10 @@ public class TalentEnhancement extends Enhancement {
 			result.put("SEs", resultSes);
 		}
 		result.put("Methode", method.get());
-		result.put("AP", cost.get());
+		result.put("AP", ap.get());
+		if (Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") && cost.get() != 0) {
+			result.put("Kosten", cost.get());
+		}
 		final LocalDate currentDate = LocalDate.now();
 		result.put("Datum", currentDate.toString());
 		return result;

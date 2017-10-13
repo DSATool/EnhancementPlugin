@@ -48,9 +48,9 @@ public class SpellsController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateCost(final JSONObject hero) {
+	public void recalculate(final JSONObject hero) {
 		if (controller != null) {
-			controller.recalculateCost(hero);
+			controller.recalculate(hero);
 		}
 	}
 

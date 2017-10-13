@@ -29,7 +29,7 @@ public abstract class EnhancementTabController implements HeroController {
 
 	protected abstract String getText();
 
-	public abstract void recalculateCost(JSONObject hero);
+	public abstract void recalculate(JSONObject hero);
 
 	public abstract void recalculateValid(JSONObject hero);
 

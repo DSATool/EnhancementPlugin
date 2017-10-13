@@ -24,6 +24,8 @@ import dsa41basis.hero.ProOrCon.ChoiceOrTextEnum;
 import dsa41basis.util.DSAUtil;
 import dsa41basis.util.HeroUtil;
 import dsa41basis.util.RequirementsUtil;
+import dsatool.resources.ResourceManager;
+import dsatool.resources.Settings;
 import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import javafx.beans.property.StringProperty;
@@ -44,7 +46,8 @@ public class SkillEnhancement extends Enhancement {
 		} else if (skill.containsKey("Freitext")) {
 			newSkill.setDescription(enhancement.getString("Freitext"));
 		}
-		result.cost.set(enhancement.getInt("AP"));
+		result.ap.set(enhancement.getInt("AP"));
+		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
 		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
 		result.updateDescription();
 		return result;
@@ -56,7 +59,7 @@ public class SkillEnhancement extends Enhancement {
 		this.skill = skill;
 		description.set(skill.getDisplayName());
 		updateDescription();
-		resetCost(hero);
+		reset(hero);
 
 		final Stack<Enhancement> enhancements = new Stack<>();
 		for (final Enhancement e : EnhancementController.instance.getEnhancements()) {
@@ -82,7 +85,7 @@ public class SkillEnhancement extends Enhancement {
 		final boolean hasChoice = skill.containsKey("Auswahl");
 		final boolean hasText = skill.containsKey("Freitext");
 
-		newSkill.put("Kosten", cost.getValue());
+		newSkill.put("Kosten", ap.getValue());
 
 		final JSONObject cheaperSkills = hero.getObj("Verbilligte Sonderfertigkeiten");
 		if (cheaperSkills.containsKey(name)) {
@@ -150,9 +153,25 @@ public class SkillEnhancement extends Enhancement {
 	}
 
 	@Override
-	protected int getCalculatedCost(final JSONObject hero) {
+	protected int getCalculatedAP(final JSONObject hero) {
 		cheaper.set(skill.getCost() < skill.getProOrCon().getIntOrDefault("Kosten", 0));
 		return skill.getCost();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see enhancement.enhancements.Enhancement#getCalculatedCost(jsonant.value.JSONObject)
+	 */
+	@Override
+	protected double getCalculatedCost(final JSONObject hero) {
+		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten")) return 0;
+
+		final JSONObject group = (JSONObject) skill.getProOrCon().getParent();
+		if (group == ResourceManager.getResource("data/Sonderfertigkeiten").getObj("Magische Sonderfertigkeiten") ||
+				group == ResourceManager.getResource("data/Rituale") || group == ResourceManager.getResource("data/Schamanenrituale"))
+			return ap.get() * 5;
+		return ap.get() * 0.7;
 	}
 
 	@Override
@@ -188,7 +207,10 @@ public class SkillEnhancement extends Enhancement {
 		if (skill.getProOrCon().containsKey("Freitext")) {
 			result.put("Freitext", skill.getActual().getString("Freitext"));
 		}
-		result.put("AP", cost.get());
+		result.put("AP", ap.get());
+		if (Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") && cost.get() != 0) {
+			result.put("Kosten", cost.get());
+		}
 		final LocalDate currentDate = LocalDate.now();
 		result.put("Datum", currentDate.toString());
 		return result;

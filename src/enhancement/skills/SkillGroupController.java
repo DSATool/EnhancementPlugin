@@ -21,8 +21,10 @@ import java.util.List;
 import dsa41basis.hero.ProOrCon;
 import dsa41basis.util.DSAUtil;
 import dsatool.gui.GUIUtil;
+import dsatool.resources.Settings;
 import dsatool.util.ErrorLogger;
 import dsatool.util.GraphicTableCell;
+import dsatool.util.ReactiveComboBox;
 import dsatool.util.Util;
 import enhancement.enhancements.EnhancementController;
 import javafx.beans.property.BooleanProperty;
@@ -59,7 +61,9 @@ public class SkillGroupController {
 	@FXML
 	private TableColumn<SkillEnhancement, String> variantColumn;
 	@FXML
-	private TableColumn<SkillEnhancement, Integer> costColumn;
+	private TableColumn<SkillEnhancement, Double> costColumn;
+	@FXML
+	private TableColumn<SkillEnhancement, Integer> apColumn;
 	@FXML
 	private TableColumn<SkillEnhancement, Boolean> validColumn;
 	@FXML
@@ -94,6 +98,12 @@ public class SkillGroupController {
 		table.prefWidthProperty().bind(parent.widthProperty().subtract(17));
 		table.getSortOrder().add(nameColumn);
 
+		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten")) {
+			costColumn.setMinWidth(0);
+			costColumn.setPrefWidth(0);
+			costColumn.setMaxWidth(0);
+		}
+
 		GUIUtil.autosizeTable(table, 1, 0);
 
 		nameColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("description"));
@@ -119,7 +129,7 @@ public class SkillGroupController {
 				switch (getTableView().getItems().get(getIndex()).getSkill().firstChoiceOrText()) {
 				case TEXT:
 					if (items.size() > 0) {
-						final ComboBox<String> c = new ComboBox<>(items);
+						final ComboBox<String> c = new ReactiveComboBox<>(items);
 						c.setEditable(true);
 						createGraphic(c, () -> c.getSelectionModel().getSelectedItem(), s -> c.getSelectionModel().select(s));
 					} else {
@@ -128,7 +138,7 @@ public class SkillGroupController {
 					}
 					break;
 				case CHOICE:
-					final ComboBox<String> c = new ComboBox<>(items);
+					final ComboBox<String> c = new ReactiveComboBox<>(items);
 					createGraphic(c, () -> c.getSelectionModel().getSelectedItem(), s -> c.getSelectionModel().select(s));
 					break;
 				case NONE:
@@ -140,7 +150,7 @@ public class SkillGroupController {
 		});
 		descColumn.setOnEditCommit(t -> {
 			t.getRowValue().getSkill().setDescription(t.getNewValue());
-			t.getRowValue().resetCost(hero);
+			t.getRowValue().reset(hero);
 		});
 
 		variantColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("skillVariant"));
@@ -152,7 +162,7 @@ public class SkillGroupController {
 				switch (getTableView().getItems().get(getIndex()).getSkill().secondChoiceOrText()) {
 				case TEXT:
 					if (items.size() > 0) {
-						final ComboBox<String> c = new ComboBox<>(items);
+						final ComboBox<String> c = new ReactiveComboBox<>(items);
 						c.setEditable(true);
 						createGraphic(c, () -> c.getSelectionModel().getSelectedItem(), s -> c.getSelectionModel().select(s));
 					} else {
@@ -161,7 +171,7 @@ public class SkillGroupController {
 					}
 					break;
 				case CHOICE:
-					final ComboBox<String> c = new ComboBox<>(items);
+					final ComboBox<String> c = new ReactiveComboBox<>(items);
 					createGraphic(c, () -> c.getSelectionModel().getSelectedItem(), s -> c.getSelectionModel().select(s));
 					break;
 				case NONE:
@@ -173,10 +183,11 @@ public class SkillGroupController {
 		});
 		variantColumn.setOnEditCommit(t -> {
 			t.getRowValue().getSkill().setVariant(t.getNewValue());
-			t.getRowValue().resetCost(hero);
+			t.getRowValue().reset(hero);
 		});
 
-		costColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Integer>("cost"));
+		costColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Double>("cost"));
+		apColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Integer>("ap"));
 
 		validColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Boolean>("valid"));
 		validColumn.setCellFactory(tableColumn -> new TableCell<SkillEnhancement, Boolean>() {
@@ -250,9 +261,9 @@ public class SkillGroupController {
 		return pane;
 	}
 
-	public void recalculateCost(final JSONObject hero2) {
+	public void recalculate(final JSONObject hero) {
 		for (final SkillEnhancement enhancement : table.getItems()) {
-			enhancement.resetCost(hero);
+			enhancement.reset(hero);
 		}
 	}
 

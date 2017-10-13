@@ -20,8 +20,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 
 import dsa41basis.hero.Spell;
+import dsa41basis.util.DSAUtil;
 import dsatool.resources.ResourceManager;
+import dsatool.resources.Settings;
 import enhancement.enhancements.Enhancement;
+import enhancement.enhancements.EnhancementController;
 import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
 import jsonant.value.JSONValue;
@@ -70,7 +73,8 @@ public class SpellEnhancement extends TalentEnhancement {
 		}
 		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
 		result.method.set(enhancement.getString("Methode"));
-		result.cost.set(enhancement.getInt("AP"));
+		result.ap.set(enhancement.getInt("AP"));
+		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
 		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
 		result.updateDescription();
 		return result;
@@ -93,6 +97,25 @@ public class SpellEnhancement extends TalentEnhancement {
 		result.seMin = seMin;
 		result.updateDescription();
 		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see enhancement.enhancements.Enhancement#getCalculatedCost(jsonant.value.JSONObject)
+	 */
+	@Override
+	protected double getCalculatedCost(final JSONObject hero) {
+		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten")) return 0;
+		if (!"Lehrmeister".equals(method.get())) return 0;
+		if (hasCustomAP)
+			return ap.get() * 5;
+		else {
+			final int SELevel = start.get() + Math.min(target.get() - start.get(), ses.get());
+			final int ap = DSAUtil.getEnhancementCost(talent, hero, "Lehrmeister", SELevel, Math.max(target.get(), SELevel),
+					EnhancementController.usesChargenRules.get());
+			return ap * 5;
+		}
 	}
 
 	/*
@@ -123,7 +146,10 @@ public class SpellEnhancement extends TalentEnhancement {
 			result.put("SEs", resultSes);
 		}
 		result.put("Methode", method.get());
-		result.put("AP", cost.get());
+		result.put("AP", ap.get());
+		if (Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") && cost.get() != 0) {
+			result.put("Kosten", cost.get());
+		}
 		final LocalDate currentDate = LocalDate.now();
 		result.put("Datum", currentDate.toString());
 		return result;

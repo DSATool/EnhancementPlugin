@@ -19,7 +19,7 @@
             <TableColumn fx:id="attributesSesColumn" text="SEs" prefWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
             <TableColumn fx:id="attributesStartColumn" text="Von" prefWidth="60" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
             <TableColumn fx:id="attributesTargetColumn" text="Auf" prefWidth="60" resizable="false" sortable="false" editable="true" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="attributesCostColumn" text="Kosten" prefWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="attributesAPColumn" text="AP" prefWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
             <TableColumn fx:id="attributesValidColumn" minWidth="0" maxWidth="0" prefWidth="0" />
             <TableColumn fx:id="attributesCheaperColumn" minWidth="0" maxWidth="0" prefWidth="0" />
          </columns>
@@ -35,7 +35,7 @@
             <TableColumn fx:id="energiesSesColumn" text="SEs" prefWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
             <TableColumn fx:id="energiesStartColumn" text="Von" prefWidth="60" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
             <TableColumn fx:id="energiesTargetColumn" text="Auf" prefWidth="60" resizable="false" sortable="false" editable="true" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="energiesCostColumn" text="Kosten" prefWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" /> 
+            <TableColumn fx:id="energiesAPColumn" text="AP" prefWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" /> 
             <TableColumn fx:id="energiesValidColumn" minWidth="0" maxWidth="0" prefWidth="0" />
             <TableColumn fx:id="energiesCheaperColumn" minWidth="0" maxWidth="0" prefWidth="0" />           
          </columns>

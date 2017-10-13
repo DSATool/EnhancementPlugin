@@ -89,9 +89,9 @@ public class SkillController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateCost(final JSONObject hero) {
+	public void recalculate(final JSONObject hero) {
 		for (final SkillGroupController controller : skillControllers) {
-			controller.recalculateCost(hero);
+			controller.recalculate(hero);
 		}
 	}
 

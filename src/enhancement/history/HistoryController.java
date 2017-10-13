@@ -15,7 +15,9 @@
  */
 package enhancement.history;
 
+import dsa41basis.util.HeroUtil;
 import dsatool.gui.GUIUtil;
+import dsatool.resources.Settings;
 import dsatool.util.ErrorLogger;
 import enhancement.attributes.AttributeEnhancement;
 import enhancement.attributes.EnergyEnhancement;
@@ -49,7 +51,9 @@ public class HistoryController extends EnhancementTabController {
 	@FXML
 	private TableColumn<Enhancement, String> descriptionColumn;
 	@FXML
-	private TableColumn<Enhancement, Integer> costColumn;
+	private TableColumn<Enhancement, Double> costColumn;
+	@FXML
+	private TableColumn<Enhancement, Integer> apColumn;
 	@FXML
 	private TableColumn<Enhancement, String> dateColumn;
 
@@ -72,8 +76,14 @@ public class HistoryController extends EnhancementTabController {
 
 		table.prefWidthProperty().bind(pane.widthProperty().subtract(20));
 
+		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten")) {
+			costColumn.setMinWidth(0);
+			costColumn.setPrefWidth(0);
+			costColumn.setMaxWidth(0);
+		}
+
 		GUIUtil.autosizeTable(table, 0, 2);
-		GUIUtil.cellValueFactories(table, "fullDescription", "cost", "date");
+		GUIUtil.cellValueFactories(table, "fullDescription", "cost", "ap", "date");
 
 		final ContextMenu contextMenu = new ContextMenu();
 		final MenuItem undoItem = new MenuItem("Rückgängig");
@@ -99,23 +109,25 @@ public class HistoryController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateCost(final JSONObject hero) {}
+	public void recalculate(final JSONObject hero) {}
 
 	@Override
 	public void recalculateValid(final JSONObject hero) {}
 
 	private void undo(final int index) {
 		final JSONArray history = hero.getArr("Steigerungshistorie");
-		int ap = 0;
-		int sum = 0;
+		int totalAP = 0;
+		int freeAP = 0;
+		double cost = 0;
 		for (int i = 0; i <= index; ++i) {
 			final Enhancement enhancement = table.getItems().get(i);
 			if (enhancement instanceof APEnhancement) {
-				sum -= enhancement.getCost();
-				ap += enhancement.getCost();
+				freeAP -= enhancement.getAP();
+				totalAP += enhancement.getAP();
 			} else {
-				sum += enhancement.getCost();
+				freeAP += enhancement.getAP();
 			}
+			cost += enhancement.getCost();
 		}
 
 		final JSONObject bio = hero.getObj("Biografie");
@@ -126,16 +138,22 @@ public class HistoryController extends EnhancementTabController {
 		} else {
 			text += index + 1 + " Steigerungen rückgängig machen.\nDabei werden ";
 		}
-		if (ap > 0) {
-			text += ap + " AP entfernt und ";
-		} else if (ap < 0) {
-			text += -ap + " AP wiederhergestellt und ";
+		if (totalAP > 0) {
+			text += totalAP + " AP entfernt und ";
+		} else if (totalAP < 0) {
+			text += -totalAP + " AP wiederhergestellt und ";
 		}
-		if (sum < 0) {
-			text += "die freien AP um " + -sum + " reduziert.";
+		if (freeAP < 0) {
+			text += "die freien AP um " + -freeAP + " reduziert.";
 		} else {
-			text += sum + " freie AP rückerstattet.";
+			text += freeAP + " freie AP rückerstattet.";
 		}
+		if (cost > 0) {
+			text += "\nLehrmeisterkosten von " + cost + " Silber werden rückerstattet.";
+		}
+
+		final int finalFreeAP = freeAP;
+		final double finalCost = cost;
 
 		final Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Steigerungen rückgängig machen");
@@ -143,18 +161,15 @@ public class HistoryController extends EnhancementTabController {
 		alert.setContentText("Sollen die Steigerungen wirklich rückgängig gemacht werden?");
 		alert.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
 		alert.showAndWait().filter(response -> response.equals(ButtonType.OK)).ifPresent(response -> {
-			int cost = 0;
 			for (int i = 0; i <= index; ++i) {
-				final Enhancement enhancement = table.getItems().get(i);
-				enhancement.unapply(hero);
+				table.getItems().get(i).unapply(hero);
 				history.removeAt(history.size() - 1);
-				if (enhancement instanceof APEnhancement) {
-					cost -= enhancement.getCost();
-				} else {
-					cost += enhancement.getCost();
-				}
 			}
-			bio.put("Abenteuerpunkte-Guthaben", bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) + cost);
+			history.notifyListeners(null);
+
+			HeroUtil.addMoney(hero, (int) (finalCost * 100));
+
+			bio.put("Abenteuerpunkte-Guthaben", bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) + finalFreeAP);
 			bio.notifyListeners(null);
 
 			controller.update();

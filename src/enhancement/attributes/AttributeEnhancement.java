@@ -33,7 +33,7 @@ public class AttributeEnhancement extends Enhancement {
 		result.start.set(enhancement.getInt("Von"));
 		result.setTarget(enhancement.getInt("Auf"), hero);
 		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
-		result.cost.set(enhancement.getInt("AP"));
+		result.ap.set(enhancement.getInt("AP"));
 		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
 		result.updateDescription();
 		return result;
@@ -56,7 +56,7 @@ public class AttributeEnhancement extends Enhancement {
 		isMiserable = hero.getObj("Nachteile").containsKey(attributes.getObj(attribute.getName()).getString("Miserable Eigenschaft"));
 		fullDescription.bind(description);
 		updateDescription();
-		cost.set(getCalculatedCost(hero));
+		ap.set(getCalculatedAP(hero));
 		recalculateValid(hero);
 		cheaper.set(attribute.getSes() > 0);
 	}
@@ -96,9 +96,19 @@ public class AttributeEnhancement extends Enhancement {
 	}
 
 	@Override
-	protected int getCalculatedCost(final JSONObject hero) {
+	protected int getCalculatedAP(final JSONObject hero) {
 		final int SELevel = start.get() + Math.min(target.get() - start.get(), ses.get());
 		return (DSAUtil.getEnhancementCost(7, start.get(), SELevel) + DSAUtil.getEnhancementCost(8, SELevel, target.get())) * (isMiserable ? 2 : 1);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see enhancement.enhancements.Enhancement#getCalculatedCost(jsonant.value.JSONObject)
+	 */
+	@Override
+	protected double getCalculatedCost(final JSONObject hero) {
+		return 0;
 	}
 
 	@Override
@@ -128,14 +138,14 @@ public class AttributeEnhancement extends Enhancement {
 
 	public void setSes(final int ses, final JSONObject hero) {
 		this.ses.set(ses);
-		resetCost(hero);
+		reset(hero);
 	}
 
 	public void setTarget(final int target, final JSONObject hero) {
 		this.target.set(target);
 		updateDescription();
 		recalculateValid(hero);
-		resetCost(hero);
+		reset(hero);
 	}
 
 	public IntegerProperty startProperty() {
@@ -162,7 +172,7 @@ public class AttributeEnhancement extends Enhancement {
 		if (resultSes > 0) {
 			result.put("SEs", resultSes);
 		}
-		result.put("AP", cost.get());
+		result.put("AP", ap.get());
 		final LocalDate currentDate = LocalDate.now();
 		result.put("Datum", currentDate.toString());
 		return result;

@@ -53,7 +53,7 @@ public class QuirksController extends EnhancementTabController {
 	@FXML
 	private TableColumn<QuirkEnhancement, Integer> targetColumn;
 	@FXML
-	private TableColumn<QuirkEnhancement, Integer> costColumn;
+	private TableColumn<QuirkEnhancement, Integer> apColumn;
 	@FXML
 	private TableColumn<QuirkEnhancement, Boolean> validColumn;
 	@FXML
@@ -75,7 +75,7 @@ public class QuirksController extends EnhancementTabController {
 		table.prefWidthProperty().bind(pane.widthProperty().subtract(20));
 
 		GUIUtil.autosizeTable(table, 0, 2);
-		GUIUtil.cellValueFactories(table, "description", "ses", "start", "target", "cost", "valid", "cheaper");
+		GUIUtil.cellValueFactories(table, "description", "ses", "start", "target", "ap", "valid", "cheaper");
 
 		nameColumn.setCellFactory(c -> new TextFieldTableCell<QuirkEnhancement, String>() {
 			@Override
@@ -162,9 +162,9 @@ public class QuirksController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateCost(final JSONObject hero) {
+	public void recalculate(final JSONObject hero) {
 		for (final QuirkEnhancement enhancement : table.getItems()) {
-			enhancement.resetCost(hero);
+			enhancement.reset(hero);
 		}
 	}
 

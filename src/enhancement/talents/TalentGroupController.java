@@ -25,9 +25,11 @@ import dsa41basis.hero.Talent;
 import dsa41basis.util.DSAUtil;
 import dsatool.gui.GUIUtil;
 import dsatool.resources.ResourceManager;
+import dsatool.resources.Settings;
 import dsatool.util.ErrorLogger;
 import dsatool.util.GraphicTableCell;
 import dsatool.util.IntegerSpinnerTableCell;
+import dsatool.util.ReactiveComboBoxTableCell;
 import dsatool.util.ReactiveSpinner;
 import dsatool.util.Tuple;
 import dsatool.util.Util;
@@ -47,7 +49,6 @@ import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
-import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.Region;
 import jsonant.value.JSONArray;
@@ -70,7 +71,9 @@ public class TalentGroupController {
 	@FXML
 	private TableColumn<TalentEnhancement, String> methodColumn;
 	@FXML
-	private TableColumn<TalentEnhancement, Integer> costColumn;
+	private TableColumn<TalentEnhancement, Double> costColumn;
+	@FXML
+	private TableColumn<TalentEnhancement, Integer> apColumn;
 	@FXML
 	private TableColumn<TalentEnhancement, Boolean> validColumn;
 	@FXML
@@ -117,8 +120,14 @@ public class TalentGroupController {
 			nameColumn.setText("Zauber");
 		}
 
+		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten")) {
+			costColumn.setMinWidth(0);
+			costColumn.setPrefWidth(0);
+			costColumn.setMaxWidth(0);
+		}
+
 		GUIUtil.autosizeTable(table, 0, "Zauber".equals(name) ? 2 : 0);
-		GUIUtil.cellValueFactories(table, "description", "ses", "startString", "targetString", "method", "cost", "valid", "cheaper");
+		GUIUtil.cellValueFactories(table, "description", "ses", "startString", "targetString", "method", "cost", "ap", "valid", "cheaper");
 
 		nameColumn.setCellFactory(c -> new TextFieldTableCell<TalentEnhancement, String>() {
 			@Override
@@ -187,7 +196,7 @@ public class TalentGroupController {
 			t.getRowValue().setTarget(t.getNewValue(), hero, EnhancementController.instance.getEnhancements());
 		});
 
-		methodColumn.setCellFactory(ComboBoxTableCell.forTableColumn("Lehrmeister", "Gegenseitiges Lehren", "Selbststudium"));
+		methodColumn.setCellFactory(ReactiveComboBoxTableCell.forTableColumn(false, "Lehrmeister", "Gegenseitiges Lehren", "Selbststudium"));
 		methodColumn.setOnEditCommit((final CellEditEvent<TalentEnhancement, String> t) -> {
 			t.getRowValue().setMethod(t.getNewValue(), hero);
 		});
@@ -361,9 +370,9 @@ public class TalentGroupController {
 		return pane;
 	}
 
-	public void recalculateCost(final JSONObject hero2) {
+	public void recalculate(final JSONObject hero) {
 		for (final TalentEnhancement enhancement : table.getItems()) {
-			enhancement.resetCost(hero);
+			enhancement.reset(hero);
 		}
 	}
 

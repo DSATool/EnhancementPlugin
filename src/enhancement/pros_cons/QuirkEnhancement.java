@@ -37,7 +37,7 @@ public class QuirkEnhancement extends Enhancement {
 		result.start.set(enhancement.getInt("Von"));
 		result.setTarget(enhancement.getInt("Auf"), hero, enhancements);
 		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
-		result.cost.set(enhancement.getInt("AP"));
+		result.ap.set(enhancement.getInt("AP"));
 		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
 		result.updateDescription();
 		return result;
@@ -110,9 +110,19 @@ public class QuirkEnhancement extends Enhancement {
 	}
 
 	@Override
-	protected int getCalculatedCost(final JSONObject hero) {
+	protected int getCalculatedAP(final JSONObject hero) {
 		final int SELevel = start.get() - Math.min(ses.get(), start.get() - target.get());
 		return (int) (((start.get() - SELevel) * 50 + (SELevel - target.get()) * 75) * quirk.getProOrCon().getDoubleOrDefault("Kosten", 1.0));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see enhancement.enhancements.Enhancement#getCalculatedCost(jsonant.value.JSONObject)
+	 */
+	@Override
+	protected double getCalculatedCost(final JSONObject hero) {
+		return 0;
 	}
 
 	@Override
@@ -146,7 +156,7 @@ public class QuirkEnhancement extends Enhancement {
 
 	public void setSes(final int ses, final JSONObject hero) {
 		this.ses.set(ses);
-		resetCost(hero);
+		reset(hero);
 	}
 
 	public void setTarget(final int target, final JSONObject hero, final Collection<Enhancement> enhancements) {
@@ -159,7 +169,7 @@ public class QuirkEnhancement extends Enhancement {
 		this.target.set(target);
 		updateDescription();
 		recalculateValid(hero);
-		resetCost(hero);
+		reset(hero);
 
 		for (final Enhancement e : enhancementStack) {
 			e.unapply(hero);
@@ -190,7 +200,7 @@ public class QuirkEnhancement extends Enhancement {
 		if (resultSes > 0) {
 			result.put("SEs", resultSes);
 		}
-		result.put("AP", cost.get());
+		result.put("AP", ap.get());
 		final LocalDate currentDate = LocalDate.now();
 		result.put("Datum", currentDate.toString());
 		return result;
@@ -236,7 +246,7 @@ public class QuirkEnhancement extends Enhancement {
 		final String desc = DSAUtil.printProOrCon(quirk.getActual(), quirk.getName(), quirk.getProOrCon(), false) + " (" + start.get() + "->" + target.get()
 				+ ")";
 		description.set(desc);
-		cost.set(getCalculatedCost(null));
+		recalculateCosts(null);
 	}
 
 }

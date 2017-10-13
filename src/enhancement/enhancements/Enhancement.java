@@ -16,9 +16,11 @@
 package enhancement.enhancements;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -27,16 +29,22 @@ import jsonant.value.JSONObject;
 public abstract class Enhancement {
 	protected final StringProperty description = new SimpleStringProperty();
 	protected final StringProperty fullDescription = new SimpleStringProperty();
-	protected final IntegerProperty cost = new SimpleIntegerProperty();
+	protected final DoubleProperty cost = new SimpleDoubleProperty();
+	protected final IntegerProperty ap = new SimpleIntegerProperty();
 	protected final BooleanProperty valid = new SimpleBooleanProperty(true);
 	protected final BooleanProperty cheaper = new SimpleBooleanProperty(false);
 	protected final StringProperty date = new SimpleStringProperty();
 
-	private boolean hasCustomCost = false;
+	protected boolean hasCustomCost = false;
+	protected boolean hasCustomAP = false;
 
 	public abstract void apply(JSONObject hero);
 
 	public abstract void applyTemporarily(JSONObject hero);
+
+	public IntegerProperty apProperty() {
+		return ap;
+	}
 
 	protected abstract boolean calculateValid(JSONObject hero);
 
@@ -44,7 +52,7 @@ public abstract class Enhancement {
 		return cheaper;
 	}
 
-	public IntegerProperty costProperty() {
+	public DoubleProperty costProperty() {
 		return cost;
 	}
 
@@ -60,9 +68,15 @@ public abstract class Enhancement {
 		return fullDescription;
 	}
 
-	protected abstract int getCalculatedCost(JSONObject hero);
+	public int getAP() {
+		return ap.get();
+	}
 
-	public int getCost() {
+	protected abstract int getCalculatedAP(JSONObject hero);
+
+	protected abstract double getCalculatedCost(JSONObject hero);
+
+	public double getCost() {
 		return cost.get();
 	}
 
@@ -80,9 +94,12 @@ public abstract class Enhancement {
 		return valid.get();
 	}
 
-	public void recalculateCost(final JSONObject hero) {
+	public void recalculateCosts(final JSONObject hero) {
+		if (!hasCustomAP) {
+			ap.set(getCalculatedAP(hero));
+		}
 		if (!hasCustomCost) {
-			resetCost(hero);
+			cost.set(getCalculatedCost(hero));
 		}
 	}
 
@@ -90,12 +107,22 @@ public abstract class Enhancement {
 		valid.set(calculateValid(hero));
 	}
 
-	public void resetCost(final JSONObject hero) {
+	public void reset(final JSONObject hero) {
+		ap.set(getCalculatedAP(hero));
 		cost.set(getCalculatedCost(hero));
+		hasCustomAP = false;
 		hasCustomCost = false;
 	}
 
-	public void setCost(final int cost) {
+	public void setAP(final int ap, final JSONObject hero) {
+		this.ap.set(ap);
+		hasCustomAP = true;
+		if (!hasCustomCost) {
+			cost.set(getCalculatedCost(hero));
+		}
+	}
+
+	public void setCost(final double cost) {
 		this.cost.set(cost);
 		hasCustomCost = true;
 	}

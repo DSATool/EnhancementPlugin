@@ -5,7 +5,6 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.HBox?>
 
 <ScrollPane fx:id="pane" vbarPolicy="ALWAYS" fitToWidth="true" style="-fx-padding: 2, 2, 2, 2;" xmlns:fx="http://javafx.com/fxml" >
    <TableView fx:id="table" editable="true" fixedCellSize="28" >
@@ -22,7 +21,7 @@
          <TableColumn fx:id="sesColumn" text="SEs" prefWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
          <TableColumn fx:id="startColumn" text="Von" prefWidth="60" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
          <TableColumn fx:id="targetColumn" text="Auf" prefWidth="60" resizable="false" sortable="false" editable="true" style="-fx-alignment: CENTER;" />
-         <TableColumn fx:id="costColumn" text="Kosten" prefWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+         <TableColumn fx:id="apColumn" text="AP" prefWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
          <TableColumn fx:id="validColumn" minWidth="0" maxWidth="0" prefWidth="0" />
          <TableColumn fx:id="cheaperColumn" minWidth="0" maxWidth="0" prefWidth="0" />
       </columns>

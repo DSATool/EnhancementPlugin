@@ -19,16 +19,22 @@
          <columns>
             <TableColumn fx:id="descriptionColumn" text="Steigerung" minWidth="100" sortable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
             <TableColumn fx:id="costColumn" text="Kosten" prefWidth="75" resizable="false" editable="true" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="apColumn" text="AP" prefWidth="75" resizable="false" editable="true" sortable="false" style="-fx-alignment: CENTER;" />
          </columns>
       </TableView>
    </ScrollPane>
    <HBox spacing="2">
-      <Label text="Kosten: " />
-      <Label fx:id="costLabel" prefWidth="35" alignment="CENTER_RIGHT" />
-      <Label text="AP" prefWidth="50" />
-      <Label text="vorhanden: " />
+      <Label text="AP: " />
       <Label fx:id="apLabel" prefWidth="35" alignment="CENTER_RIGHT" />
       <Label text="AP" prefWidth="50" />
+      <Label text="vorhanden: " />
+      <Label fx:id="availableApLabel" prefWidth="35" alignment="CENTER_RIGHT" />
+      <Label text="AP" prefWidth="50" />
+      <HBox fx:id="costBox" spacing="2">
+         <Label text="Kosten: " />
+         <Label fx:id="costLabel" prefWidth="35" alignment="CENTER_RIGHT" />
+         <Label text="Silber" prefWidth="50" />
+      </HBox>
       <CheckBox fx:id="chargenRules" text="Generierungsregeln" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
       <Button text="Zurücksetzen" onAction="#clear" />
       <Button text="Anwenden" onAction="#apply" />

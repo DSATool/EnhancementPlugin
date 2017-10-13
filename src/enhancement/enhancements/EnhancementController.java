@@ -24,6 +24,9 @@ import java.util.Stack;
 
 import dsa41basis.ui.hero.HeroController;
 import dsa41basis.ui.hero.HeroSelector;
+import dsa41basis.util.HeroUtil;
+import dsatool.resources.Settings;
+import dsatool.util.DoubleSpinnerTableCell;
 import dsatool.util.ErrorLogger;
 import dsatool.util.IntegerSpinnerTableCell;
 import enhancement.attributes.AttributesController;
@@ -54,6 +57,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import jsonant.event.JSONListener;
@@ -77,17 +81,24 @@ public class EnhancementController extends HeroSelector {
 	@FXML
 	private TableColumn<Enhancement, String> descriptionColumn;
 	@FXML
-	private TableColumn<Enhancement, Integer> costColumn;
+	private TableColumn<Enhancement, Double> costColumn;
 	@FXML
-	private Label apLabel;
+	private TableColumn<Enhancement, Integer> apColumn;
+	@FXML
+	private Label availableApLabel;
+	@FXML
+	private HBox costBox;
 	@FXML
 	private Label costLabel;
+	@FXML
+	private Label apLabel;
 	@FXML
 	private CheckBox chargenRules;
 
 	private JSONObject hero;
 
-	private final JSONListener apListener = o -> apLabel.setText(Integer.toString(hero.getObj("Biografie").getIntOrDefault("Abenteuerpunkte-Guthaben", 0)));
+	private final JSONListener apListener = o -> availableApLabel
+			.setText(Integer.toString(hero.getObj("Biografie").getIntOrDefault("Abenteuerpunkte-Guthaben", 0)));
 
 	public EnhancementController() {
 		super(false);
@@ -127,16 +138,34 @@ public class EnhancementController extends HeroSelector {
 			}
 		}
 
+		final int ap = calculateAP();
+		final double cost = calculateCost();
+
 		final JSONObject bio = hero.getObj("Biografie");
+		final JSONObject money = hero.getObj("Besitz").getObj("Geld");
+
+		int availableMoney = 0;
+		for (final String unit : new String[] { "Dukaten", "Silbertaler", "Heller", "Kreuzer" }) {
+			availableMoney *= 10;
+			availableMoney += money.getIntOrDefault(unit, 0);
+		}
+
+		String text = "Die ausgewählten Steigerungen kosten " + ap + " AP (" + bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) + " AP verfügbar).";
+		if (Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") && cost != 0) {
+			text += "\nEs werden " + cost + " Silber an Lehrmeisterkosten fällig (" + availableMoney / 100.0 + " verfügbar).";
+		}
+
 		final Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Steigerungen anwenden");
-		alert.setHeaderText(
-				"Die ausgewählten Steigerungen kosten " + calculateCost() + " AP (" + bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) + " AP verfügbar).");
+		alert.setHeaderText(text);
 		alert.setContentText("Sollen die Steigerungen wirklich angewendet werden?");
 		alert.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
 		alert.showAndWait().filter(response -> response.equals(ButtonType.OK)).ifPresent(response -> {
 			final JSONArray history = hero.getArr("Steigerungshistorie");
-			bio.put("Abenteuerpunkte-Guthaben", bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) - calculateCost());
+			bio.put("Abenteuerpunkte-Guthaben", bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) - ap);
+			if (Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") && cost != 0) {
+				HeroUtil.addMoney(hero, (int) cost * -100);
+			}
 			final ArrayList<Enhancement> enhancements = new ArrayList<>(enhancementTable.getItems());
 			enhancementTable.getItems().clear();
 			for (final Enhancement enhancement : enhancements) {
@@ -144,6 +173,7 @@ public class EnhancementController extends HeroSelector {
 				history.add(enhancement.toJSON().clone(history));
 			}
 			bio.notifyListeners(null);
+			history.notifyListeners(null);
 			update();
 		});
 	}
@@ -153,8 +183,16 @@ public class EnhancementController extends HeroSelector {
 		return bio.getIntOrDefault("Abenteuerpunkte", 0).equals(bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0));
 	}
 
-	private int calculateCost() {
-		int cost = 0;
+	private int calculateAP() {
+		int ap = 0;
+		for (final Enhancement enhancement : enhancementTable.getItems()) {
+			ap += enhancement.getAP();
+		}
+		return ap;
+	}
+
+	private double calculateCost() {
+		double cost = 0;
 		for (final Enhancement enhancement : enhancementTable.getItems()) {
 			cost += enhancement.getCost();
 		}
@@ -194,25 +232,41 @@ public class EnhancementController extends HeroSelector {
 		tabs.prefHeightProperty().bind(pane.heightProperty().divide(2));
 		enhancementTable.prefHeightProperty().bind(pane.heightProperty().divide(2).subtract(40));
 
+		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten")) {
+			costColumn.setMinWidth(0);
+			costColumn.setPrefWidth(0);
+			costColumn.setMaxWidth(0);
+			costBox.setVisible(false);
+			costBox.setManaged(false);
+		}
+
 		DoubleBinding width = enhancementTable.widthProperty().subtract(2);
 		width = width.subtract(costColumn.widthProperty());
+		width = width.subtract(apColumn.widthProperty());
 		descriptionColumn.prefWidthProperty().bind(width);
 
 		descriptionColumn.setCellValueFactory(new PropertyValueFactory<Enhancement, String>("fullDescription"));
 
-		costColumn.setCellValueFactory(new PropertyValueFactory<Enhancement, Integer>("cost"));
-		costColumn.setCellFactory(o -> new IntegerSpinnerTableCell<>(0, 9999, 1, false));
+		costColumn.setCellValueFactory(new PropertyValueFactory<Enhancement, Double>("cost"));
+		costColumn.setCellFactory(o -> new DoubleSpinnerTableCell<>(0, 9999, 0.1, false));
 		costColumn.setOnEditCommit(t -> {
 			t.getRowValue().setCost(t.getNewValue());
-			recalculateCost();
+			recalculate();
+		});
+
+		apColumn.setCellValueFactory(new PropertyValueFactory<Enhancement, Integer>("ap"));
+		apColumn.setCellFactory(o -> new IntegerSpinnerTableCell<>(0, 9999, 1, false));
+		apColumn.setOnEditCommit(t -> {
+			t.getRowValue().setAP(t.getNewValue(), hero);
+			recalculate();
 		});
 
 		final ContextMenu contextMenu = new ContextMenu();
 		final MenuItem resetItem = new MenuItem("Zurücksetzen");
 		contextMenu.getItems().add(resetItem);
 		resetItem.setOnAction(o -> {
-			enhancementTable.getSelectionModel().getSelectedItem().resetCost(hero);
-			recalculateCost();
+			enhancementTable.getSelectionModel().getSelectedItem().reset(hero);
+			recalculate();
 		});
 		final MenuItem removeItem = new MenuItem("Entfernen");
 		contextMenu.getItems().add(removeItem);
@@ -286,34 +340,37 @@ public class EnhancementController extends HeroSelector {
 			return row;
 		});
 
+		apLabel.setText("0");
 		costLabel.setText("0");
+
 		enhancementTable.getItems().addListener((final Change<? extends Enhancement> c) -> {
 			c.next();
 			if (c.wasAdded()) {
 				recalculateValid();
 			}
-			recalculateCost();
+			recalculate();
 		});
 
 		usesChargenRules.bindBidirectional(chargenRules.selectedProperty());
-		usesChargenRules.addListener((o, oldV, newV) -> recalculateCost());
+		usesChargenRules.addListener((o, oldV, newV) -> recalculate());
 
 		super.load();
 	}
 
-	private void recalculateCost() {
+	private void recalculate() {
 		final Stack<Enhancement> enhancements = new Stack<>();
 		for (final Enhancement e : enhancementTable.getItems()) {
-			e.recalculateCost(hero);
+			e.recalculateCosts(hero);
 			e.applyTemporarily(hero);
 			enhancements.push(e);
 		}
 		for (final HeroController controller : controllers) {
-			((EnhancementTabController) controller).recalculateCost(hero);
+			((EnhancementTabController) controller).recalculate(hero);
 		}
 		for (final Enhancement e : enhancements) {
 			e.unapply(hero);
 		}
+		apLabel.setText(String.valueOf(calculateAP()));
 		costLabel.setText(String.valueOf(calculateCost()));
 	}
 
@@ -340,7 +397,7 @@ public class EnhancementController extends HeroSelector {
 		}
 		hero = heroes.get(index);
 		chargenRules.setSelected(applyChargenRules(hero));
-		apLabel.setText(Integer.toString(hero.getObj("Biografie").getIntOrDefault("Abenteuerpunkte-Guthaben", 0)));
+		availableApLabel.setText(Integer.toString(hero.getObj("Biografie").getIntOrDefault("Abenteuerpunkte-Guthaben", 0)));
 		hero.getObj("Biografie").addListener(apListener);
 		super.setHero(index);
 	}

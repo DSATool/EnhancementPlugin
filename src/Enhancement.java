@@ -19,6 +19,7 @@ import java.util.Arrays;
 import dsatool.gui.Main;
 import dsatool.plugins.Plugin;
 import dsatool.resources.Settings;
+import dsatool.settings.BooleanSetting;
 import dsatool.settings.StringChoiceSetting;
 import enhancement.enhancements.EnhancementController;
 
@@ -31,7 +32,7 @@ public class Enhancement extends Plugin {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see plugins.Plugin#getPluginName()
 	 */
 	@Override
@@ -41,7 +42,7 @@ public class Enhancement extends Plugin {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see plugins.Plugin#initialize()
 	 */
 	@Override
@@ -51,11 +52,12 @@ public class Enhancement extends Plugin {
 		});
 		Settings.addSetting(new StringChoiceSetting("Lernmethode", "Gegenseitiges Lehren",
 				Arrays.asList("Lehrmeister", "Gegenseitiges Lehren", "Selbststudium"), "Steigerung", "Lernmethode"));
+		Settings.addSetting(new BooleanSetting("Lehrmeisterkosten", true, "Steigerung", "Lehrmeisterkosten"));
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see plugins.Plugin#load()
 	 */
 	@Override

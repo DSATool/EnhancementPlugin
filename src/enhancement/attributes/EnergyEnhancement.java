@@ -35,7 +35,7 @@ public class EnergyEnhancement extends Enhancement {
 		result.start.set(enhancement.getInt("Von"));
 		result.target.set(enhancement.getInt("Auf"));
 		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
-		result.cost.set(enhancement.getInt("AP"));
+		result.ap.set(enhancement.getInt("AP"));
 		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
 		result.updateDescription();
 		return result;
@@ -56,7 +56,7 @@ public class EnergyEnhancement extends Enhancement {
 		ses = new SimpleIntegerProperty(seMin);
 		fullDescription.bind(description);
 		updateDescription();
-		cost.set(getCalculatedCost(hero));
+		ap.set(getCalculatedAP(hero));
 		recalculateValid(hero);
 		cheaper.set(energy.getSes() > 0);
 	}
@@ -96,10 +96,20 @@ public class EnergyEnhancement extends Enhancement {
 	}
 
 	@Override
-	protected int getCalculatedCost(final JSONObject hero) {
+	protected int getCalculatedAP(final JSONObject hero) {
 		final int SELevel = energy.getBought() + Math.min(target.getValue() - energy.getBought(), ses.get());
 		return DSAUtil.getEnhancementCost(energy.getEnhancementCost() - 1, energy.getBought(), SELevel)
 				+ DSAUtil.getEnhancementCost(energy.getEnhancementCost(), SELevel, target.getValue());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see enhancement.enhancements.Enhancement#getCalculatedCost(jsonant.value.JSONObject)
+	 */
+	@Override
+	protected double getCalculatedCost(final JSONObject hero) {
+		return 0;
 	}
 
 	@Override
@@ -129,14 +139,14 @@ public class EnergyEnhancement extends Enhancement {
 
 	public void setSes(final int ses, final JSONObject hero) {
 		this.ses.set(ses);
-		resetCost(hero);
+		reset(hero);
 	}
 
 	public void setTarget(final int target, final JSONObject hero) {
 		this.target.set(target + energy.getBought() - energy.getMax());
 		updateDescription();
 		recalculateValid(hero);
-		resetCost(hero);
+		reset(hero);
 	}
 
 	/*
@@ -155,7 +165,7 @@ public class EnergyEnhancement extends Enhancement {
 		if (resultSes > 0) {
 			result.put("SEs", resultSes);
 		}
-		result.put("AP", cost.get());
+		result.put("AP", ap.get());
 		final LocalDate currentDate = LocalDate.now();
 		result.put("Datum", currentDate.toString());
 		return result;

@@ -53,7 +53,7 @@ public class AttributesController extends EnhancementTabController {
 	@FXML
 	private TableColumn<AttributeEnhancement, Integer> attributesTargetColumn;
 	@FXML
-	private TableColumn<AttributeEnhancement, Integer> attributesCostColumn;
+	private TableColumn<AttributeEnhancement, Integer> attributesAPColumn;
 	@FXML
 	private TableColumn<AttributeEnhancement, Boolean> attributesValidColumn;
 	@FXML
@@ -69,7 +69,7 @@ public class AttributesController extends EnhancementTabController {
 	@FXML
 	private TableColumn<EnergyEnhancement, Integer> energiesTargetColumn;
 	@FXML
-	private TableColumn<EnergyEnhancement, Integer> energiesCostColumn;
+	private TableColumn<EnergyEnhancement, Integer> energiesAPColumn;
 	@FXML
 	private TableColumn<EnergyEnhancement, Boolean> energiesValidColumn;
 	@FXML
@@ -91,7 +91,7 @@ public class AttributesController extends EnhancementTabController {
 		attributesTable.prefWidthProperty().bind(pane.widthProperty().subtract(22).divide(2));
 
 		GUIUtil.autosizeTable(attributesTable, 0, 2);
-		GUIUtil.cellValueFactories(attributesTable, "description", "ses", "start", "target", "cost", "valid", "cheaper");
+		GUIUtil.cellValueFactories(attributesTable, "description", "ses", "start", "target", "ap", "valid", "cheaper");
 
 		attributesSesColumn.setCellFactory(IntegerSpinnerTableCell.<AttributeEnhancement> forTableColumn(0, 0, 1, false,
 				(final IntegerSpinnerTableCell<AttributeEnhancement> cell, final Boolean empty) -> {
@@ -157,7 +157,7 @@ public class AttributesController extends EnhancementTabController {
 		energiesTable.prefWidthProperty().bind(pane.widthProperty().subtract(22).divide(2));
 
 		GUIUtil.autosizeTable(energiesTable, 0, 2);
-		GUIUtil.cellValueFactories(energiesTable, "description", "ses", "start", "target", "cost", "valid", "cheaper");
+		GUIUtil.cellValueFactories(energiesTable, "description", "ses", "start", "target", "ap", "valid", "cheaper");
 
 		energiesSesColumn.setCellFactory(
 				IntegerSpinnerTableCell.<EnergyEnhancement> forTableColumn(0, 0, 1, false,
@@ -234,12 +234,12 @@ public class AttributesController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateCost(final JSONObject hero) {
+	public void recalculate(final JSONObject hero) {
 		for (final AttributeEnhancement enhancement : attributesTable.getItems()) {
-			enhancement.resetCost(hero);
+			enhancement.reset(hero);
 		}
 		for (final EnergyEnhancement enhancement : energiesTable.getItems()) {
-			enhancement.resetCost(hero);
+			enhancement.reset(hero);
 		}
 	}
 

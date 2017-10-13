@@ -39,7 +39,7 @@ public class APEnhancement extends Enhancement {
 		this.target = new SimpleIntegerProperty(target);
 		fullDescription.bind(description);
 		description.set("Abenteuerpunkte (" + this.start.get() + "->" + this.target.get() + ")");
-		cost.set(target - start);
+		ap.set(target - start);
 	}
 
 	@Override
@@ -54,8 +54,18 @@ public class APEnhancement extends Enhancement {
 	}
 
 	@Override
-	protected int getCalculatedCost(final JSONObject hero) {
+	protected int getCalculatedAP(final JSONObject hero) {
 		return start.get() - target.get();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see enhancement.enhancements.Enhancement#getCalculatedCost(jsonant.value.JSONObject)
+	 */
+	@Override
+	protected double getCalculatedCost(final JSONObject hero) {
+		return 0;
 	}
 
 	@Override
