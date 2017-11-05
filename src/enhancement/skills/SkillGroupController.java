@@ -76,7 +76,7 @@ public class SkillGroupController {
 	private final List<SkillEnhancement> invalid = new ArrayList<>();
 
 	private final JSONListener listener = o -> {
-		fillTable();
+		recalculateValid(hero);
 	};
 
 	public SkillGroupController(final ScrollPane parent, final String name, final JSONObject skills, final BooleanProperty showAll) {
