@@ -169,9 +169,9 @@ public class SkillEnhancement extends Enhancement {
 
 		final JSONObject group = (JSONObject) skill.getProOrCon().getParent();
 		if (group == ResourceManager.getResource("data/Sonderfertigkeiten").getObj("Magische Sonderfertigkeiten") ||
-				group == ResourceManager.getResource("data/Rituale") || group == ResourceManager.getResource("data/Schamanenrituale"))
+				group.getParent() == ResourceManager.getResource("data/Rituale") || group == ResourceManager.getResource("data/Schamanenrituale"))
 			return ap.get() * 5;
-		return ap.get() * 0.7;
+		return ap.get() * 7 / 10.0;
 	}
 
 	@Override
