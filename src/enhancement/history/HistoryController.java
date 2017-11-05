@@ -115,7 +115,7 @@ public class HistoryController extends EnhancementTabController {
 	public void recalculateValid(final JSONObject hero) {}
 
 	private void undo(final int index) {
-		final JSONArray history = hero.getArr("Steigerungshistorie");
+		final JSONArray history = hero.getArr("Historie");
 		int totalAP = 0;
 		int freeAP = 0;
 		double cost = 0;
@@ -180,7 +180,7 @@ public class HistoryController extends EnhancementTabController {
 	public void update() {
 		table.getItems().clear();
 
-		final JSONArray history = hero.getArr("Steigerungshistorie");
+		final JSONArray history = hero.getArr("Historie");
 		for (int i = history.size() - 1; i >= 0; --i) {
 			final JSONObject entry = history.getObj(i);
 			switch (entry.getString("Typ")) {

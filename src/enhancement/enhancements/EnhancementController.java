@@ -161,7 +161,7 @@ public class EnhancementController extends HeroSelector {
 		alert.setContentText("Sollen die Steigerungen wirklich angewendet werden?");
 		alert.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
 		alert.showAndWait().filter(response -> response.equals(ButtonType.OK)).ifPresent(response -> {
-			final JSONArray history = hero.getArr("Steigerungshistorie");
+			final JSONArray history = hero.getArr("Historie");
 			bio.put("Abenteuerpunkte-Guthaben", bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) - ap);
 			if (Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") && cost != 0) {
 				HeroUtil.addMoney(hero, (int) cost * -100);
@@ -192,11 +192,11 @@ public class EnhancementController extends HeroSelector {
 	}
 
 	private double calculateCost() {
-		double cost = 0;
+		int cost = 0;
 		for (final Enhancement enhancement : enhancementTable.getItems()) {
-			cost += enhancement.getCost();
+			cost += enhancement.getCost() * 100;
 		}
-		return cost;
+		return cost / 100.0;
 	}
 
 	@FXML
