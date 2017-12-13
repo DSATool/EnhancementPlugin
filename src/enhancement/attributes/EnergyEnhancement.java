@@ -29,8 +29,7 @@ import jsonant.value.JSONObject;
 public class EnergyEnhancement extends Enhancement {
 	public static EnergyEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
 		final String energyName = enhancement.getString("Basiswert");
-		final Energy energy = new Energy(energyName, ResourceManager.getResource("data/Basiswerte").getObj(energyName), hero.getObj("Eigenschaften"),
-				hero.getObj("Basiswerte"));
+		final Energy energy = new Energy(energyName, ResourceManager.getResource("data/Basiswerte").getObj(energyName), hero);
 		final EnergyEnhancement result = new EnergyEnhancement(energy, hero);
 		result.start.set(enhancement.getInt("Von"));
 		result.target.set(enhancement.getInt("Auf"));
