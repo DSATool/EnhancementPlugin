@@ -19,9 +19,14 @@ import dsa41basis.ui.hero.HeroController;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import jsonant.event.JSONListener;
 import jsonant.value.JSONObject;
 
 public abstract class EnhancementTabController implements HeroController {
+
+	protected JSONListener heroListener = o -> {
+		update();
+	};
 
 	protected JSONObject hero;
 

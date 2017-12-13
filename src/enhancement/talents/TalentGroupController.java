@@ -51,6 +51,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.Region;
+import jsonant.event.JSONListener;
 import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
 
@@ -88,6 +89,10 @@ public class TalentGroupController {
 	private final JSONObject talents;
 	private final String talentGroup;
 	protected JSONObject hero;
+
+	private final JSONListener listener = o -> {
+		recalculateValid(hero);
+	};
 
 	private final List<TalentEnhancement> alreadyEnhanced = new ArrayList<>();
 
@@ -193,7 +198,7 @@ public class TalentGroupController {
 			}
 		});
 		targetColumn.setOnEditCommit(t -> {
-			t.getRowValue().setTarget(t.getNewValue(), hero, EnhancementController.instance.getEnhancements());
+			t.getRowValue().setTarget(t.getNewValue(), hero);
 		});
 
 		methodColumn.setCellFactory(ReactiveComboBoxTableCell.forTableColumn(false, "Lehrmeister", "Gegenseitiges Lehren", "Selbststudium"));
@@ -209,7 +214,7 @@ public class TalentGroupController {
 			if (item != null) {
 				table.getItems().remove(item);
 				alreadyEnhanced.add(item);
-				EnhancementController.instance.addEnhancement(item.clone(hero, EnhancementController.instance.getEnhancements()));
+				EnhancementController.instance.addEnhancement(item.clone(hero));
 			}
 		});
 		table.setContextMenu(contextMenu);
@@ -291,10 +296,10 @@ public class TalentGroupController {
 
 		if ("Zauber".equals(talentGroup)) {
 			table.getItems()
-					.add(new SpellEnhancement(new Spell(talentName, group.getObj(talentName), null, null, actual, representation), hero));
+					.add(new SpellEnhancement(Spell.getSpell(talentName, group.getObj(talentName), null, null, actual, representation), hero));
 		} else {
 			table.getItems()
-					.add(new TalentEnhancement(new Talent(talentName, group, group.getObj(talentName), null, actual), talentGroup, hero));
+					.add(new TalentEnhancement(Talent.getTalent(talentName, group, group.getObj(talentName), null, actual), talentGroup, hero));
 		}
 		table.setPrefHeight(table.getItems().size() * 28 + 26);
 		table.sort();
@@ -320,11 +325,11 @@ public class TalentGroupController {
 								final JSONArray choiceTalent = actualSpell.getArr(rep);
 								for (int i = 0; i < choiceTalent.size(); ++i) {
 									table.getItems().add(new SpellEnhancement(
-											new Spell(talentName, talent, choiceTalent.getObj(i), actualSpell, actualGroup, rep), hero));
+											Spell.getSpell(talentName, talent, choiceTalent.getObj(i), actualSpell, actualGroup, rep), hero));
 								}
 							} else {
 								table.getItems().add(
-										new SpellEnhancement(new Spell(talentName, talent, actualSpell.getObj(rep), actualSpell, actualGroup, rep), hero));
+										new SpellEnhancement(Spell.getSpell(talentName, talent, actualSpell.getObj(rep), actualSpell, actualGroup, rep), hero));
 							}
 						} else {
 							notFound = true;
@@ -338,14 +343,14 @@ public class TalentGroupController {
 						final JSONArray choiceTalent = actualGroup.getArr(talentName);
 						for (int i = 0; i < choiceTalent.size(); ++i) {
 							table.getItems().add(new TalentEnhancement(
-									new Talent(talentName, talentGroups.getObj(talentGroup), talents.getObj(talentName), choiceTalent.getObj(i),
+									Talent.getTalent(talentName, talentGroups.getObj(talentGroup), talents.getObj(talentName), choiceTalent.getObj(i),
 											actualGroup),
 									talentGroup, hero));
 						}
 						talentsList.getItems().add(talentName);
 					} else {
 						table.getItems().add(new TalentEnhancement(
-								new Talent(talentName, talentGroups.getObj(talentGroup), talents.getObj(talentName), actualGroup.getObj(talentName),
+								Talent.getTalent(talentName, talentGroups.getObj(talentGroup), talents.getObj(talentName), actualGroup.getObj(talentName),
 										actualGroup),
 								talentGroup, hero));
 					}
@@ -396,7 +401,19 @@ public class TalentGroupController {
 	}
 
 	public void setHero(final JSONObject hero) {
+		if (hero != null) {
+			if ("Zauber".equals(talentGroup) && hero.containsKey("Zauber")) {
+				hero.getObj("Zauber").removeListener(listener);
+			} else {
+				hero.getObj("Talente").removeListener(listener);
+			}
+		}
 		this.hero = hero;
+		if ("Zauber".equals(talentGroup) && hero.containsKey("Zauber")) {
+			hero.getObj("Zauber").addListener(listener);
+		} else {
+			hero.getObj("Talente").addListener(listener);
+		}
 		fillTable();
 	}
 }

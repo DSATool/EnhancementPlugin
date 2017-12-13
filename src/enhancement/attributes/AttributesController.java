@@ -255,6 +255,20 @@ public class AttributesController extends EnhancementTabController {
 	}
 
 	@Override
+	public void setHero(final JSONObject hero) {
+		if (hero != null) {
+			hero.getObj("Eigenschaften").removeListener(heroListener);
+			hero.getObj("Basiswerte").removeListener(heroListener);
+			hero.getObj("Vorteile").removeListener(heroListener);
+		}
+		this.hero = hero;
+		hero.getObj("Eigenschaften").addListener(heroListener);
+		hero.getObj("Basiswerte").addListener(heroListener);
+		hero.getObj("Vorteile").addListener(heroListener);
+		update();
+	}
+
+	@Override
 	public void update() {
 		attributesTable.getItems().clear();
 		energiesTable.getItems().clear();
@@ -262,7 +276,6 @@ public class AttributesController extends EnhancementTabController {
 		final JSONObject attributes = ResourceManager.getResource("data/Eigenschaften");
 		final JSONObject actualAttributes = hero.getObj("Eigenschaften");
 		final JSONObject derivedValues = ResourceManager.getResource("data/Basiswerte");
-		final JSONObject basicValues = hero.getObj("Basiswerte");
 
 		attributes: for (final String attribute : attributes.keySet()) {
 			for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
@@ -285,7 +298,7 @@ public class AttributesController extends EnhancementTabController {
 				}
 			}
 			energiesTable.getItems()
-					.add(new EnergyEnhancement(new Energy(derivedValue, derivedValues.getObj(derivedValue), actualAttributes, basicValues), hero));
+					.add(new EnergyEnhancement(new Energy(derivedValue, derivedValues.getObj(derivedValue), hero), hero));
 		}
 
 		energiesTable.setMaxHeight(energiesTable.getItems().size() * 28 + 27);

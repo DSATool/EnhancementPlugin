@@ -17,20 +17,18 @@ package enhancement.talents;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
 
 import dsa41basis.hero.Spell;
 import dsa41basis.util.DSAUtil;
 import dsatool.resources.ResourceManager;
 import dsatool.resources.Settings;
-import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
 import jsonant.value.JSONValue;
 
 public class SpellEnhancement extends TalentEnhancement {
-	public static SpellEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero, final Collection<Enhancement> enhancements) {
+	public static SpellEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
 		final String spellName = enhancement.getString("Zauber");
 		final JSONObject spell = ResourceManager.getResource("data/Zauber").getObj(spellName);
 		final JSONObject actualSpell = hero.getObj("Zauber").getObj(spellName);
@@ -56,8 +54,8 @@ public class SpellEnhancement extends TalentEnhancement {
 		} else {
 			actual = (JSONObject) actualRep;
 		}
-		final Spell newSpell = new Spell(spellName, spell, actual, actualSpell, hero.getObj("Zauber"), rep);
-		final SpellEnhancement result = new SpellEnhancement(newSpell, hero);
+		final Spell newSpell = Spell.getSpell(spellName, spell, actual, actualSpell, hero.getObj("Zauber"), rep);
+		final SpellEnhancement result = new SpellEnhancement(newSpell, hero, true);
 		if (enhancement.containsKey("Von")) {
 			final int start = enhancement.getInt("Von");
 			result.start.set(start < 0 ? start - 1 : start);
@@ -67,9 +65,9 @@ public class SpellEnhancement extends TalentEnhancement {
 		result.startString.set(getOfficial(result.start.get(), false));
 		if (enhancement.containsKey("Auf")) {
 			final int target = enhancement.getInt("Auf");
-			result.setTarget(target < 0 ? target - 1 : target, hero, enhancements);
+			result.setTarget(target < 0 ? target - 1 : target, hero);
 		} else {
-			result.setTarget(-1, hero, enhancements);
+			result.setTarget(-1, hero);
 		}
 		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
 		result.method.set(enhancement.getString("Methode"));
@@ -81,15 +79,19 @@ public class SpellEnhancement extends TalentEnhancement {
 	}
 
 	public SpellEnhancement(final Spell spell, final JSONObject hero) {
-		super(spell, "Zauber", hero);
+		this(spell, hero, false);
+	}
+
+	public SpellEnhancement(final Spell spell, final JSONObject hero, final boolean fixed) {
+		super(spell, "Zauber", hero, fixed);
 	}
 
 	@Override
-	public SpellEnhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
+	public SpellEnhancement clone(final JSONObject hero) {
 		final SpellEnhancement result = new SpellEnhancement((Spell) talent, hero);
 		result.start.set(start.get());
 		result.startString.set(startString.get());
-		result.setTarget(target.get(), hero, enhancements);
+		result.setTarget(target.get(), hero);
 		result.targetString.set(targetString.get());
 		result.basis = basis;
 		result.method.set(method.get());

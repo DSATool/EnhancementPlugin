@@ -114,6 +114,16 @@ public class HistoryController extends EnhancementTabController {
 	@Override
 	public void recalculateValid(final JSONObject hero) {}
 
+	@Override
+	public void setHero(final JSONObject hero) {
+		if (hero != null) {
+			hero.getArr("Historie").removeListener(heroListener);
+		}
+		this.hero = hero;
+		hero.getArr("Historie").addListener(heroListener);
+		update();
+	}
+
 	private void undo(final int index) {
 		final JSONArray history = hero.getArr("Historie");
 		int totalAP = 0;
@@ -171,8 +181,6 @@ public class HistoryController extends EnhancementTabController {
 
 			bio.put("Abenteuerpunkte-Guthaben", bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) + finalFreeAP);
 			bio.notifyListeners(null);
-
-			controller.update();
 		});
 	}
 
@@ -197,10 +205,10 @@ public class HistoryController extends EnhancementTabController {
 				table.getItems().add(SkillEnhancement.fromJSON(entry, hero));
 				break;
 			case "Talent":
-				table.getItems().add(TalentEnhancement.fromJSON(entry, hero, controller.getEnhancements()));
+				table.getItems().add(TalentEnhancement.fromJSON(entry, hero));
 				break;
 			case "Zauber":
-				table.getItems().add(SpellEnhancement.fromJSON(entry, hero, controller.getEnhancements()));
+				table.getItems().add(SpellEnhancement.fromJSON(entry, hero));
 				break;
 			case "Abenteuerpunkte":
 				table.getItems().add(APEnhancement.fromJSON(entry));

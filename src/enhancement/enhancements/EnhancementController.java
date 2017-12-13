@@ -174,7 +174,6 @@ public class EnhancementController extends HeroSelector {
 			}
 			bio.notifyListeners(null);
 			history.notifyListeners(null);
-			update();
 		});
 	}
 
@@ -344,10 +343,7 @@ public class EnhancementController extends HeroSelector {
 		costLabel.setText("0");
 
 		enhancementTable.getItems().addListener((final Change<? extends Enhancement> c) -> {
-			c.next();
-			if (c.wasAdded()) {
-				recalculateValid();
-			}
+			recalculateValid();
 			recalculate();
 		});
 
@@ -400,12 +396,6 @@ public class EnhancementController extends HeroSelector {
 		availableApLabel.setText(Integer.toString(hero.getObj("Biografie").getIntOrDefault("Abenteuerpunkte-Guthaben", 0)));
 		hero.getObj("Biografie").addListener(apListener);
 		super.setHero(index);
-	}
-
-	public void update() {
-		for (final HeroController controller : controllers) {
-			((EnhancementTabController) controller).update();
-		}
 	}
 
 }

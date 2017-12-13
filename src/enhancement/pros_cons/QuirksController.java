@@ -177,6 +177,16 @@ public class QuirksController extends EnhancementTabController {
 	}
 
 	@Override
+	public void setHero(final JSONObject hero) {
+		if (hero != null) {
+			hero.getObj("Nachteile").removeListener(heroListener);
+		}
+		this.hero = hero;
+		hero.getObj("Nachteile").addListener(heroListener);
+		update();
+	}
+
+	@Override
 	public void update() {
 		table.getItems().clear();
 

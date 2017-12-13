@@ -17,7 +17,6 @@ package enhancement.talents;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
 import java.util.Stack;
 
 import dsa41basis.hero.Talent;
@@ -40,7 +39,9 @@ import jsonant.value.JSONObject;
 import jsonant.value.JSONValue;
 
 public class TalentEnhancement extends Enhancement {
-	public static TalentEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero, final Collection<Enhancement> enhancements) {
+	private static boolean suppressUpdate = false;
+
+	public static TalentEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
 		final String talentName = enhancement.getString("Talent");
 		final Tuple<JSONObject, String> talentAndGroup = HeroUtil.findTalent(talentName);
 		final String groupName = talentAndGroup._2;
@@ -66,8 +67,8 @@ public class TalentEnhancement extends Enhancement {
 		} else {
 			actual = (JSONObject) actualTalentAndGroup._1;
 		}
-		final Talent newTalent = new Talent(talentName, talentGroups.getObj(groupName), talentAndGroup._1, actual, actualTalentAndGroup._2);
-		final TalentEnhancement result = new TalentEnhancement(newTalent, talentAndGroup._2, hero);
+		final Talent newTalent = Talent.getTalent(talentName, talentGroups.getObj(groupName), talentAndGroup._1, actual, actualTalentAndGroup._2);
+		final TalentEnhancement result = new TalentEnhancement(newTalent, talentAndGroup._2, hero, true);
 		final boolean basis = talentAndGroup._1.getBoolOrDefault("Basis", false);
 		if (enhancement.containsKey("Von")) {
 			final int start = enhancement.getInt("Von");
@@ -78,9 +79,9 @@ public class TalentEnhancement extends Enhancement {
 		result.startString.set(getOfficial(result.start.get(), basis));
 		if (enhancement.containsKey("Auf")) {
 			final int target = enhancement.getInt("Auf");
-			result.setTarget(target < 0 && !basis ? target - 1 : target, hero, enhancements);
+			result.setTarget(target < 0 && !basis ? target - 1 : target, hero);
 		} else {
-			result.setTarget(-1, hero, enhancements);
+			result.setTarget(-1, hero);
 		}
 		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
 		result.method.set(enhancement.getString("Methode"));
@@ -123,15 +124,14 @@ public class TalentEnhancement extends Enhancement {
 	private final ChangeListener<Boolean> chargenListener;
 
 	public TalentEnhancement(final Talent talent, final String talentGroupName, final JSONObject hero) {
+		this(talent, talentGroupName, hero, false);
+	}
+
+	public TalentEnhancement(final Talent talent, final String talentGroupName, final JSONObject hero, final boolean fixed) {
 		this.talent = talent;
 		this.talentGroupName = talentGroupName;
 		basis = talent.getTalent().getBoolOrDefault("Basis", false);
-		int value = talent.getValue();
-		if (value == Integer.MIN_VALUE) {
-			value = -1;
-		} else if (value < 0 && !basis) {
-			value -= 1;
-		}
+		final int value = fromStart(talent.getValue());
 		startString = new SimpleStringProperty(getOfficial(value, basis));
 		start = new SimpleIntegerProperty(value);
 		target = new SimpleIntegerProperty(value + 1);
@@ -141,6 +141,26 @@ public class TalentEnhancement extends Enhancement {
 		fullDescription.bind(description);
 		method = new SimpleStringProperty(Settings.getSettingStringOrDefault("Gegenseitiges Lehren", "Steigerung", "Lernmethode"));
 		updateDescription();
+		if (!fixed) {
+			talent.valueProperty().addListener((o, oldV, newV) -> {
+				if (!suppressUpdate) {
+					final int newValue = fromStart(newV.intValue());
+					final int difference = start.get() - newValue;
+					start.set(newValue);
+					setTarget(target.get() - difference, hero);
+					startString.set(getOfficial(newValue, basis));
+					updateDescription();
+				}
+			});
+			talent.sesProperty().addListener((o, oldV, newV) -> {
+				if (!suppressUpdate) {
+					seMin = newV.intValue();
+					ses.set(newV.intValue());
+					ap.set(getCalculatedAP(hero));
+					cost.set(getCalculatedCost(hero));
+				}
+			});
+		}
 
 		final Stack<Enhancement> enhancements = new Stack<>();
 		for (final Enhancement e : EnhancementController.instance.getEnhancements()) {
@@ -169,8 +189,10 @@ public class TalentEnhancement extends Enhancement {
 
 	@Override
 	public void applyTemporarily(final JSONObject hero) {
+		suppressUpdate = true;
 		talent.insertTalent(true);
 		talent.setValue(target.get());
+		suppressUpdate = false;
 	}
 
 	@Override
@@ -188,11 +210,11 @@ public class TalentEnhancement extends Enhancement {
 		return valid;
 	}
 
-	public TalentEnhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
+	public TalentEnhancement clone(final JSONObject hero) {
 		final TalentEnhancement result = new TalentEnhancement(talent, talentGroupName, hero);
 		result.start.set(start.get());
 		result.startString.set(startString.get());
-		result.setTarget(target.get(), hero, enhancements);
+		result.setTarget(target.get(), hero);
 		result.targetString.set(targetString.get());
 		result.basis = basis;
 		result.method.set(method.get());
@@ -200,6 +222,12 @@ public class TalentEnhancement extends Enhancement {
 		result.seMin = seMin;
 		result.updateDescription();
 		return result;
+	}
+
+	private int fromStart(final int start) {
+		if (start == Integer.MIN_VALUE) return -1;
+		if (start < 0 && !basis) return start - 1;
+		return start;
 	}
 
 	@Override
@@ -285,9 +313,9 @@ public class TalentEnhancement extends Enhancement {
 		reset(hero);
 	}
 
-	public void setTarget(final int target, final JSONObject hero, final Collection<Enhancement> enhancements) {
+	public void setTarget(final int target, final JSONObject hero) {
 		final Stack<Enhancement> enhancementStack = new Stack<>();
-		for (final Enhancement e : enhancements) {
+		for (final Enhancement e : EnhancementController.instance.getEnhancements()) {
 			e.applyTemporarily(hero);
 			enhancementStack.push(e);
 		}
@@ -303,8 +331,8 @@ public class TalentEnhancement extends Enhancement {
 		}
 	}
 
-	public void setTarget(final String newValue, final JSONObject hero, final Collection<Enhancement> enhancements) {
-		setTarget(fromOfficial(newValue, basis), hero, enhancements);
+	public void setTarget(final String newValue, final JSONObject hero) {
+		setTarget(fromOfficial(newValue, basis), hero);
 	}
 
 	public IntegerProperty startProperty() {
@@ -361,6 +389,7 @@ public class TalentEnhancement extends Enhancement {
 
 	@Override
 	public void unapply(final JSONObject hero) {
+		suppressUpdate = true;
 		int value = start.get();
 		if (value < 0 && !basis) {
 			if (value == -1) {
@@ -374,6 +403,7 @@ public class TalentEnhancement extends Enhancement {
 		if (value == Integer.MIN_VALUE) {
 			talent.removeTalent();
 		}
+		suppressUpdate = false;
 	}
 
 	public void unregister() {
