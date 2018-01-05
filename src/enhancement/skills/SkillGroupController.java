@@ -114,7 +114,7 @@ public class SkillGroupController {
 				if (getTableRow() != null) {
 					final SkillEnhancement skill = (SkillEnhancement) getTableRow().getItem();
 					if (skill != null) {
-						Util.addReference(this, skill.getSkill().getProOrCon(), 50);
+						Util.addReference(this, skill.getSkill().getProOrCon(), 15, nameColumn.widthProperty());
 					}
 				}
 			}

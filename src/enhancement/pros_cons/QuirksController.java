@@ -83,7 +83,7 @@ public class QuirksController extends EnhancementTabController {
 				super.updateItem(item, empty);
 				final QuirkEnhancement quirk = (QuirkEnhancement) getTableRow().getItem();
 				if (quirk != null) {
-					Util.addReference(this, quirk.getQuirk().getProOrCon(), 50);
+					Util.addReference(this, quirk.getQuirk().getProOrCon(), 15, nameColumn.widthProperty());
 				}
 			}
 		});
