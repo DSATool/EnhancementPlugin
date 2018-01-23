@@ -31,9 +31,19 @@ import jsonant.value.JSONObject;
 
 public class QuirkEnhancement extends Enhancement {
 	public static QuirkEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero, final Collection<Enhancement> enhancements) {
-		final String quirk = enhancement.getString("Schlechte Eigenschaft");
-		final QuirkEnhancement result = new QuirkEnhancement(
-				new ProOrCon(quirk, hero, ResourceManager.getResource("data/Nachteile").getObj("Quirk"), hero.getObj("Nachteile").getObj(quirk)), hero);
+		final String quirkName = enhancement.getString("Schlechte Eigenschaft");
+		final JSONObject con = ResourceManager.getResource("data/Nachteile").getObj(quirkName);
+
+		final ProOrCon newQuirk = new ProOrCon(quirkName, hero, con, new JSONObject(null));
+		final QuirkEnhancement result = new QuirkEnhancement(newQuirk, hero);
+		if (con.containsKey("Auswahl")) {
+			newQuirk.setDescription(enhancement.getString("Auswahl"));
+			if (con.containsKey("Freitext")) {
+				newQuirk.setVariant(enhancement.getString("Freitext"));
+			}
+		} else if (con.containsKey("Freitext")) {
+			newQuirk.setDescription(enhancement.getString("Freitext"));
+		}
 		result.start.set(enhancement.getInt("Von"));
 		result.setTarget(enhancement.getInt("Auf"), hero, enhancements);
 		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
@@ -62,8 +72,7 @@ public class QuirkEnhancement extends Enhancement {
 	@Override
 	public void apply(final JSONObject hero) {
 		applyTemporarily(hero);
-		final JSONObject cons = hero.getObj("Nachteile");
-		cons.notifyListeners(null);
+		hero.getObj("Nachteile").notifyListeners(null);
 	}
 
 	@Override
@@ -194,6 +203,13 @@ public class QuirkEnhancement extends Enhancement {
 		final JSONObject result = new JSONObject(null);
 		result.put("Typ", "Schlechte Eigenschaft");
 		result.put("Schlechte Eigenschaft", quirk.getName());
+		final JSONObject con = quirk.getProOrCon();
+		if (con.containsKey("Auswahl")) {
+			result.put("Auswahl", quirk.getActual().getString("Auswahl"));
+		}
+		if (con.containsKey("Freitext")) {
+			result.put("Freitext", quirk.getActual().getString("Freitext"));
+		}
 		result.put("Von", start.get());
 		result.put("Auf", target.get());
 		final int resultSes = ses.get() - (target.get() - start.get());
