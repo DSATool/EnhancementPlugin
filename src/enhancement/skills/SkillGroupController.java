@@ -295,6 +295,9 @@ public class SkillGroupController {
 		table.getItems().addAll(newValid);
 		table.setPrefHeight(table.getItems().size() * 28 + 26);
 		table.sort();
+
+		pane.setVisible(!table.getItems().isEmpty());
+		pane.setManaged(!table.getItems().isEmpty());
 	}
 
 	public void setHero(final JSONObject hero) {

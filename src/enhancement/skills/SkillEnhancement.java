@@ -61,18 +61,16 @@ public class SkillEnhancement extends Enhancement {
 		updateDescription();
 		reset(hero);
 
-		final Stack<Enhancement> enhancements = new Stack<>();
-		for (final Enhancement e : EnhancementController.instance.getEnhancements()) {
-			e.applyTemporarily(hero);
-			enhancements.push(e);
-		}
-		recalculateValid(hero);
-		for (final Enhancement e : enhancements) {
-			e.unapply(hero);
-		}
+		updateValid(hero);
 
-		skill.descriptionProperty().addListener(o -> updateDescription());
-		skill.variantProperty().addListener(o -> updateDescription());
+		skill.descriptionProperty().addListener(o -> {
+			updateDescription();
+			updateValid(hero);
+		});
+		skill.variantProperty().addListener(o -> {
+			updateDescription();
+			updateValid(hero);
+		});
 	}
 
 	@Override
@@ -201,10 +199,11 @@ public class SkillEnhancement extends Enhancement {
 		final JSONObject result = new JSONObject(null);
 		result.put("Typ", "Sonderfertigkeit");
 		result.put("Sonderfertigkeit", skill.getName());
-		if (skill.getProOrCon().containsKey("Auswahl")) {
+		final JSONObject con = skill.getProOrCon();
+		if (con.containsKey("Auswahl")) {
 			result.put("Auswahl", skill.getActual().getString("Auswahl"));
 		}
-		if (skill.getProOrCon().containsKey("Freitext")) {
+		if (con.containsKey("Freitext")) {
 			result.put("Freitext", skill.getActual().getString("Freitext"));
 		}
 		result.put("AP", ap.get());
@@ -242,5 +241,17 @@ public class SkillEnhancement extends Enhancement {
 	private void updateDescription() {
 		fullDescription.set(DSAUtil.printProOrCon(skill.getActual(), skill.getDisplayName(), skill.getProOrCon(), false));
 		cheaper.set(skill.getCost() < skill.getProOrCon().getIntOrDefault("Kosten", 0));
+	}
+
+	private void updateValid(final JSONObject hero) {
+		final Stack<Enhancement> enhancements = new Stack<>();
+		for (final Enhancement e : EnhancementController.instance.getEnhancements()) {
+			e.applyTemporarily(hero);
+			enhancements.push(e);
+		}
+		recalculateValid(hero);
+		for (final Enhancement e : enhancements) {
+			e.unapply(hero);
+		}
 	}
 }
