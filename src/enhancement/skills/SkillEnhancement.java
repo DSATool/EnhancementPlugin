@@ -116,13 +116,10 @@ public class SkillEnhancement extends Enhancement {
 		JSONObject newSkill;
 		if (skill.containsKey("Auswahl") || skill.containsKey("Freitext")) {
 			JSONArray actualSkill;
-			if (skills.containsKey(name)) {
-				actualSkill = skills.getArr(name);
-			} else {
-				actualSkill = new JSONArray(skills);
-			}
+			actualSkill = skills.getArr(name);
 			newSkill = actual.clone(actualSkill);
 			actualSkill.add(newSkill);
+
 		} else {
 			newSkill = actual.clone(skills);
 			skills.put(name, newSkill);
