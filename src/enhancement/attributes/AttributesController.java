@@ -255,6 +255,18 @@ public class AttributesController extends EnhancementTabController {
 	}
 
 	@Override
+	public boolean removeEnhancement(final Enhancement enhancement) {
+		if (enhancement instanceof AttributeEnhancement) {
+			attributesTable.getItems().add((AttributeEnhancement) enhancement);
+			return true;
+		} else if (enhancement instanceof EnergyEnhancement) {
+			energiesTable.getItems().add((EnergyEnhancement) enhancement);
+			return true;
+		} else
+			return false;
+	}
+
+	@Override
 	public void setHero(final JSONObject hero) {
 		if (hero != null) {
 			hero.getObj("Eigenschaften").removeListener(heroListener);

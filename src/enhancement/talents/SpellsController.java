@@ -17,6 +17,7 @@ package enhancement.talents;
 
 import dsa41basis.util.HeroUtil;
 import dsatool.resources.ResourceManager;
+import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import enhancement.enhancements.EnhancementTabController;
 import javafx.scene.Node;
@@ -59,6 +60,15 @@ public class SpellsController extends EnhancementTabController {
 		if (controller != null) {
 			controller.recalculateValid(hero);
 		}
+	}
+
+	@Override
+	public boolean removeEnhancement(final Enhancement enhancement) {
+		if (enhancement instanceof SpellEnhancement) {
+			controller.removeEnhancement((TalentEnhancement) enhancement);
+			return true;
+		} else
+			return false;
 	}
 
 	@Override

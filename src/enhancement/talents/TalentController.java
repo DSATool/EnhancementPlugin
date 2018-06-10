@@ -21,6 +21,7 @@ import java.util.List;
 import dsa41basis.util.HeroUtil;
 import dsatool.resources.ResourceManager;
 import dsatool.util.ErrorLogger;
+import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import enhancement.enhancements.EnhancementTabController;
 import javafx.fxml.FXML;
@@ -100,6 +101,19 @@ public class TalentController extends EnhancementTabController {
 		for (final TalentGroupController controller : talentControllers) {
 			controller.recalculateValid(hero);
 		}
+	}
+
+	@Override
+	public boolean removeEnhancement(final Enhancement enhancement) {
+		if (enhancement instanceof TalentEnhancement) {
+			for (final TalentGroupController controller : talentControllers) {
+				if (controller.removeEnhancement((TalentEnhancement) enhancement)) {
+					break;
+				}
+			}
+			return true;
+		} else
+			return false;
 	}
 
 	@Override

@@ -115,6 +115,11 @@ public class HistoryController extends EnhancementTabController {
 	public void recalculateValid(final JSONObject hero) {}
 
 	@Override
+	public boolean removeEnhancement(final Enhancement enhancement) {
+		return false;
+	}
+
+	@Override
 	public void setHero(final JSONObject hero) {
 		if (hero != null) {
 			hero.getArr("Historie").removeListener(heroListener);

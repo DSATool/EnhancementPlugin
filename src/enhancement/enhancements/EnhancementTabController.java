@@ -38,6 +38,8 @@ public abstract class EnhancementTabController implements HeroController {
 
 	public abstract void recalculateValid(JSONObject hero);
 
+	public abstract boolean removeEnhancement(Enhancement enhancement);
+
 	@Override
 	public void setHero(final JSONObject hero) {
 		this.hero = hero;

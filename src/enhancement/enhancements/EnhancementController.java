@@ -174,6 +174,7 @@ public class EnhancementController extends HeroSelector {
 			}
 			bio.notifyListeners(null);
 			history.notifyListeners(null);
+			setHero(list.getSelectionModel().getSelectedIndex());
 		});
 	}
 
@@ -205,8 +206,7 @@ public class EnhancementController extends HeroSelector {
 		alert.setHeaderText("Dies wird die ausgewählten Steigerungen löschen.");
 		alert.setContentText("Sollen die Steigerungen wirklich zurückgesetzt werden?");
 		alert.showAndWait().filter(response -> response == ButtonType.OK).ifPresent(response -> {
-			enhancementTable.getItems().clear();
-			recalculateValid();
+			setHero(list.getSelectionModel().getSelectedIndex());
 		});
 	}
 
@@ -270,7 +270,13 @@ public class EnhancementController extends HeroSelector {
 		final MenuItem removeItem = new MenuItem("Entfernen");
 		contextMenu.getItems().add(removeItem);
 		removeItem.setOnAction(o -> {
-			enhancementTable.getItems().remove(enhancementTable.getSelectionModel().getSelectedItem());
+			final Enhancement removed = enhancementTable.getSelectionModel().getSelectedItem();
+			enhancementTable.getItems().remove(removed);
+			for (final HeroController controller : controllers) {
+				if (((EnhancementTabController) controller).removeEnhancement(removed)) {
+					break;
+				}
+			}
 			recalculateValid();
 		});
 		contextMenu.setOnShowing(e -> {

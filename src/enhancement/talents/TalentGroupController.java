@@ -33,7 +33,6 @@ import dsatool.util.ReactiveComboBoxTableCell;
 import dsatool.util.ReactiveSpinner;
 import dsatool.util.Tuple;
 import dsatool.util.Util;
-import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -292,14 +291,14 @@ public class TalentGroupController {
 
 		final JSONObject talentGroups = ResourceManager.getResource("data/Talente");
 		final JSONObject group = "Zauber".equals(talentGroup) ? ResourceManager.getResource("data/Zauber") : talentGroups.getObj(talentGroup);
-		final JSONObject actual = "Zauber".equals(talentGroup) ? hero.getObj("Zauber") : hero.getObj("Talente").getObj(talentGroup);
+		final JSONObject actualGroup = "Zauber".equals(talentGroup) ? hero.getObj("Zauber") : hero.getObj("Talente").getObj(talentGroup);
 
 		if ("Zauber".equals(talentGroup)) {
 			table.getItems()
-					.add(new SpellEnhancement(Spell.getSpell(talentName, group.getObj(talentName), null, null, actual, representation), hero));
+					.add(new SpellEnhancement(Spell.getSpell(talentName, group.getObj(talentName), null, null, actualGroup, representation), hero));
 		} else {
 			table.getItems()
-					.add(new TalentEnhancement(Talent.getTalent(talentName, group, group.getObj(talentName), null, actual), talentGroup, hero));
+					.add(new TalentEnhancement(Talent.getTalent(talentName, group, group.getObj(talentName), null, actualGroup), talentGroup, hero));
 		}
 		table.setPrefHeight(table.getItems().size() * 28 + 26);
 		table.sort();
@@ -382,22 +381,20 @@ public class TalentGroupController {
 	}
 
 	public void recalculateValid(final JSONObject hero) {
-		enhancements: for (final TalentEnhancement enhanced : alreadyEnhanced) {
-			for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
-				if (enhancement instanceof TalentEnhancement && ((TalentEnhancement) enhancement).getTalent().getActual() == enhanced.getTalent().getActual()) {
-					continue enhancements;
-				}
-			}
-			table.getItems().add(enhanced);
-		}
-		alreadyEnhanced.removeAll(table.getItems());
-
 		for (final TalentEnhancement enhancement : table.getItems()) {
 			enhancement.recalculateValid(hero);
 		}
 
 		table.setPrefHeight(table.getItems().size() * 28 + 26);
 		table.sort();
+	}
+
+	public boolean removeEnhancement(final TalentEnhancement enhancement) {
+		if (enhancement.talentGroupName.equals(talentGroup)) {
+			table.getItems().add(enhancement);
+			return true;
+		} else
+			return false;
 	}
 
 	public void setHero(final JSONObject hero) {

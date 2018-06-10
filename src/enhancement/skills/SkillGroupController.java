@@ -300,6 +300,14 @@ public class SkillGroupController {
 		pane.setManaged(!table.getItems().isEmpty());
 	}
 
+	public boolean removeEnhancement(final SkillEnhancement enhancement) {
+		if (skills.containsKey(enhancement.getName())) {
+			table.getItems().add(enhancement);
+			return true;
+		} else
+			return false;
+	}
+
 	public void setHero(final JSONObject hero) {
 		if (this.hero != null) {
 			this.hero.getObj("Sonderfertigkeiten").removeListener(listener);

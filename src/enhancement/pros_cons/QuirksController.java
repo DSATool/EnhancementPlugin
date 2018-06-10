@@ -177,6 +177,15 @@ public class QuirksController extends EnhancementTabController {
 	}
 
 	@Override
+	public boolean removeEnhancement(final Enhancement enhancement) {
+		if (enhancement instanceof QuirkEnhancement) {
+			table.getItems().add((QuirkEnhancement) enhancement);
+			return true;
+		} else
+			return false;
+	}
+
+	@Override
 	public void setHero(final JSONObject hero) {
 		if (hero != null) {
 			hero.getObj("Nachteile").removeListener(heroListener);
