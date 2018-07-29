@@ -15,9 +15,6 @@
  */
 package enhancement.skills;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dsa41basis.hero.ProOrCon;
 import dsa41basis.util.DSAUtil;
 import dsatool.gui.GUIUtil;
@@ -27,9 +24,14 @@ import dsatool.util.GraphicTableCell;
 import dsatool.util.ReactiveComboBox;
 import dsatool.util.Util;
 import enhancement.enhancements.EnhancementController;
+import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -73,7 +75,8 @@ public class SkillGroupController {
 	private final BooleanProperty showAll;
 	private JSONObject hero;
 
-	private final List<SkillEnhancement> invalid = new ArrayList<>();
+	private final ObservableSet<SkillEnhancement> valid = FXCollections.observableSet();
+	private final ObservableList<SkillEnhancement> allItems = FXCollections.observableArrayList(item -> new Observable[] { valid });
 
 	private final JSONListener listener = o -> {
 		recalculateValid(hero);
@@ -96,7 +99,6 @@ public class SkillGroupController {
 		pane.setText(name);
 
 		table.prefWidthProperty().bind(parent.widthProperty().subtract(17));
-		table.getSortOrder().add(nameColumn);
 
 		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten")) {
 			costColumn.setMinWidth(0);
@@ -112,7 +114,7 @@ public class SkillGroupController {
 			public void updateItem(final String item, final boolean empty) {
 				super.updateItem(item, empty);
 				if (getTableRow() != null) {
-					final SkillEnhancement skill = (SkillEnhancement) getTableRow().getItem();
+					final SkillEnhancement skill = getTableRow().getItem();
 					if (skill != null) {
 						Util.addReference(this, skill.getSkill().getProOrCon(), 15, nameColumn.widthProperty());
 					}
@@ -226,17 +228,42 @@ public class SkillGroupController {
 		contextMenuItem.setOnAction(o -> {
 			final SkillEnhancement item = table.getSelectionModel().getSelectedItem();
 			if (item != null) {
+				allItems.remove(item);
 				EnhancementController.instance.addEnhancement(item.clone(hero));
 			}
 		});
 		table.setContextMenu(contextMenu);
 
-		showAll.addListener((o, oldV, newV) -> fillTable());
+		valid.addListener((final SetChangeListener.Change<?> o) -> {
+			final int size = valid.size();
+			table.setMinHeight(size * 28 + 26);
+			table.setMaxHeight(size * 28 + 26);
+
+			pane.setVisible(size != 0);
+			pane.setManaged(size != 0);
+		});
+
+		pane.setVisible(false);
+		pane.setManaged(false);
+
+		table.setItems(new SortedList<>(new FilteredList<>(allItems, (skill) -> valid.contains(skill)), (a, b) -> a.getName().compareTo(b.getName())));
+
+		showAll.addListener((o, oldV, newV) -> {
+			if (newV) {
+				allItems.forEach(item -> valid.add(item));
+			} else {
+				allItems.forEach(item -> {
+					if (!item.isValid()) {
+						valid.remove(item);
+					}
+				});
+			}
+		});
 	}
 
 	protected void fillTable() {
-		invalid.clear();
-		table.getItems().clear();
+		valid.clear();
+		allItems.clear();
 
 		final JSONObject actual = hero.getObj("Sonderfertigkeiten");
 
@@ -244,17 +271,13 @@ public class SkillGroupController {
 			if (!actual.containsKey(skillName) || skill.containsKey("Auswahl") || skill.containsKey("Freitext")) {
 				final SkillEnhancement newEnhancement = new SkillEnhancement(new ProOrCon(skillName, hero, skill, new JSONObject(null)), hero);
 				if (showAll.get() || newEnhancement.isValid()) {
-					table.getItems().add(newEnhancement);
+					valid.add(newEnhancement);
+					allItems.add(newEnhancement);
 				} else if (!actual.containsKey(skillName)) {
-					invalid.add(newEnhancement);
+					allItems.add(newEnhancement);
 				}
 			}
 		}, skills);
-
-		pane.setVisible(!table.getItems().isEmpty());
-		pane.setManaged(!table.getItems().isEmpty());
-
-		table.setPrefHeight(table.getItems().size() * 28 + 26);
 	}
 
 	public Node getControl() {
@@ -262,47 +285,29 @@ public class SkillGroupController {
 	}
 
 	public void recalculate(final JSONObject hero) {
-		for (final SkillEnhancement enhancement : table.getItems()) {
+		for (final SkillEnhancement enhancement : allItems) {
 			enhancement.reset(hero);
 		}
 	}
 
 	public void recalculateValid(final JSONObject hero) {
+		valid.clear();
 		final JSONObject actual = hero.getObj("Sonderfertigkeiten");
-		final List<SkillEnhancement> newValid = new ArrayList<>();
-		for (final SkillEnhancement enhancement : invalid) {
+		for (final SkillEnhancement enhancement : allItems) {
 			enhancement.recalculateValid(hero);
-			if (enhancement.isValid()) {
+			if (showAll.get() || enhancement.isValid()) {
 				final JSONObject skill = enhancement.getSkill().getProOrCon();
 				if (!actual.containsKey(enhancement.getName()) || skill.containsKey("Auswahl") || skill.containsKey("Freitext")) {
-					newValid.add(enhancement);
+					valid.add(enhancement);
 				}
 			}
 		}
-		for (final SkillEnhancement enhancement : table.getItems()) {
-			final JSONObject skill = enhancement.getSkill().getProOrCon();
-			if (actual.containsKey(enhancement.getName()) && !skill.containsKey("Auswahl") && !skill.containsKey("Freitext")) {
-				invalid.add(enhancement);
-			} else {
-				enhancement.recalculateValid(hero);
-				if (!enhancement.isValid() && !showAll.get()) {
-					invalid.add(enhancement);
-				}
-			}
-		}
-		invalid.removeAll(newValid);
-		table.getItems().removeAll(invalid);
-		table.getItems().addAll(newValid);
-		table.setPrefHeight(table.getItems().size() * 28 + 26);
-		table.sort();
 
-		pane.setVisible(!table.getItems().isEmpty());
-		pane.setManaged(!table.getItems().isEmpty());
 	}
 
 	public boolean removeEnhancement(final SkillEnhancement enhancement) {
 		if (skills.containsKey(enhancement.getName())) {
-			table.getItems().add(enhancement);
+			allItems.add(enhancement);
 			return true;
 		} else
 			return false;

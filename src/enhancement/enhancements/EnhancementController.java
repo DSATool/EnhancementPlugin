@@ -250,14 +250,14 @@ public class EnhancementController extends HeroSelector {
 		costColumn.setCellFactory(o -> new DoubleSpinnerTableCell<>(0, 9999, 0.1, false));
 		costColumn.setOnEditCommit(t -> {
 			t.getRowValue().setCost(t.getNewValue());
-			recalculate();
+			recalculate(false);
 		});
 
 		apColumn.setCellValueFactory(new PropertyValueFactory<Enhancement, Integer>("ap"));
 		apColumn.setCellFactory(o -> new IntegerSpinnerTableCell<>(0, 9999, 1, false));
 		apColumn.setOnEditCommit(t -> {
 			t.getRowValue().setAP(t.getNewValue(), hero);
-			recalculate();
+			recalculate(false);
 		});
 
 		final ContextMenu contextMenu = new ContextMenu();
@@ -265,19 +265,18 @@ public class EnhancementController extends HeroSelector {
 		contextMenu.getItems().add(resetItem);
 		resetItem.setOnAction(o -> {
 			enhancementTable.getSelectionModel().getSelectedItem().reset(hero);
-			recalculate();
+			recalculate(false);
 		});
 		final MenuItem removeItem = new MenuItem("Entfernen");
 		contextMenu.getItems().add(removeItem);
 		removeItem.setOnAction(o -> {
 			final Enhancement removed = enhancementTable.getSelectionModel().getSelectedItem();
-			enhancementTable.getItems().remove(removed);
 			for (final HeroController controller : controllers) {
 				if (((EnhancementTabController) controller).removeEnhancement(removed)) {
 					break;
 				}
 			}
-			recalculateValid();
+			enhancementTable.getItems().remove(removed);
 		});
 		contextMenu.setOnShowing(e -> {
 			final Enhancement enhancement = enhancementTable.getSelectionModel().getSelectedItem();
@@ -349,17 +348,16 @@ public class EnhancementController extends HeroSelector {
 		costLabel.setText("0");
 
 		enhancementTable.getItems().addListener((final Change<? extends Enhancement> c) -> {
-			recalculateValid();
-			recalculate();
+			recalculate(true);
 		});
 
 		usesChargenRules.bindBidirectional(chargenRules.selectedProperty());
-		usesChargenRules.addListener((o, oldV, newV) -> recalculate());
+		usesChargenRules.addListener((o, oldV, newV) -> recalculate(false));
 
 		super.load();
 	}
 
-	private void recalculate() {
+	private void recalculate(final boolean recalculateValid) {
 		final Stack<Enhancement> enhancements = new Stack<>();
 		for (final Enhancement e : enhancementTable.getItems()) {
 			e.recalculateCosts(hero);
@@ -367,6 +365,9 @@ public class EnhancementController extends HeroSelector {
 			enhancements.push(e);
 		}
 		for (final HeroController controller : controllers) {
+			if (recalculateValid) {
+				((EnhancementTabController) controller).recalculateValid(hero);
+			}
 			((EnhancementTabController) controller).recalculate(hero);
 		}
 		for (final Enhancement e : enhancements) {
@@ -374,21 +375,6 @@ public class EnhancementController extends HeroSelector {
 		}
 		apLabel.setText(String.valueOf(calculateAP()));
 		costLabel.setText(String.valueOf(calculateCost()));
-	}
-
-	private void recalculateValid() {
-		final Stack<Enhancement> enhancements = new Stack<>();
-		for (final Enhancement e : enhancementTable.getItems()) {
-			e.recalculateValid(hero);
-			e.applyTemporarily(hero);
-			enhancements.push(e);
-		}
-		for (final HeroController controller : controllers) {
-			((EnhancementTabController) controller).recalculateValid(hero);
-		}
-		for (final Enhancement e : enhancements) {
-			e.unapply(hero);
-		}
 	}
 
 	@Override
