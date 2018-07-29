@@ -67,7 +67,11 @@ public class TalentEnhancement extends Enhancement {
 		} else {
 			actual = (JSONObject) actualTalentAndGroup._1;
 		}
-		final Talent newTalent = Talent.getTalent(talentName, talentGroups.getObj(groupName), talentAndGroup._1, actual, actualTalentAndGroup._2);
+		JSONObject talentGroup = talentGroups.getObj(groupName);
+		if ("Sprachen und Schriften".equals(groupName)) {
+			talentGroup = talentGroup.getObj(talentAndGroup._1.getBoolOrDefault("Schrift", false) ? "Schriften" : "Sprachen");
+		}
+		final Talent newTalent = Talent.getTalent(talentName, talentGroup, talentAndGroup._1, actual, actualTalentAndGroup._2);
 		final TalentEnhancement result = new TalentEnhancement(newTalent, talentAndGroup._2, hero, true);
 		final boolean basis = talentAndGroup._1.getBoolOrDefault("Basis", false);
 		if (enhancement.containsKey("Von")) {

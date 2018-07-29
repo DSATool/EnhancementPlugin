@@ -86,7 +86,7 @@ public class TalentGroupController {
 	private Button addButton;
 
 	private final JSONObject talents;
-	private final String talentGroup;
+	private final String talentGroupName;
 	protected JSONObject hero;
 
 	private final JSONListener listener = o -> {
@@ -97,7 +97,7 @@ public class TalentGroupController {
 
 	public TalentGroupController(final String name, final JSONObject talents) {
 		this.talents = talents;
-		talentGroup = name;
+		talentGroupName = name;
 
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
@@ -133,11 +133,11 @@ public class TalentGroupController {
 		GUIUtil.autosizeTable(table, 0, "Zauber".equals(name) ? 2 : 0);
 		GUIUtil.cellValueFactories(table, "description", "ses", "startString", "targetString", "method", "cost", "ap", "valid", "cheaper");
 
-		nameColumn.setCellFactory(c -> new TextFieldTableCell<TalentEnhancement, String>() {
+		nameColumn.setCellFactory(c -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final String item, final boolean empty) {
 				super.updateItem(item, empty);
-				final TalentEnhancement talent = (TalentEnhancement) getTableRow().getItem();
+				final TalentEnhancement talent = getTableRow().getItem();
 				if (talent != null) {
 					Util.addReference(this, talent.getTalent().getTalent(), 15, nameColumn.widthProperty());
 				}
@@ -155,7 +155,7 @@ public class TalentGroupController {
 			t.getRowValue().setSes(t.getNewValue(), hero);
 		});
 
-		targetColumn.setCellFactory(o -> new GraphicTableCell<TalentEnhancement, String>(false) {
+		targetColumn.setCellFactory(o -> new GraphicTableCell<>(false) {
 			@Override
 			protected void createGraphic() {
 				final List<String> entries = new LinkedList<>();
@@ -218,7 +218,7 @@ public class TalentGroupController {
 		});
 		table.setContextMenu(contextMenu);
 
-		validColumn.setCellFactory(tableColumn -> new TextFieldTableCell<TalentEnhancement, Boolean>() {
+		validColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
@@ -232,7 +232,7 @@ public class TalentGroupController {
 			}
 		});
 
-		cheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<TalentEnhancement, Boolean>() {
+		cheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
@@ -273,8 +273,8 @@ public class TalentGroupController {
 	@FXML
 	private void addTalent() {
 		final String talentName = talentsList.getSelectionModel().getSelectedItem();
-		final String representation = "Zauber".equals(talentGroup) ? representationsList.getSelectionModel().getSelectedItem() : null;
-		if ("Zauber".equals(talentGroup)) {
+		final String representation = "Zauber".equals(talentGroupName) ? representationsList.getSelectionModel().getSelectedItem() : null;
+		if ("Zauber".equals(talentGroupName)) {
 			representationsList.getItems().remove(representation);
 			if (representationsList.getItems().size() == 0) {
 				talentsList.getItems().remove(talentName);
@@ -289,16 +289,20 @@ public class TalentGroupController {
 			addButton.setDisable(true);
 		}
 
-		final JSONObject talentGroups = ResourceManager.getResource("data/Talente");
-		final JSONObject group = "Zauber".equals(talentGroup) ? ResourceManager.getResource("data/Zauber") : talentGroups.getObj(talentGroup);
-		final JSONObject actualGroup = "Zauber".equals(talentGroup) ? hero.getObj("Zauber") : hero.getObj("Talente").getObj(talentGroup);
+		final JSONObject group = "Zauber".equals(talentGroupName) ? ResourceManager.getResource("data/Zauber")
+				: ResourceManager.getResource("data/Talente").getObj(talentGroupName);
+		final JSONObject actualGroup = "Zauber".equals(talentGroupName) ? hero.getObj("Zauber") : hero.getObj("Talente").getObj(talentGroupName);
+		JSONObject talentGroup = ResourceManager.getResource("data/Talentgruppen").getObj(talentGroupName);
+		if ("Sprachen und Schriften".equals(talentGroupName)) {
+			talentGroup = talentGroup.getObj(group.getObj(talentName).getBoolOrDefault("Schrift", false) ? "Schriften" : "Sprachen");
+		}
 
-		if ("Zauber".equals(talentGroup)) {
+		if ("Zauber".equals(talentGroupName)) {
 			table.getItems()
 					.add(new SpellEnhancement(Spell.getSpell(talentName, group.getObj(talentName), null, null, actualGroup, representation), hero));
 		} else {
 			table.getItems()
-					.add(new TalentEnhancement(Talent.getTalent(talentName, group, group.getObj(talentName), null, actualGroup), talentGroup, hero));
+					.add(new TalentEnhancement(Talent.getTalent(talentName, talentGroup, group.getObj(talentName), null, actualGroup), talentGroupName, hero));
 		}
 		table.setPrefHeight(table.getItems().size() * 28 + 26);
 		table.sort();
@@ -311,11 +315,11 @@ public class TalentGroupController {
 		table.getItems().clear();
 
 		final JSONObject talentGroups = ResourceManager.getResource("data/Talentgruppen");
-		final JSONObject actualGroup = "Zauber".equals(talentGroup) ? hero.getObj("Zauber") : hero.getObj("Talente").getObj(talentGroup);
+		final JSONObject actualGroup = "Zauber".equals(talentGroupName) ? hero.getObj("Zauber") : hero.getObj("Talente").getObj(talentGroupName);
 
 		DSAUtil.foreach(talent -> true, (talentName, talent) -> {
 			if (actualGroup.containsKey(talentName)) {
-				if ("Zauber".equals(talentGroup)) {
+				if ("Zauber".equals(talentGroupName)) {
 					final JSONObject actualSpell = actualGroup.getObj(talentName);
 					boolean notFound = false;
 					for (final String rep : talent.getObj("Repräsentationen").keySet()) {
@@ -338,20 +342,23 @@ public class TalentGroupController {
 						talentsList.getItems().add(talentName);
 					}
 				} else {
+					JSONObject talentGroup = talentGroups.getObj(talentGroupName);
+					if ("Sprachen und Schriften".equals(talentGroupName)) {
+						talentGroup = talentGroup.getObj(talents.getObj(talentName).getBoolOrDefault("Schrift", false) ? "Schriften" : "Sprachen");
+					}
 					if (talent.containsKey("Auswahl") || talent.containsKey("Freitext")) {
 						final JSONArray choiceTalent = actualGroup.getArr(talentName);
 						for (int i = 0; i < choiceTalent.size(); ++i) {
 							table.getItems().add(new TalentEnhancement(
-									Talent.getTalent(talentName, talentGroups.getObj(talentGroup), talents.getObj(talentName), choiceTalent.getObj(i),
-											actualGroup),
-									talentGroup, hero));
+									Talent.getTalent(talentName, talentGroup, talents.getObj(talentName), choiceTalent.getObj(i), actualGroup),
+									talentGroupName, hero));
 						}
 						talentsList.getItems().add(talentName);
 					} else {
-						table.getItems().add(new TalentEnhancement(
-								Talent.getTalent(talentName, talentGroups.getObj(talentGroup), talents.getObj(talentName), actualGroup.getObj(talentName),
-										actualGroup),
-								talentGroup, hero));
+						table.getItems()
+								.add(new TalentEnhancement(
+										Talent.getTalent(talentName, talentGroup, talents.getObj(talentName), actualGroup.getObj(talentName), actualGroup),
+										talentGroupName, hero));
 					}
 				}
 			} else {
@@ -390,7 +397,7 @@ public class TalentGroupController {
 	}
 
 	public boolean removeEnhancement(final TalentEnhancement enhancement) {
-		if (enhancement.talentGroupName.equals(talentGroup)) {
+		if (enhancement.talentGroupName.equals(talentGroupName)) {
 			table.getItems().add(enhancement);
 			return true;
 		} else
@@ -399,14 +406,14 @@ public class TalentGroupController {
 
 	public void setHero(final JSONObject hero) {
 		if (hero != null) {
-			if ("Zauber".equals(talentGroup) && hero.containsKey("Zauber")) {
+			if ("Zauber".equals(talentGroupName) && hero.containsKey("Zauber")) {
 				hero.getObj("Zauber").removeListener(listener);
 			} else {
 				hero.getObj("Talente").removeListener(listener);
 			}
 		}
 		this.hero = hero;
-		if ("Zauber".equals(talentGroup) && hero.containsKey("Zauber")) {
+		if ("Zauber".equals(talentGroupName) && hero.containsKey("Zauber")) {
 			hero.getObj("Zauber").addListener(listener);
 		} else {
 			hero.getObj("Talente").addListener(listener);
