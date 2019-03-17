@@ -16,7 +16,6 @@
 package enhancement.enhancements;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -26,9 +25,9 @@ import dsa41basis.ui.hero.HeroController;
 import dsa41basis.ui.hero.HeroSelector;
 import dsa41basis.util.HeroUtil;
 import dsatool.resources.Settings;
-import dsatool.util.DoubleSpinnerTableCell;
+import dsatool.ui.DoubleSpinnerTableCell;
+import dsatool.ui.IntegerSpinnerTableCell;
 import dsatool.util.ErrorLogger;
-import dsatool.util.IntegerSpinnerTableCell;
 import enhancement.attributes.AttributesController;
 import enhancement.history.HistoryController;
 import enhancement.pros_cons.QuirksController;
@@ -66,8 +65,8 @@ import jsonant.value.JSONObject;
 
 public class EnhancementController extends HeroSelector {
 
-	public static List<Class<? extends EnhancementTabController>> tabControllers = Arrays.asList(AttributesController.class, QuirksController.class,
-			SkillController.class, TalentController.class, SpellsController.class, HistoryController.class);
+	public static List<Class<? extends EnhancementTabController>> tabControllers = new ArrayList<>(List.of(AttributesController.class, QuirksController.class,
+			SkillController.class, TalentController.class, SpellsController.class, HistoryController.class));
 
 	private static final DataFormat SERIALIZED = new DataFormat("application/x-java-serialized-object");
 
@@ -286,7 +285,7 @@ public class EnhancementController extends HeroSelector {
 		enhancementTable.setContextMenu(contextMenu);
 
 		enhancementTable.setRowFactory(tableView -> {
-			final TableRow<Enhancement> row = new TableRow<Enhancement>() {
+			final TableRow<Enhancement> row = new TableRow<>() {
 				@Override
 				protected void updateItem(final Enhancement enhancement, final boolean empty) {
 					super.updateItem(enhancement, empty);
@@ -371,7 +370,7 @@ public class EnhancementController extends HeroSelector {
 			((EnhancementTabController) controller).recalculate(hero);
 		}
 		for (final Enhancement e : enhancements) {
-			e.unapply(hero);
+			e.unapplyTemporary(hero);
 		}
 		apLabel.setText(String.valueOf(calculateAP()));
 		costLabel.setText(String.valueOf(calculateCost()));
