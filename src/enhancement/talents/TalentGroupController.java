@@ -26,11 +26,11 @@ import dsa41basis.util.DSAUtil;
 import dsatool.gui.GUIUtil;
 import dsatool.resources.ResourceManager;
 import dsatool.resources.Settings;
+import dsatool.ui.GraphicTableCell;
+import dsatool.ui.IntegerSpinnerTableCell;
+import dsatool.ui.ReactiveComboBoxTableCell;
+import dsatool.ui.ReactiveSpinner;
 import dsatool.util.ErrorLogger;
-import dsatool.util.GraphicTableCell;
-import dsatool.util.IntegerSpinnerTableCell;
-import dsatool.util.ReactiveComboBoxTableCell;
-import dsatool.util.ReactiveSpinner;
 import dsatool.util.Tuple;
 import dsatool.util.Util;
 import enhancement.enhancements.EnhancementController;
@@ -298,8 +298,9 @@ public class TalentGroupController {
 		}
 
 		if ("Zauber".equals(talentGroupName)) {
-			table.getItems()
-					.add(new SpellEnhancement(Spell.getSpell(talentName, group.getObj(talentName), null, null, actualGroup, representation), hero));
+			table.getItems().add(new SpellEnhancement(
+					Spell.getSpell(talentName, group.getObj(talentName), null, actualGroup.getObjOrDefault(talentName, null), actualGroup, representation),
+					hero));
 		} else {
 			table.getItems()
 					.add(new TalentEnhancement(Talent.getTalent(talentName, talentGroup, group.getObj(talentName), null, actualGroup), talentGroupName, hero));

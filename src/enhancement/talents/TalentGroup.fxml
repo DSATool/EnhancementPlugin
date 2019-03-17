@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import dsatool.util.ReactiveComboBox?>
+<?import dsatool.ui.ReactiveComboBox?>
 
 <TitledPane fx:id="pane" xmlns:fx="http://javafx.com/fxml" >
    <VBox style="-fx-padding: 0, 0, 0, 0;" >
