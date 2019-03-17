@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2017 DSATool team
  *
@@ -14,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import java.util.Arrays;
+package enhancement;
+
+import java.util.List;
 
 import dsatool.gui.Main;
 import dsatool.plugins.Plugin;
@@ -51,7 +52,7 @@ public class Enhancement extends Plugin {
 			return new EnhancementController().getRoot();
 		});
 		Settings.addSetting(new StringChoiceSetting("Lernmethode", "Gegenseitiges Lehren",
-				Arrays.asList("Lehrmeister", "Gegenseitiges Lehren", "Selbststudium"), "Steigerung", "Lernmethode"));
+				List.of("Lehrmeister", "Gegenseitiges Lehren", "Selbststudium"), "Steigerung", "Lernmethode"));
 		Settings.addSetting(new BooleanSetting("Lehrmeisterkosten", true, "Steigerung", "Lehrmeisterkosten"));
 	}
 
