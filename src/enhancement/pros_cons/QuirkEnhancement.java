@@ -90,9 +90,9 @@ public class QuirkEnhancement extends Enhancement {
 		} else {
 			if (con.containsKey("Auswahl") || con.containsKey("Freitext")) {
 				final JSONArray conArray = cons.getArr(name);
-				for (int i = 0; i < conArray.size(); ++i) {
-					final JSONObject actualCon = conArray.getObj(i);
-					if (actualCon.equals(actual)) {
+				for (final JSONObject actualCon : conArray.getObjs()) {
+					if ((!actual.containsKey("Auswahl") || actual.getString("Auswahl").equals(actualCon.getString("Auswahl"))) &&
+							(!actual.containsKey("Freitext") || actual.getString("Freitext").equals(actualCon.getString("Freitext")))) {
 						actualCon.put("Stufe", target.get());
 						break;
 					}
@@ -181,7 +181,7 @@ public class QuirkEnhancement extends Enhancement {
 		reset(hero);
 
 		for (final Enhancement e : enhancementStack) {
-			e.unapply(hero);
+			e.unapplyTemporary(hero);
 		}
 	}
 
@@ -241,11 +241,9 @@ public class QuirkEnhancement extends Enhancement {
 		} else {
 			if (con.containsKey("Auswahl") || con.containsKey("Freitext")) {
 				final JSONArray conArray = cons.getArr(name);
-				final JSONObject cloned = actual.clone(null);
-				cloned.put("Stufe", target.get());
-				for (int i = 0; i < conArray.size(); ++i) {
-					final JSONObject actualCon = conArray.getObj(i);
-					if (actualCon.equals(cloned)) {
+				for (final JSONObject actualCon : conArray.getObjs()) {
+					if ((!actual.containsKey("Auswahl") || actual.getString("Auswahl").equals(actualCon.getString("Auswahl"))) &&
+							(!actual.containsKey("Freitext") || actual.getString("Freitext").equals(actualCon.getString("Freitext")))) {
 						actualCon.put("Stufe", target.get());
 						actualCon.put("SEs", ses.get());
 						break;
@@ -256,6 +254,11 @@ public class QuirkEnhancement extends Enhancement {
 				cons.getObj(name).put("SEs", ses.get());
 			}
 		}
+	}
+
+	@Override
+	public void unapplyTemporary(final JSONObject hero) {
+		unapply(hero);
 	}
 
 	private void updateDescription() {

@@ -178,6 +178,11 @@ public class EnergyEnhancement extends Enhancement {
 		actual.notifyListeners(null);
 	}
 
+	@Override
+	public void unapplyTemporary(final JSONObject hero) {
+		unapply(hero);
+	}
+
 	private void updateDescription() {
 		final String desc = energy.getName() + " (" + (energy.getMax() - energy.getBought() + start.getValue()) + "->"
 				+ (energy.getMax() - energy.getBought() + target.get()) + ")";

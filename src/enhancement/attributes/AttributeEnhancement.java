@@ -186,6 +186,11 @@ public class AttributeEnhancement extends Enhancement {
 		actual.notifyListeners(null);
 	}
 
+	@Override
+	public void unapplyTemporary(final JSONObject hero) {
+		unapply(hero);
+	}
+
 	private void updateDescription() {
 		final String desc = attribute.getName() + " (" + start.get() + "->" + target.get() + ")";
 		description.set(desc);

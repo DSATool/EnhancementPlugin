@@ -94,4 +94,7 @@ public class APEnhancement extends Enhancement {
 		final JSONObject bio = hero.getObj("Biografie");
 		bio.put("Abenteuerpunkte", start.get());
 	}
+
+	@Override
+	public void unapplyTemporary(final JSONObject hero) {}
 }

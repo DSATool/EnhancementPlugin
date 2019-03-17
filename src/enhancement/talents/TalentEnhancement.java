@@ -39,7 +39,7 @@ import jsonant.value.JSONObject;
 import jsonant.value.JSONValue;
 
 public class TalentEnhancement extends Enhancement {
-	private static boolean suppressUpdate = false;
+	private static boolean suppressGlobally = false;
 
 	public static TalentEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
 		final String talentName = enhancement.getString("Talent");
@@ -114,6 +114,8 @@ public class TalentEnhancement extends Enhancement {
 			return String.valueOf(taw);
 	}
 
+	private boolean suppressUpdate = false;
+
 	protected final Talent talent;
 	protected final IntegerProperty start;
 	protected final StringProperty startString;
@@ -147,7 +149,7 @@ public class TalentEnhancement extends Enhancement {
 		updateDescription();
 		if (!fixed) {
 			talent.valueProperty().addListener((o, oldV, newV) -> {
-				if (!suppressUpdate) {
+				if (!suppressGlobally && !suppressUpdate) {
 					final int newValue = fromStart(newV.intValue());
 					final int difference = start.get() - newValue;
 					start.set(newValue);
@@ -157,7 +159,7 @@ public class TalentEnhancement extends Enhancement {
 				}
 			});
 			talent.sesProperty().addListener((o, oldV, newV) -> {
-				if (!suppressUpdate) {
+				if (!suppressGlobally && !suppressUpdate) {
 					seMin = newV.intValue();
 					ses.set(newV.intValue());
 					ap.set(getCalculatedAP(hero));
@@ -175,7 +177,7 @@ public class TalentEnhancement extends Enhancement {
 		cost.set(getCalculatedCost(hero));
 		recalculateValid(hero);
 		for (final Enhancement e : enhancements) {
-			e.unapply(hero);
+			e.unapplyTemporary(hero);
 		}
 
 		cheaper.bind(ses.greaterThan(0));
@@ -193,10 +195,10 @@ public class TalentEnhancement extends Enhancement {
 
 	@Override
 	public void applyTemporarily(final JSONObject hero) {
-		suppressUpdate = true;
+		suppressGlobally = true;
 		talent.insertTalent(true);
 		talent.setValue(target.get());
-		suppressUpdate = false;
+		suppressGlobally = false;
 	}
 
 	@Override
@@ -331,7 +333,7 @@ public class TalentEnhancement extends Enhancement {
 		reset(hero);
 
 		for (final Enhancement e : enhancementStack) {
-			e.unapply(hero);
+			e.unapplyTemporary(hero);
 		}
 	}
 
@@ -408,6 +410,13 @@ public class TalentEnhancement extends Enhancement {
 			talent.removeTalent();
 		}
 		suppressUpdate = false;
+	}
+
+	@Override
+	public void unapplyTemporary(final JSONObject hero) {
+		suppressGlobally = true;
+		unapply(hero);
+		suppressGlobally = false;
 	}
 
 	public void unregister() {

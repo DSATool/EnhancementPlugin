@@ -222,17 +222,26 @@ public class SkillEnhancement extends Enhancement {
 			JSONArray actualSkill;
 			if (skills.containsKey(name)) {
 				actualSkill = skills.getArr(name);
-			} else {
-				actualSkill = new JSONArray(skills);
-			}
-			actualSkill.remove(actual.clone(actualSkill));
-			if (actualSkill.size() == 0) {
-				skills.removeKey(name);
+				for (final JSONObject current : actualSkill.getObjs()) {
+					if ((!actual.containsKey("Auswahl") || actual.getString("Auswahl").equals(current.getString("Auswahl"))) &&
+							(!actual.containsKey("Freitext") || actual.getString("Freitext").equals(current.getString("Freitext")))) {
+						actualSkill.remove(current);
+						if (actualSkill.size() == 0) {
+							skills.removeKey(name);
+						}
+						break;
+					}
+				}
 			}
 		} else {
 			skills.removeKey(name);
 		}
 		HeroUtil.unapplyEffect(hero, name, skill, actual);
+	}
+
+	@Override
+	public void unapplyTemporary(final JSONObject hero) {
+		unapply(hero);
 	}
 
 	private void updateDescription() {
@@ -248,7 +257,7 @@ public class SkillEnhancement extends Enhancement {
 		}
 		recalculateValid(hero);
 		for (final Enhancement e : enhancements) {
-			e.unapply(hero);
+			e.unapplyTemporary(hero);
 		}
 	}
 }

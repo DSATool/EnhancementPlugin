@@ -133,6 +133,8 @@ public abstract class Enhancement {
 
 	public abstract void unapply(JSONObject hero);
 
+	public abstract void unapplyTemporary(JSONObject hero);
+
 	public BooleanProperty validProperty() {
 		return valid;
 	}
