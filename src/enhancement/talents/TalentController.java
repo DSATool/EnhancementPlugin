@@ -66,12 +66,8 @@ public class TalentController extends EnhancementTabController {
 			final TalentGroupController talentController = new TalentGroupController(talentGroup, talents.getObj(talentGroup));
 			talentControllers.add(talentController);
 			switch (talentGroup) {
-			case "Ritualkenntnis":
-				ritualKnowledge = talentController.getControl();
-				break;
-			case "Liturgiekenntnis":
-				liturgyKnowledge = talentController.getControl();
-				break;
+				case "Ritualkenntnis" -> ritualKnowledge = talentController.getControl();
+				case "Liturgiekenntnis" -> liturgyKnowledge = talentController.getControl();
 			}
 			box.getChildren().add(talentController.getControl());
 		}

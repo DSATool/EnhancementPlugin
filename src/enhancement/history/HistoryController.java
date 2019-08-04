@@ -196,29 +196,17 @@ public class HistoryController extends EnhancementTabController {
 		final JSONArray history = hero.getArr("Historie");
 		for (int i = history.size() - 1; i >= 0; --i) {
 			final JSONObject entry = history.getObj(i);
-			switch (entry.getString("Typ")) {
-			case "Eigenschaft":
-				table.getItems().add(AttributeEnhancement.fromJSON(entry, hero));
-				break;
-			case "Basiswert":
-				table.getItems().add(EnergyEnhancement.fromJSON(entry, hero));
-				break;
-			case "Schlechte Eigenschaft":
-				table.getItems().add(QuirkEnhancement.fromJSON(entry, hero, controller.getEnhancements()));
-				break;
-			case "Sonderfertigkeit":
-				table.getItems().add(SkillEnhancement.fromJSON(entry, hero));
-				break;
-			case "Talent":
-				table.getItems().add(TalentEnhancement.fromJSON(entry, hero));
-				break;
-			case "Zauber":
-				table.getItems().add(SpellEnhancement.fromJSON(entry, hero));
-				break;
-			case "Abenteuerpunkte":
-				table.getItems().add(APEnhancement.fromJSON(entry));
-				break;
-			}
+			final Enhancement enhancement = switch (entry.getString("Typ")) {
+				case "Eigenschaft" -> AttributeEnhancement.fromJSON(entry, hero);
+				case "Basiswert" -> EnergyEnhancement.fromJSON(entry, hero);
+				case "Schlechte Eigenschaft" -> QuirkEnhancement.fromJSON(entry, hero, controller.getEnhancements());
+				case "Sonderfertigkeit" -> SkillEnhancement.fromJSON(entry, hero);
+				case "Talent" -> TalentEnhancement.fromJSON(entry, hero);
+				case "Zauber" -> SpellEnhancement.fromJSON(entry, hero);
+				case "Abenteuerpunkte" -> APEnhancement.fromJSON(entry);
+				default -> null;
+			};
+			table.getItems().add(enhancement);
 		}
 
 		table.setPrefHeight(table.getItems().size() * 28 + 27);
