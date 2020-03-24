@@ -168,7 +168,7 @@ public class AttributeEnhancement extends Enhancement {
 		result.put("Eigenschaft", attribute.getName());
 		result.put("Von", start.get());
 		result.put("Auf", target.get());
-		final int resultSes = ses.get() - (target.get() - start.get());
+		final int resultSes = Math.min(ses.get(), target.get() - start.get());
 		if (resultSes > 0) {
 			result.put("SEs", resultSes);
 		}

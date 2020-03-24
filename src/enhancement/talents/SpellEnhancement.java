@@ -143,7 +143,7 @@ public class SpellEnhancement extends TalentEnhancement {
 		if (target.get() != -1) {
 			result.put("Auf", target.get() < 0 && !basis ? target.get() + 1 : target.get());
 		}
-		final int resultSes = ses.get() - (target.get() - start.get());
+		final int resultSes = Math.min(ses.get(), target.get() - start.get());
 		if (resultSes > 0) {
 			result.put("SEs", resultSes);
 		}
