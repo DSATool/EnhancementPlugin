@@ -65,9 +65,9 @@ public class SpellEnhancement extends TalentEnhancement {
 		result.startString.set(getOfficial(result.start.get(), false));
 		if (enhancement.containsKey("Auf")) {
 			final int target = enhancement.getInt("Auf");
-			result.setTarget(target < 0 ? target - 1 : target, hero);
+			result.setTarget(target < 0 ? target - 1 : target, hero, false);
 		} else {
-			result.setTarget(-1, hero);
+			result.setTarget(-1, hero, false);
 		}
 		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
 		result.method.set(enhancement.getString("Methode"));
@@ -91,7 +91,7 @@ public class SpellEnhancement extends TalentEnhancement {
 		final SpellEnhancement result = new SpellEnhancement((Spell) talent, hero);
 		result.start.set(start.get());
 		result.startString.set(startString.get());
-		result.setTarget(target.get(), hero);
+		result.setTarget(target.get(), hero, false);
 		result.targetString.set(targetString.get());
 		result.basis = basis;
 		result.method.set(method.get());

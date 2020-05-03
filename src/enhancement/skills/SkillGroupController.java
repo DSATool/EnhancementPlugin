@@ -109,7 +109,7 @@ public class SkillGroupController {
 		GUIUtil.autosizeTable(table, 1, 0);
 
 		nameColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("description"));
-		nameColumn.setCellFactory(c -> new TextFieldTableCell<SkillEnhancement, String>() {
+		nameColumn.setCellFactory(c -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final String item, final boolean empty) {
 				super.updateItem(item, empty);
@@ -123,7 +123,7 @@ public class SkillGroupController {
 		});
 
 		descColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("skillDescription"));
-		descColumn.setCellFactory(c -> new GraphicTableCell<SkillEnhancement, String>(false) {
+		descColumn.setCellFactory(c -> new GraphicTableCell<>(false) {
 			@Override
 			protected void createGraphic() {
 				final ObservableList<String> items = FXCollections
@@ -151,12 +151,12 @@ public class SkillGroupController {
 			}
 		});
 		descColumn.setOnEditCommit(t -> {
-			t.getRowValue().getSkill().setDescription(t.getNewValue());
+			t.getRowValue().getSkill().setDescription(t.getNewValue(), false);
 			t.getRowValue().reset(hero);
 		});
 
 		variantColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("skillVariant"));
-		variantColumn.setCellFactory(c -> new GraphicTableCell<SkillEnhancement, String>(false) {
+		variantColumn.setCellFactory(c -> new GraphicTableCell<>(false) {
 			@Override
 			protected void createGraphic() {
 				final ObservableList<String> items = FXCollections
@@ -184,7 +184,7 @@ public class SkillGroupController {
 			}
 		});
 		variantColumn.setOnEditCommit(t -> {
-			t.getRowValue().getSkill().setVariant(t.getNewValue());
+			t.getRowValue().getSkill().setVariant(t.getNewValue(), false);
 			t.getRowValue().reset(hero);
 		});
 
@@ -192,7 +192,7 @@ public class SkillGroupController {
 		apColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Integer>("ap"));
 
 		validColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Boolean>("valid"));
-		validColumn.setCellFactory(tableColumn -> new TableCell<SkillEnhancement, Boolean>() {
+		validColumn.setCellFactory(tableColumn -> new TableCell<>() {
 			@Override
 			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
@@ -207,7 +207,7 @@ public class SkillGroupController {
 		});
 
 		cheaperColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Boolean>("cheaper"));
-		cheaperColumn.setCellFactory(tableColumn -> new TableCell<SkillEnhancement, Boolean>() {
+		cheaperColumn.setCellFactory(tableColumn -> new TableCell<>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);

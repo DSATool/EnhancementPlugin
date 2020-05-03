@@ -37,12 +37,12 @@ public class QuirkEnhancement extends Enhancement {
 		final ProOrCon newQuirk = new ProOrCon(quirkName, hero, con, new JSONObject(null));
 		final QuirkEnhancement result = new QuirkEnhancement(newQuirk, hero);
 		if (con.containsKey("Auswahl")) {
-			newQuirk.setDescription(enhancement.getString("Auswahl"));
+			newQuirk.setDescription(enhancement.getString("Auswahl"), false);
 			if (con.containsKey("Freitext")) {
-				newQuirk.setVariant(enhancement.getString("Freitext"));
+				newQuirk.setVariant(enhancement.getString("Freitext"), false);
 			}
 		} else if (con.containsKey("Freitext")) {
-			newQuirk.setDescription(enhancement.getString("Freitext"));
+			newQuirk.setDescription(enhancement.getString("Freitext"), false);
 		}
 		result.start.set(enhancement.getInt("Von"));
 		result.setTarget(enhancement.getInt("Auf"), hero, enhancements);

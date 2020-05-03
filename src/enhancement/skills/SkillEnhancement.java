@@ -39,12 +39,12 @@ public class SkillEnhancement extends Enhancement {
 		final ProOrCon newSkill = new ProOrCon(skillName, hero, skill, new JSONObject(null));
 		final SkillEnhancement result = new SkillEnhancement(newSkill, hero);
 		if (skill.containsKey("Auswahl")) {
-			newSkill.setDescription(enhancement.getString("Auswahl"));
+			newSkill.setDescription(enhancement.getString("Auswahl"), false);
 			if (skill.containsKey("Freitext")) {
-				newSkill.setVariant(enhancement.getString("Freitext"));
+				newSkill.setVariant(enhancement.getString("Freitext"), false);
 			}
 		} else if (skill.containsKey("Freitext")) {
-			newSkill.setDescription(enhancement.getString("Freitext"));
+			newSkill.setDescription(enhancement.getString("Freitext"), false);
 		}
 		result.ap.set(enhancement.getInt("AP"));
 		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));

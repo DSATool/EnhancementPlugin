@@ -83,9 +83,9 @@ public class TalentEnhancement extends Enhancement {
 		result.startString.set(getOfficial(result.start.get(), basis));
 		if (enhancement.containsKey("Auf")) {
 			final int target = enhancement.getInt("Auf");
-			result.setTarget(target < 0 && !basis ? target - 1 : target, hero);
+			result.setTarget(target < 0 && !basis ? target - 1 : target, hero, false);
 		} else {
-			result.setTarget(-1, hero);
+			result.setTarget(-1, hero, false);
 		}
 		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
 		result.method.set(enhancement.getString("Methode"));
@@ -153,7 +153,7 @@ public class TalentEnhancement extends Enhancement {
 					final int newValue = fromStart(newV.intValue());
 					final int difference = start.get() - newValue;
 					start.set(newValue);
-					setTarget(target.get() - difference, hero);
+					setTarget(target.get() - difference, hero, true);
 					startString.set(getOfficial(newValue, basis));
 					updateDescription();
 				}
@@ -220,7 +220,7 @@ public class TalentEnhancement extends Enhancement {
 		final TalentEnhancement result = new TalentEnhancement(talent, talentGroupName, hero);
 		result.start.set(start.get());
 		result.startString.set(startString.get());
-		result.setTarget(target.get(), hero);
+		result.setTarget(target.get(), hero, false);
 		result.targetString.set(targetString.get());
 		result.basis = basis;
 		result.method.set(method.get());
@@ -319,26 +319,31 @@ public class TalentEnhancement extends Enhancement {
 		reset(hero);
 	}
 
-	public void setTarget(final int target, final JSONObject hero) {
+	public void setTarget(final int target, final JSONObject hero, final boolean updateValid) {
 		final Stack<Enhancement> enhancementStack = new Stack<>();
-		for (final Enhancement e : EnhancementController.instance.getEnhancements()) {
-			e.applyTemporarily(hero);
-			enhancementStack.push(e);
+		if (updateValid) {
+			for (final Enhancement e : EnhancementController.instance.getEnhancements()) {
+				e.applyTemporarily(hero);
+				enhancementStack.push(e);
+			}
 		}
 
 		this.target.set(target);
 		targetString.set(getOfficial(target, basis));
 		updateDescription();
-		recalculateValid(hero);
-		reset(hero);
 
-		for (final Enhancement e : enhancementStack) {
-			e.unapplyTemporary(hero);
+		if (updateValid) {
+			recalculateValid(hero);
+			reset(hero);
+
+			for (final Enhancement e : enhancementStack) {
+				e.unapplyTemporary(hero);
+			}
 		}
 	}
 
 	public void setTarget(final String newValue, final JSONObject hero) {
-		setTarget(fromOfficial(newValue, basis), hero);
+		setTarget(fromOfficial(newValue, basis), hero, true);
 	}
 
 	public IntegerProperty startProperty() {
