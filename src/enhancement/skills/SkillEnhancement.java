@@ -29,6 +29,7 @@ import dsatool.resources.Settings;
 import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
 
@@ -55,6 +56,8 @@ public class SkillEnhancement extends Enhancement {
 
 	private final ProOrCon skill;
 
+	private final ChangeListener<Boolean> chargenListener;
+
 	public SkillEnhancement(final ProOrCon skill, final JSONObject hero) {
 		this.skill = skill;
 		description.set(skill.getDisplayName());
@@ -71,6 +74,9 @@ public class SkillEnhancement extends Enhancement {
 			updateDescription();
 			updateValid(hero);
 		});
+
+		chargenListener = (o, oldV, newV) -> reset(hero);
+		EnhancementController.usesChargenRules.addListener(chargenListener);
 	}
 
 	@Override
@@ -161,6 +167,7 @@ public class SkillEnhancement extends Enhancement {
 	@Override
 	protected double getCalculatedCost(final JSONObject hero) {
 		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten")) return 0;
+		if (EnhancementController.usesChargenRules.get()) return 0;
 
 		final JSONObject group = (JSONObject) skill.getProOrCon().getParent();
 		if (group == ResourceManager.getResource("data/Sonderfertigkeiten").getObj("Magische Sonderfertigkeiten") ||
@@ -242,6 +249,10 @@ public class SkillEnhancement extends Enhancement {
 	@Override
 	public void unapplyTemporary(final JSONObject hero) {
 		unapply(hero);
+	}
+
+	public void unregister() {
+		EnhancementController.usesChargenRules.removeListener(chargenListener);
 	}
 
 	private void updateDescription() {
