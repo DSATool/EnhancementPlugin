@@ -26,6 +26,7 @@ import dsatool.util.Tuple;
 import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import enhancement.enhancements.EnhancementTabController;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -113,19 +114,24 @@ public class AttributesController extends EnhancementTabController {
 			t.getRowValue().setTarget(t.getNewValue(), hero);
 		});
 
-		final ContextMenu attributesContextMenu = new ContextMenu();
-		final MenuItem attributesContextMenuItem = new MenuItem("Steigern");
-		attributesContextMenu.getItems().add(attributesContextMenuItem);
-		attributesContextMenuItem.setOnAction(o -> {
-			final AttributeEnhancement item = attributesTable.getSelectionModel().getSelectedItem();
-			if (item != null) {
+		attributesTable.setRowFactory(t -> {
+			final TableRow<AttributeEnhancement> row = new TableRow<>();
+
+			final ContextMenu attributesContextMenu = new ContextMenu();
+			final MenuItem attributesContextMenuItem = new MenuItem("Steigern");
+			attributesContextMenu.getItems().add(attributesContextMenuItem);
+			attributesContextMenuItem.setOnAction(o -> {
+				final AttributeEnhancement item = row.getItem();
 				EnhancementController.instance.addEnhancement(item.clone(hero));
 				update();
-			}
-		});
-		attributesTable.setContextMenu(attributesContextMenu);
+			});
 
-		attributesValidColumn.setCellFactory(tableColumn -> new TextFieldTableCell<AttributeEnhancement, Boolean>() {
+			row.contextMenuProperty().bind(Bindings.when(row.itemProperty().isNotNull()).then(attributesContextMenu).otherwise((ContextMenu) null));
+
+			return row;
+		});
+
+		attributesValidColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
@@ -139,7 +145,7 @@ public class AttributesController extends EnhancementTabController {
 			}
 		});
 
-		attributesCheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<AttributeEnhancement, Boolean>() {
+		attributesCheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
@@ -181,19 +187,23 @@ public class AttributesController extends EnhancementTabController {
 			energiesTable.refresh();
 		});
 
-		final ContextMenu energiesContextMenu = new ContextMenu();
-		final MenuItem energiesContextMenuItem = new MenuItem("Steigern");
-		energiesContextMenu.getItems().add(energiesContextMenuItem);
-		energiesContextMenuItem.setOnAction(o -> {
-			final EnergyEnhancement item = energiesTable.getSelectionModel().getSelectedItem();
-			if (item != null) {
+		energiesTable.setRowFactory(t -> {
+			final TableRow<EnergyEnhancement> row = new TableRow<>();
+
+			final ContextMenu energiesContextMenu = new ContextMenu();
+			final MenuItem energiesContextMenuItem = new MenuItem("Steigern");
+			energiesContextMenu.getItems().add(energiesContextMenuItem);
+			energiesContextMenuItem.setOnAction(o -> {
+				final EnergyEnhancement item = row.getItem();
 				EnhancementController.instance.addEnhancement(item.clone(hero));
 				update();
-			}
-		});
-		energiesTable.setContextMenu(energiesContextMenu);
+			});
+			row.contextMenuProperty().bind(Bindings.when(row.itemProperty().isNotNull()).then(energiesContextMenu).otherwise((ContextMenu) null));
 
-		energiesValidColumn.setCellFactory(tableColumn -> new TextFieldTableCell<EnergyEnhancement, Boolean>() {
+			return row;
+		});
+
+		energiesValidColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
@@ -207,7 +217,7 @@ public class AttributesController extends EnhancementTabController {
 			}
 		});
 
-		energiesCheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<EnergyEnhancement, Boolean>() {
+		energiesCheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);

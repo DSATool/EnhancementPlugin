@@ -34,6 +34,7 @@ import dsatool.util.ErrorLogger;
 import dsatool.util.Tuple;
 import dsatool.util.Util;
 import enhancement.enhancements.EnhancementController;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -205,18 +206,23 @@ public class TalentGroupController {
 			t.getRowValue().setMethod(t.getNewValue(), hero);
 		});
 
-		final ContextMenu contextMenu = new ContextMenu();
-		final MenuItem contextMenuItem = new MenuItem("Steigern");
-		contextMenu.getItems().add(contextMenuItem);
-		contextMenuItem.setOnAction(o -> {
-			final TalentEnhancement item = table.getSelectionModel().getSelectedItem();
-			if (item != null) {
+		table.setRowFactory(t -> {
+			final TableRow<TalentEnhancement> row = new TableRow<>();
+
+			final ContextMenu contextMenu = new ContextMenu();
+			final MenuItem contextMenuItem = new MenuItem("Steigern");
+			contextMenu.getItems().add(contextMenuItem);
+			contextMenuItem.setOnAction(o -> {
+				final TalentEnhancement item = row.getItem();
 				table.getItems().remove(item);
 				alreadyEnhanced.add(item);
 				EnhancementController.instance.addEnhancement(item.clone(hero));
-			}
+			});
+
+			row.contextMenuProperty().bind(Bindings.when(row.itemProperty().isNotNull()).then(contextMenu).otherwise((ContextMenu) null));
+
+			return row;
 		});
-		table.setContextMenu(contextMenu);
 
 		validColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
 			@Override

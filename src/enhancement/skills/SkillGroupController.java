@@ -25,6 +25,7 @@ import dsatool.util.ErrorLogger;
 import dsatool.util.Util;
 import enhancement.enhancements.EnhancementController;
 import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -222,17 +223,21 @@ public class SkillGroupController {
 			}
 		});
 
-		final ContextMenu contextMenu = new ContextMenu();
-		final MenuItem contextMenuItem = new MenuItem("Erlernen");
-		contextMenu.getItems().add(contextMenuItem);
-		contextMenuItem.setOnAction(o -> {
-			final SkillEnhancement item = table.getSelectionModel().getSelectedItem();
-			if (item != null) {
+		table.setRowFactory(t -> {
+			final TableRow<SkillEnhancement> row = new TableRow<>();
+
+			final ContextMenu contextMenu = new ContextMenu();
+			final MenuItem contextMenuItem = new MenuItem("Erlernen");
+			contextMenu.getItems().add(contextMenuItem);
+			contextMenuItem.setOnAction(o -> {
+				final SkillEnhancement item = row.getItem();
 				allItems.remove(item);
 				EnhancementController.instance.addEnhancement(item.clone(hero));
-			}
+			});
+			row.contextMenuProperty().bind(Bindings.when(row.itemProperty().isNotNull()).then(contextMenu).otherwise((ContextMenu) null));
+
+			return row;
 		});
-		table.setContextMenu(contextMenu);
 
 		valid.addListener((final SetChangeListener.Change<?> o) -> {
 			final int size = valid.size();

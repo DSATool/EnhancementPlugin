@@ -28,6 +28,7 @@ import enhancement.pros_cons.QuirkEnhancement;
 import enhancement.skills.SkillEnhancement;
 import enhancement.talents.SpellEnhancement;
 import enhancement.talents.TalentEnhancement;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -39,6 +40,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
@@ -85,17 +87,20 @@ public class HistoryController extends EnhancementTabController {
 		GUIUtil.autosizeTable(table, 0, 2);
 		GUIUtil.cellValueFactories(table, "fullDescription", "cost", "ap", "date");
 
-		final ContextMenu contextMenu = new ContextMenu();
-		final MenuItem undoItem = new MenuItem("Rückgängig");
-		contextMenu.getItems().add(undoItem);
-		undoItem.setOnAction(o -> {
-			undo(table.getSelectionModel().getSelectedIndex());
+		table.setRowFactory(t -> {
+			final TableRow<Enhancement> row = new TableRow<>();
+
+			final ContextMenu contextMenu = new ContextMenu();
+			final MenuItem undoItem = new MenuItem("Rückgängig");
+			contextMenu.getItems().add(undoItem);
+			undoItem.setOnAction(o -> {
+				undo(row.getIndex());
+			});
+
+			row.contextMenuProperty().bind(Bindings.when(row.itemProperty().isNotNull()).then(contextMenu).otherwise((ContextMenu) null));
+
+			return row;
 		});
-		contextMenu.setOnShowing(e -> {
-			final Enhancement enhancement = table.getSelectionModel().getSelectedItem();
-			undoItem.setVisible(enhancement != null);
-		});
-		table.setContextMenu(contextMenu);
 	}
 
 	@Override

@@ -34,6 +34,7 @@ import enhancement.pros_cons.QuirksController;
 import enhancement.skills.SkillController;
 import enhancement.talents.SpellsController;
 import enhancement.talents.TalentController;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -259,30 +260,32 @@ public class EnhancementController extends HeroSelector {
 			recalculate(false);
 		});
 
-		final ContextMenu contextMenu = new ContextMenu();
-		final MenuItem resetItem = new MenuItem("Zurücksetzen");
-		contextMenu.getItems().add(resetItem);
-		resetItem.setOnAction(o -> {
-			enhancementTable.getSelectionModel().getSelectedItem().reset(hero);
-			recalculate(false);
-		});
-		final MenuItem removeItem = new MenuItem("Entfernen");
-		contextMenu.getItems().add(removeItem);
-		removeItem.setOnAction(o -> {
-			final Enhancement removed = enhancementTable.getSelectionModel().getSelectedItem();
-			for (final HeroController controller : controllers) {
-				if (((EnhancementTabController) controller).removeEnhancement(removed)) {
-					break;
+		enhancementTable.setRowFactory(t -> {
+			final TableRow<Enhancement> row = new TableRow<>();
+
+			final ContextMenu contextMenu = new ContextMenu();
+			final MenuItem resetItem = new MenuItem("Zurücksetzen");
+			contextMenu.getItems().add(resetItem);
+			resetItem.setOnAction(o -> {
+				row.getItem().reset(hero);
+				recalculate(false);
+			});
+			final MenuItem removeItem = new MenuItem("Entfernen");
+			contextMenu.getItems().add(removeItem);
+			removeItem.setOnAction(o -> {
+				final Enhancement removed = row.getItem();
+				for (final HeroController controller : controllers) {
+					if (((EnhancementTabController) controller).removeEnhancement(removed)) {
+						break;
+					}
 				}
-			}
-			enhancementTable.getItems().remove(removed);
+				enhancementTable.getItems().remove(removed);
+			});
+
+			row.contextMenuProperty().bind(Bindings.when(row.itemProperty().isNotNull()).then(contextMenu).otherwise((ContextMenu) null));
+
+			return row;
 		});
-		contextMenu.setOnShowing(e -> {
-			final Enhancement enhancement = enhancementTable.getSelectionModel().getSelectedItem();
-			resetItem.setVisible(enhancement != null);
-			removeItem.setVisible(enhancement != null);
-		});
-		enhancementTable.setContextMenu(contextMenu);
 
 		enhancementTable.setRowFactory(tableView -> {
 			final TableRow<Enhancement> row = new TableRow<>() {

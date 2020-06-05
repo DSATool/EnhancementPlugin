@@ -25,6 +25,7 @@ import dsatool.util.Util;
 import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import enhancement.enhancements.EnhancementTabController;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -77,11 +78,11 @@ public class QuirksController extends EnhancementTabController {
 		GUIUtil.autosizeTable(table, 0, 2);
 		GUIUtil.cellValueFactories(table, "description", "ses", "start", "target", "ap", "valid", "cheaper");
 
-		nameColumn.setCellFactory(c -> new TextFieldTableCell<QuirkEnhancement, String>() {
+		nameColumn.setCellFactory(c -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final String item, final boolean empty) {
 				super.updateItem(item, empty);
-				final QuirkEnhancement quirk = (QuirkEnhancement) getTableRow().getItem();
+				final QuirkEnhancement quirk = getTableRow().getItem();
 				if (quirk != null) {
 					Util.addReference(this, quirk.getQuirk().getProOrCon(), 15, nameColumn.widthProperty());
 				}
@@ -109,19 +110,24 @@ public class QuirksController extends EnhancementTabController {
 			t.getRowValue().setTarget(t.getNewValue(), hero, EnhancementController.instance.getEnhancements());
 		});
 
-		final ContextMenu attributesContextMenu = new ContextMenu();
-		final MenuItem attributesContextMenuItem = new MenuItem("Senken");
-		attributesContextMenu.getItems().add(attributesContextMenuItem);
-		attributesContextMenuItem.setOnAction(o -> {
-			final QuirkEnhancement item = table.getSelectionModel().getSelectedItem();
-			if (item != null) {
+		table.setRowFactory(t -> {
+			final TableRow<QuirkEnhancement> row = new TableRow<>();
+
+			final ContextMenu contextMenu = new ContextMenu();
+			final MenuItem lowerMenuItem = new MenuItem("Senken");
+			contextMenu.getItems().add(lowerMenuItem);
+			lowerMenuItem.setOnAction(o -> {
+				final QuirkEnhancement item = row.getItem();
 				EnhancementController.instance.addEnhancement(item.clone(hero, EnhancementController.instance.getEnhancements()));
 				update();
-			}
-		});
-		table.setContextMenu(attributesContextMenu);
+			});
 
-		validColumn.setCellFactory(tableColumn -> new TextFieldTableCell<QuirkEnhancement, Boolean>() {
+			row.contextMenuProperty().bind(Bindings.when(row.itemProperty().isNotNull()).then(contextMenu).otherwise((ContextMenu) null));
+
+			return row;
+		});
+
+		validColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
@@ -135,7 +141,7 @@ public class QuirksController extends EnhancementTabController {
 			}
 		});
 
-		cheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<QuirkEnhancement, Boolean>() {
+		cheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
