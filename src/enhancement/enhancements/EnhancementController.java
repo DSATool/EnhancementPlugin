@@ -260,33 +260,6 @@ public class EnhancementController extends HeroSelector {
 			recalculate(false);
 		});
 
-		enhancementTable.setRowFactory(t -> {
-			final TableRow<Enhancement> row = new TableRow<>();
-
-			final ContextMenu contextMenu = new ContextMenu();
-			final MenuItem resetItem = new MenuItem("Zurücksetzen");
-			contextMenu.getItems().add(resetItem);
-			resetItem.setOnAction(o -> {
-				row.getItem().reset(hero);
-				recalculate(false);
-			});
-			final MenuItem removeItem = new MenuItem("Entfernen");
-			contextMenu.getItems().add(removeItem);
-			removeItem.setOnAction(o -> {
-				final Enhancement removed = row.getItem();
-				for (final HeroController controller : controllers) {
-					if (((EnhancementTabController) controller).removeEnhancement(removed)) {
-						break;
-					}
-				}
-				enhancementTable.getItems().remove(removed);
-			});
-
-			row.contextMenuProperty().bind(Bindings.when(row.itemProperty().isNotNull()).then(contextMenu).otherwise((ContextMenu) null));
-
-			return row;
-		});
-
 		enhancementTable.setRowFactory(tableView -> {
 			final TableRow<Enhancement> row = new TableRow<>() {
 				@Override
@@ -342,6 +315,27 @@ public class EnhancementController extends HeroSelector {
 					event.consume();
 				}
 			});
+
+			final ContextMenu contextMenu = new ContextMenu();
+			final MenuItem resetItem = new MenuItem("Zurücksetzen");
+			contextMenu.getItems().add(resetItem);
+			resetItem.setOnAction(o -> {
+				row.getItem().reset(hero);
+				recalculate(false);
+			});
+			final MenuItem removeItem = new MenuItem("Entfernen");
+			contextMenu.getItems().add(removeItem);
+			removeItem.setOnAction(o -> {
+				final Enhancement removed = row.getItem();
+				for (final HeroController controller : controllers) {
+					if (((EnhancementTabController) controller).removeEnhancement(removed)) {
+						break;
+					}
+				}
+				enhancementTable.getItems().remove(removed);
+			});
+
+			row.contextMenuProperty().bind(Bindings.when(row.itemProperty().isNotNull()).then(contextMenu).otherwise((ContextMenu) null));
 
 			return row;
 		});
