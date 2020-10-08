@@ -56,12 +56,14 @@ public class QuirkEnhancement extends Enhancement {
 	private final ProOrCon quirk;
 	private final IntegerProperty start;
 	private final IntegerProperty target;
-	private final IntegerProperty ses = new SimpleIntegerProperty(0);
+	private final IntegerProperty ses;
 	private int seMin;
 
 	public QuirkEnhancement(final ProOrCon quirk, final JSONObject hero) {
 		this.quirk = quirk;
 		start = new SimpleIntegerProperty(quirk.getValue());
+		seMin = quirk.getActual().getIntOrDefault("SEs", 0);
+		ses = new SimpleIntegerProperty(seMin);
 		target = new SimpleIntegerProperty(start.get() - 1);
 		fullDescription.bind(description);
 		cheaper.bind(ses.greaterThan(0));
@@ -71,36 +73,52 @@ public class QuirkEnhancement extends Enhancement {
 
 	@Override
 	public void apply(final JSONObject hero) {
-		applyTemporarily(hero);
+		applyInternal(hero, false);
 		hero.getObj("Nachteile").notifyListeners(null);
 	}
 
-	@Override
-	public void applyTemporarily(final JSONObject hero) {
+	private void applyInternal(final JSONObject hero, final boolean temporary) {
 		final JSONObject actual = quirk.getActual();
 		final JSONObject cons = hero.getObj("Nachteile");
 		final JSONObject con = quirk.getProOrCon();
 		final String name = quirk.getName();
-		if (target.get() == 0) {
-			if (con.containsKey("Auswahl") || con.containsKey("Freitext")) {
-				cons.getArr(name).remove(quirk.getActual());
-			} else {
-				cons.removeKey(name);
+		if (con.containsKey("Auswahl") || con.containsKey("Freitext")) {
+			final JSONArray conArray = cons.getArr(name);
+			for (final JSONObject actualCon : conArray.getObjs()) {
+				if ((!actual.containsKey("Auswahl") || actual.getString("Auswahl").equals(actualCon.getString("Auswahl"))) &&
+						(!actual.containsKey("Freitext") || actual.getString("Freitext").equals(actualCon.getString("Freitext")))) {
+					if (target.get() == 0 && !temporary) {
+						cons.getArr(name).remove(actualCon);
+						if (cons.getArr(name).size() == 0) {
+							cons.removeKey(name);
+						}
+					} else {
+						actualCon.put("Stufe", target.get());
+						if (!temporary) {
+							final int resultSes = Math.max(ses.get() - (target.get() - start.get()), 0);
+							actualCon.put("SEs", resultSes);
+						}
+					}
+					break;
+				}
 			}
 		} else {
-			if (con.containsKey("Auswahl") || con.containsKey("Freitext")) {
-				final JSONArray conArray = cons.getArr(name);
-				for (final JSONObject actualCon : conArray.getObjs()) {
-					if ((!actual.containsKey("Auswahl") || actual.getString("Auswahl").equals(actualCon.getString("Auswahl"))) &&
-							(!actual.containsKey("Freitext") || actual.getString("Freitext").equals(actualCon.getString("Freitext")))) {
-						actualCon.put("Stufe", target.get());
-						break;
-					}
-				}
+			if (target.get() == 0 && !temporary) {
+				cons.removeKey(name);
 			} else {
-				cons.getObj(name).put("Stufe", target.get());
+				final JSONObject actualCon = cons.getObj(name);
+				actualCon.put("Stufe", target.get());
+				if (!temporary) {
+					final int resultSes = Math.max(ses.get() - (target.get() - start.get()), 0);
+					actualCon.put("SEs", resultSes);
+				}
 			}
 		}
+	}
+
+	@Override
+	public void applyTemporarily(final JSONObject hero) {
+		applyInternal(hero, true);
 	}
 
 	@Override
