@@ -84,6 +84,10 @@ public abstract class Enhancement {
 		return date.get();
 	}
 
+	public String getFullDescription() {
+		return fullDescription.get();
+	}
+
 	public abstract String getName();
 
 	public boolean isCheaper() {

@@ -29,6 +29,9 @@ import enhancement.skills.SkillEnhancement;
 import enhancement.talents.SpellEnhancement;
 import enhancement.talents.TalentEnhancement;
 import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -37,17 +40,18 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
 
 public class HistoryController extends EnhancementTabController {
 	@FXML
-	private ScrollPane pane;
+	private VBox root;
 	@FXML
 	private TableView<Enhancement> table;
 	@FXML
@@ -58,8 +62,12 @@ public class HistoryController extends EnhancementTabController {
 	private TableColumn<Enhancement, Integer> apColumn;
 	@FXML
 	private TableColumn<Enhancement, String> dateColumn;
+	@FXML
+	private TextField filter;
 
 	private final EnhancementController controller;
+
+	private final ObservableList<Enhancement> items;
 
 	public HistoryController(final EnhancementController controller, final TabPane tabPane) {
 		this.controller = controller;
@@ -76,7 +84,7 @@ public class HistoryController extends EnhancementTabController {
 
 		setTab(tabPane);
 
-		table.prefWidthProperty().bind(pane.widthProperty().subtract(20));
+		table.prefWidthProperty().bind(root.widthProperty().subtract(20));
 
 		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten")) {
 			costColumn.setMinWidth(0);
@@ -101,11 +109,20 @@ public class HistoryController extends EnhancementTabController {
 
 			return row;
 		});
+
+		items = FXCollections.observableArrayList();
+
+		final FilteredList<Enhancement> filtered = items.filtered(i -> true);
+		table.setItems(filtered);
+
+		table.prefHeightProperty().bind(Bindings.createDoubleBinding(() -> items.size() * 28 + 27.0, items));
+
+		filter.textProperty().addListener((o, oldV, newV) -> filtered.setPredicate(i -> i.getFullDescription().toLowerCase().contains(newV.toLowerCase())));
 	}
 
 	@Override
 	protected Node getControl() {
-		return pane;
+		return root;
 	}
 
 	@Override
@@ -196,7 +213,7 @@ public class HistoryController extends EnhancementTabController {
 
 	@Override
 	public void update() {
-		table.getItems().clear();
+		items.clear();
 
 		final JSONArray history = hero.getArr("Historie");
 		for (int i = history.size() - 1; i >= 0; --i) {
@@ -211,9 +228,7 @@ public class HistoryController extends EnhancementTabController {
 				case "Abenteuerpunkte" -> APEnhancement.fromJSON(entry);
 				default -> null;
 			};
-			table.getItems().add(enhancement);
+			items.add(enhancement);
 		}
-
-		table.setPrefHeight(table.getItems().size() * 28 + 27);
 	}
 }
