@@ -138,15 +138,15 @@ public class SkillGroupController {
 						if (items.size() > 0) {
 							final ComboBox<String> c = new ReactiveComboBox<>(items);
 							c.setEditable(true);
-							createGraphic(c, () -> c.getSelectionModel().getSelectedItem(), s -> c.getSelectionModel().select(s));
+							createGraphic(c, c.getSelectionModel()::getSelectedItem, c.getSelectionModel()::select);
 						} else {
 							final TextField t = new TextField();
-							createGraphic(t, () -> t.getText(), s -> t.setText(s));
+							createGraphic(t, t::getText, t::setText);
 						}
 						break;
 					case CHOICE:
 						final ComboBox<String> c = new ReactiveComboBox<>(items);
-						createGraphic(c, () -> c.getSelectionModel().getSelectedItem(), s -> c.getSelectionModel().select(s));
+						createGraphic(c, c.getSelectionModel()::getSelectedItem, c.getSelectionModel()::select);
 						break;
 					case NONE:
 						final Label l = new Label();
@@ -171,15 +171,15 @@ public class SkillGroupController {
 						if (items.size() > 0) {
 							final ComboBox<String> c = new ReactiveComboBox<>(items);
 							c.setEditable(true);
-							createGraphic(c, () -> c.getSelectionModel().getSelectedItem(), s -> c.getSelectionModel().select(s));
+							createGraphic(c, c.getSelectionModel()::getSelectedItem, c.getSelectionModel()::select);
 						} else {
 							final TextField t = new TextField();
-							createGraphic(t, () -> t.getText(), s -> t.setText(s));
+							createGraphic(t, t::getText, t::setText);
 						}
 						break;
 					case CHOICE:
 						final ComboBox<String> c = new ReactiveComboBox<>(items);
-						createGraphic(c, () -> c.getSelectionModel().getSelectedItem(), s -> c.getSelectionModel().select(s));
+						createGraphic(c, c.getSelectionModel()::getSelectedItem, c.getSelectionModel()::select);
 						break;
 					case NONE:
 						final Label l = new Label();
@@ -256,11 +256,11 @@ public class SkillGroupController {
 		pane.setVisible(false);
 		pane.setManaged(false);
 
-		table.setItems(new SortedList<>(new FilteredList<>(allItems, (skill) -> valid.contains(skill)), (a, b) -> a.getName().compareTo(b.getName())));
+		table.setItems(new SortedList<>(new FilteredList<>(allItems, valid::contains), (a, b) -> a.getName().compareTo(b.getName())));
 
 		showAll.addListener((o, oldV, newV) -> {
 			if (newV) {
-				allItems.forEach(item -> valid.add(item));
+				allItems.forEach(valid::add);
 			} else {
 				allItems.forEach(item -> {
 					if (!item.isValid()) {

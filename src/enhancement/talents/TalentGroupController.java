@@ -179,7 +179,7 @@ public class TalentGroupController {
 				}
 				final ReactiveSpinner<String> spinner = new ReactiveSpinner<>(FXCollections.observableList(entries));
 				spinner.setEditable(true);
-				createGraphic(spinner, () -> spinner.getValue(), t -> spinner.getValueFactory().setValue(t));
+				createGraphic(spinner, spinner::getValue, spinner.getValueFactory()::setValue);
 			}
 
 			@Override
@@ -321,7 +321,7 @@ public class TalentGroupController {
 
 	protected void fillTable() {
 		talentsList.getItems().clear();
-		table.getItems().forEach(e -> e.unregister());
+		table.getItems().forEach(TalentEnhancement::unregister);
 		table.getItems().clear();
 
 		final JSONObject talentGroups = ResourceManager.getResource("data/Talentgruppen");
@@ -444,7 +444,7 @@ public class TalentGroupController {
 			hero.getObj("Talente").removeListener(listener);
 		}
 		talentsList.getItems().clear();
-		table.getItems().forEach(e -> e.unregister());
+		table.getItems().forEach(TalentEnhancement::unregister);
 		table.getItems().clear();
 	}
 }

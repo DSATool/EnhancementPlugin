@@ -69,8 +69,6 @@ public class EnhancementController extends HeroSelector {
 	public static List<Class<? extends EnhancementTabController>> tabControllers = new ArrayList<>(List.of(AttributesController.class, QuirksController.class,
 			SkillController.class, TalentController.class, SpellsController.class, HistoryController.class));
 
-	private static final DataFormat SERIALIZED = new DataFormat("application/x-java-serialized-object");
-
 	public static BooleanProperty usesChargenRules = new SimpleBooleanProperty();
 
 	public static EnhancementController instance;
@@ -278,7 +276,7 @@ public class EnhancementController extends HeroSelector {
 					final Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
 					db.setDragView(row.snapshot(null, null));
 					final ClipboardContent cc = new ClipboardContent();
-					cc.put(SERIALIZED, index);
+					cc.put(DataFormat.PLAIN_TEXT, index);
 					db.setContent(cc);
 					event.consume();
 				}
@@ -286,8 +284,8 @@ public class EnhancementController extends HeroSelector {
 
 			row.setOnDragOver(event -> {
 				final Dragboard db = event.getDragboard();
-				if (db.hasContent(SERIALIZED)) {
-					if (row.getIndex() != ((Integer) db.getContent(SERIALIZED)).intValue()) {
+				if (db.hasContent(DataFormat.PLAIN_TEXT)) {
+					if (row.getIndex() != ((Integer) db.getContent(DataFormat.PLAIN_TEXT)).intValue()) {
 						event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
 						event.consume();
 					}
@@ -296,8 +294,8 @@ public class EnhancementController extends HeroSelector {
 
 			row.setOnDragDropped(event -> {
 				final Dragboard db = event.getDragboard();
-				if (db.hasContent(SERIALIZED)) {
-					final int draggedIndex = (Integer) db.getContent(SERIALIZED);
+				if (db.hasContent(DataFormat.PLAIN_TEXT)) {
+					final int draggedIndex = (Integer) db.getContent(DataFormat.PLAIN_TEXT);
 					final Enhancement draggedItem = enhancementTable.getItems().remove(draggedIndex);
 
 					int dropIndex;
