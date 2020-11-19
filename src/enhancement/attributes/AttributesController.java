@@ -265,6 +265,13 @@ public class AttributesController extends EnhancementTabController {
 	}
 
 	@Override
+	protected void registerListeners() {
+		hero.getObj("Eigenschaften").addListener(heroListener);
+		hero.getObj("Basiswerte").addListener(heroListener);
+		hero.getObj("Vorteile").addListener(heroListener);
+	}
+
+	@Override
 	public boolean removeEnhancement(final Enhancement enhancement) {
 		if (enhancement instanceof AttributeEnhancement) {
 			attributesTable.getItems().add((AttributeEnhancement) enhancement);
@@ -277,17 +284,12 @@ public class AttributesController extends EnhancementTabController {
 	}
 
 	@Override
-	public void setHero(final JSONObject hero) {
-		if (hero != null) {
-			hero.getObj("Eigenschaften").removeListener(heroListener);
-			hero.getObj("Basiswerte").removeListener(heroListener);
-			hero.getObj("Vorteile").removeListener(heroListener);
-		}
-		this.hero = hero;
-		hero.getObj("Eigenschaften").addListener(heroListener);
-		hero.getObj("Basiswerte").addListener(heroListener);
-		hero.getObj("Vorteile").addListener(heroListener);
-		update();
+	protected void unregisterListeners() {
+		hero.getObj("Eigenschaften").removeListener(heroListener);
+		hero.getObj("Basiswerte").removeListener(heroListener);
+		hero.getObj("Vorteile").removeListener(heroListener);
+		attributesTable.getItems().clear();
+		energiesTable.getItems().clear();
 	}
 
 	@Override

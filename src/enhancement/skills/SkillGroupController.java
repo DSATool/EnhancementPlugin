@@ -15,6 +15,9 @@
  */
 package enhancement.skills;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import dsa41basis.hero.ProOrCon;
 import dsa41basis.util.DSAUtil;
 import dsatool.gui.GUIUtil;
@@ -75,6 +78,7 @@ public class SkillGroupController {
 	private final JSONObject skills;
 	private final BooleanProperty showAll;
 	private JSONObject hero;
+	private final Set<String> alreadyEnhanced = new HashSet<>();
 
 	private final ObservableSet<SkillEnhancement> valid = FXCollections.observableSet();
 	private final ObservableList<SkillEnhancement> allItems = FXCollections.observableArrayList(item -> new Observable[] { valid });
@@ -232,6 +236,7 @@ public class SkillGroupController {
 			contextMenuItem.setOnAction(o -> {
 				final SkillEnhancement item = row.getItem();
 				allItems.remove(item);
+				alreadyEnhanced.add(item.getName());
 				EnhancementController.instance.addEnhancement(item.clone(hero));
 			});
 			row.contextMenuProperty().bind(Bindings.when(row.itemProperty().isNotNull()).then(contextMenu).otherwise((ContextMenu) null));
@@ -275,11 +280,13 @@ public class SkillGroupController {
 		DSAUtil.foreach(skill -> true, (skillName, skill) -> {
 			if (!actual.containsKey(skillName) || skill.containsKey("Auswahl") || skill.containsKey("Freitext")) {
 				final SkillEnhancement newEnhancement = new SkillEnhancement(new ProOrCon(skillName, hero, skill, new JSONObject(null)), hero);
-				if (showAll.get() || newEnhancement.isValid()) {
-					valid.add(newEnhancement);
-					allItems.add(newEnhancement);
-				} else if (!actual.containsKey(skillName)) {
-					allItems.add(newEnhancement);
+				if (skill.containsKey("Auswahl") || skill.containsKey("Freitext") || !alreadyEnhanced.contains(skillName)) {
+					if (showAll.get() || newEnhancement.isValid()) {
+						valid.add(newEnhancement);
+						allItems.add(newEnhancement);
+					} else if (!actual.containsKey(skillName)) {
+						allItems.add(newEnhancement);
+					}
 				}
 			}
 		}, skills);
@@ -310,8 +317,13 @@ public class SkillGroupController {
 
 	}
 
+	public void registerListeners() {
+		hero.getObj("Sonderfertigkeiten").addListener(listener);
+	}
+
 	public boolean removeEnhancement(final SkillEnhancement enhancement) {
 		if (skills.containsKey(enhancement.getName())) {
+			alreadyEnhanced.remove(enhancement.getName());
 			allItems.add(enhancement);
 			return true;
 		} else
@@ -319,11 +331,14 @@ public class SkillGroupController {
 	}
 
 	public void setHero(final JSONObject hero) {
-		if (this.hero != null) {
-			this.hero.getObj("Sonderfertigkeiten").removeListener(listener);
-		}
+		alreadyEnhanced.clear();
 		this.hero = hero;
 		fillTable();
-		this.hero.getObj("Sonderfertigkeiten").addListener(listener);
+	}
+
+	public void unregisterListeners() {
+		hero.getObj("Sonderfertigkeiten").removeListener(listener);
+		valid.clear();
+		allItems.clear();
 	}
 }

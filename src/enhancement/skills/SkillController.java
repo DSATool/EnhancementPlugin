@@ -104,6 +104,13 @@ public class SkillController extends EnhancementTabController {
 	}
 
 	@Override
+	protected void registerListeners() {
+		for (final SkillGroupController controller : skillControllers) {
+			controller.registerListeners();
+		}
+	}
+
+	@Override
 	public boolean removeEnhancement(final Enhancement enhancement) {
 		if (enhancement instanceof SkillEnhancement) {
 			for (final SkillGroupController controller : skillControllers) {
@@ -114,6 +121,13 @@ public class SkillController extends EnhancementTabController {
 			return true;
 		} else
 			return false;
+	}
+
+	@Override
+	protected void unregisterListeners() {
+		for (final SkillGroupController controller : skillControllers) {
+			controller.unregisterListeners();
+		}
 	}
 
 	@Override

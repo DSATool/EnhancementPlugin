@@ -63,20 +63,18 @@ public class SpellsController extends EnhancementTabController {
 	}
 
 	@Override
+	protected void registerListeners() {
+		hero.getObj("Vorteile").addListener(listener);
+		controller.registerListeners();
+	}
+
+	@Override
 	public boolean removeEnhancement(final Enhancement enhancement) {
 		if (enhancement instanceof SpellEnhancement) {
 			controller.removeEnhancement((TalentEnhancement) enhancement);
 			return true;
 		} else
 			return false;
-	}
-
-	@Override
-	public void setHero(final JSONObject hero) {
-		if (this.hero != null) {
-			this.hero.getObj("Vorteile").removeListener(listener);
-		}
-		super.setHero(hero);
 	}
 
 	@Override
@@ -100,13 +98,19 @@ public class SpellsController extends EnhancementTabController {
 	}
 
 	@Override
+	protected void unregisterListeners() {
+		hero.getObj("Vorteile").removeListener(listener);
+		if (controller != null) {
+			controller.unregisterListeners();
+		}
+	}
+
+	@Override
 	public void update() {
 		setTab(tabPane);
-		hero.getObj("Vorteile").removeListener(listener);
 		if (controller != null) {
 			controller.setHero(hero);
 		}
-		hero.getObj("Vorteile").addListener(listener);
 	}
 
 }

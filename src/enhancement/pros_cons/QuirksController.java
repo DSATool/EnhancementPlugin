@@ -183,6 +183,11 @@ public class QuirksController extends EnhancementTabController {
 	}
 
 	@Override
+	protected void registerListeners() {
+		hero.getObj("Nachteile").addListener(heroListener);
+	}
+
+	@Override
 	public boolean removeEnhancement(final Enhancement enhancement) {
 		if (enhancement instanceof QuirkEnhancement) {
 			table.getItems().add((QuirkEnhancement) enhancement);
@@ -192,13 +197,9 @@ public class QuirksController extends EnhancementTabController {
 	}
 
 	@Override
-	public void setHero(final JSONObject hero) {
-		if (hero != null) {
-			hero.getObj("Nachteile").removeListener(heroListener);
-		}
-		this.hero = hero;
-		hero.getObj("Nachteile").addListener(heroListener);
-		update();
+	protected void unregisterListeners() {
+		hero.getObj("Nachteile").removeListener(heroListener);
+		table.getItems().clear();
 	}
 
 	@Override

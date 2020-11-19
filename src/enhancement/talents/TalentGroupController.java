@@ -15,9 +15,11 @@
  */
 package enhancement.talents;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import dsa41basis.hero.Spell;
@@ -89,12 +91,11 @@ public class TalentGroupController {
 	private final JSONObject talents;
 	private final String talentGroupName;
 	protected JSONObject hero;
+	private final Map<String, Map<Talent, Object>> alreadyEnhanced = new HashMap<>();
 
 	private final JSONListener listener = o -> {
 		recalculateValid(hero);
 	};
-
-	private final List<TalentEnhancement> alreadyEnhanced = new ArrayList<>();
 
 	public TalentGroupController(final String name, final JSONObject talents) {
 		this.talents = talents;
@@ -215,7 +216,10 @@ public class TalentGroupController {
 			contextMenuItem.setOnAction(o -> {
 				final TalentEnhancement item = row.getItem();
 				table.getItems().remove(item);
-				alreadyEnhanced.add(item);
+				final String talentName = item.getName();
+				final Map<Talent, Object> newSet = alreadyEnhanced.getOrDefault(talentName, new IdentityHashMap<>());
+				newSet.put(item.getTalent(), null);
+				alreadyEnhanced.put(talentName, newSet);
 				EnhancementController.instance.addEnhancement(item.clone(hero));
 			});
 
@@ -316,7 +320,6 @@ public class TalentGroupController {
 	}
 
 	protected void fillTable() {
-		alreadyEnhanced.clear();
 		talentsList.getItems().clear();
 		table.getItems().forEach(e -> e.unregister());
 		table.getItems().clear();
@@ -334,12 +337,16 @@ public class TalentGroupController {
 							if (talent.containsKey("Auswahl") || talent.containsKey("Freitext")) {
 								final JSONArray choiceTalent = actualSpell.getArr(rep);
 								for (int i = 0; i < choiceTalent.size(); ++i) {
-									table.getItems().add(new SpellEnhancement(
-											Spell.getSpell(talentName, talent, choiceTalent.getObj(i), actualSpell, actualGroup, rep), hero));
+									final Spell spell = Spell.getSpell(talentName, talent, choiceTalent.getObj(i), actualSpell, actualGroup, rep);
+									if (!alreadyEnhanced.containsKey(talentName) || !alreadyEnhanced.get(talentName).containsKey(spell)) {
+										table.getItems().add(new SpellEnhancement(spell, hero));
+									}
 								}
 							} else {
-								table.getItems().add(
-										new SpellEnhancement(Spell.getSpell(talentName, talent, actualSpell.getObj(rep), actualSpell, actualGroup, rep), hero));
+								if (!alreadyEnhanced.containsKey(talentName)) {
+									table.getItems().add(new SpellEnhancement(
+											Spell.getSpell(talentName, talent, actualSpell.getObj(rep), actualSpell, actualGroup, rep), hero));
+								}
 							}
 						} else {
 							notFound = true;
@@ -356,19 +363,23 @@ public class TalentGroupController {
 					if (talent.containsKey("Auswahl") || talent.containsKey("Freitext")) {
 						final JSONArray choiceTalent = actualGroup.getArr(talentName);
 						for (int i = 0; i < choiceTalent.size(); ++i) {
-							table.getItems().add(new TalentEnhancement(
-									Talent.getTalent(talentName, talentGroup, talents.getObj(talentName), choiceTalent.getObj(i), actualGroup),
-									talentGroupName, hero));
+							final Talent actualTalent = Talent.getTalent(talentName, talentGroup, talents.getObj(talentName), choiceTalent.getObj(i),
+									actualGroup);
+							if (!alreadyEnhanced.containsKey(talentName) || !alreadyEnhanced.get(talentName).containsKey(actualTalent)) {
+								table.getItems().add(new TalentEnhancement(actualTalent, talentGroupName, hero));
+							}
 						}
 						talentsList.getItems().add(talentName);
 					} else {
-						table.getItems()
-								.add(new TalentEnhancement(
-										Talent.getTalent(talentName, talentGroup, talents.getObj(talentName), actualGroup.getObj(talentName), actualGroup),
-										talentGroupName, hero));
+						if (!alreadyEnhanced.containsKey(talentName)) {
+							table.getItems()
+									.add(new TalentEnhancement(
+											Talent.getTalent(talentName, talentGroup, talents.getObj(talentName), actualGroup.getObj(talentName), actualGroup),
+											talentGroupName, hero));
+						}
 					}
 				}
-			} else {
+			} else if (talent.containsKey("Auswahl") || talent.containsKey("Freitext") || !alreadyEnhanced.containsKey(talentName)) {
 				talentsList.getItems().add(talentName);
 			}
 		}, talents);
@@ -403,8 +414,17 @@ public class TalentGroupController {
 		table.sort();
 	}
 
+	public void registerListeners() {
+		if ("Zauber".equals(talentGroupName) && hero.containsKey("Zauber")) {
+			hero.getObj("Zauber").addListener(listener);
+		} else {
+			hero.getObj("Talente").addListener(listener);
+		}
+	}
+
 	public boolean removeEnhancement(final TalentEnhancement enhancement) {
 		if (enhancement.talentGroupName.equals(talentGroupName)) {
+			alreadyEnhanced.get(enhancement.getName()).remove(enhancement.getTalent());
 			table.getItems().add(enhancement);
 			return true;
 		} else
@@ -412,19 +432,19 @@ public class TalentGroupController {
 	}
 
 	public void setHero(final JSONObject hero) {
-		if (hero != null) {
-			if ("Zauber".equals(talentGroupName) && hero.containsKey("Zauber")) {
-				hero.getObj("Zauber").removeListener(listener);
-			} else {
-				hero.getObj("Talente").removeListener(listener);
-			}
-		}
+		alreadyEnhanced.clear();
 		this.hero = hero;
-		if ("Zauber".equals(talentGroupName) && hero.containsKey("Zauber")) {
-			hero.getObj("Zauber").addListener(listener);
-		} else {
-			hero.getObj("Talente").addListener(listener);
-		}
 		fillTable();
+	}
+
+	public void unregisterListeners() {
+		if ("Zauber".equals(talentGroupName) && hero.containsKey("Zauber")) {
+			hero.getObj("Zauber").removeListener(listener);
+		} else {
+			hero.getObj("Talente").removeListener(listener);
+		}
+		talentsList.getItems().clear();
+		table.getItems().forEach(e -> e.unregister());
+		table.getItems().clear();
 	}
 }

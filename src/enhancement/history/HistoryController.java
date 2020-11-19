@@ -120,18 +120,13 @@ public class HistoryController extends EnhancementTabController {
 	public void recalculateValid(final JSONObject hero) {}
 
 	@Override
-	public boolean removeEnhancement(final Enhancement enhancement) {
-		return false;
+	protected void registerListeners() {
+		hero.getArr("Historie").addListener(heroListener);
 	}
 
 	@Override
-	public void setHero(final JSONObject hero) {
-		if (hero != null) {
-			hero.getArr("Historie").removeListener(heroListener);
-		}
-		this.hero = hero;
-		hero.getArr("Historie").addListener(heroListener);
-		update();
+	public boolean removeEnhancement(final Enhancement enhancement) {
+		return false;
 	}
 
 	private void undo(final int index) {
@@ -192,6 +187,11 @@ public class HistoryController extends EnhancementTabController {
 			bio.put("Abenteuerpunkte-Guthaben", bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) + finalFreeAP);
 			bio.notifyListeners(null);
 		});
+	}
+
+	@Override
+	protected void unregisterListeners() {
+		hero.getArr("Historie").removeListener(heroListener);
 	}
 
 	@Override

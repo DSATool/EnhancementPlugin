@@ -29,6 +29,7 @@ public abstract class EnhancementTabController implements HeroController {
 	};
 
 	protected JSONObject hero;
+	private Tab tab;
 
 	protected abstract Node getControl();
 
@@ -38,20 +39,43 @@ public abstract class EnhancementTabController implements HeroController {
 
 	public abstract void recalculateValid(JSONObject hero);
 
+	protected abstract void registerListeners();
+
 	public abstract boolean removeEnhancement(Enhancement enhancement);
 
 	@Override
 	public void setHero(final JSONObject hero) {
+		if (this.hero != null) {
+			unregisterListeners();
+		}
 		this.hero = hero;
-		update();
+		if (tab != null) {
+			update();
+			if (hero != null && tab.isSelected()) {
+				registerListeners();
+			}
+		}
 	}
 
 	protected void setTab(final TabPane pane) {
-		final Tab tab = new Tab(getText());
+		tab = new Tab(getText());
 		tab.setContent(getControl());
 		tab.setClosable(false);
+
+		tab.setOnSelectionChanged(e -> {
+			if (hero != null) {
+				if (tab.isSelected()) {
+					update();
+					registerListeners();
+				} else {
+					unregisterListeners();
+				}
+			}
+		});
 		pane.getTabs().add(tab);
 	}
+
+	protected abstract void unregisterListeners();
 
 	public abstract void update();
 }
