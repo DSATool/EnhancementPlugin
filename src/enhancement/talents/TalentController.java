@@ -47,6 +47,21 @@ public class TalentController extends EnhancementTabController {
 	private final JSONListener listener = o -> updateVisibility();
 
 	public TalentController(final EnhancementController controller, final TabPane tabPane) {
+		super(tabPane);
+	}
+
+	@Override
+	protected Node getControl() {
+		return pane;
+	}
+
+	@Override
+	protected String getText() {
+		return "Talente";
+	}
+
+	@Override
+	protected void init() {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);
@@ -71,18 +86,6 @@ public class TalentController extends EnhancementTabController {
 			}
 			box.getChildren().add(talentController.getControl());
 		}
-
-		setTab(tabPane);
-	}
-
-	@Override
-	protected Node getControl() {
-		return pane;
-	}
-
-	@Override
-	protected String getText() {
-		return "Talente";
 	}
 
 	@Override
@@ -124,7 +127,9 @@ public class TalentController extends EnhancementTabController {
 	@Override
 	public void setHero(final JSONObject hero) {
 		super.setHero(hero);
-		updateVisibility();
+		if (box != null) {
+			updateVisibility();
+		}
 	}
 
 	@Override

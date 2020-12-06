@@ -67,11 +67,26 @@ public class HistoryController extends EnhancementTabController {
 
 	private final EnhancementController controller;
 
-	private final ObservableList<Enhancement> items;
+	private final ObservableList<Enhancement> items = FXCollections.observableArrayList();
 
 	public HistoryController(final EnhancementController controller, final TabPane tabPane) {
-		this.controller = controller;
+		super(tabPane);
 
+		this.controller = controller;
+	}
+
+	@Override
+	protected Node getControl() {
+		return root;
+	}
+
+	@Override
+	protected String getText() {
+		return "Historie";
+	}
+
+	@Override
+	protected void init() {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);
@@ -81,8 +96,6 @@ public class HistoryController extends EnhancementTabController {
 		} catch (final Exception e) {
 			ErrorLogger.logError(e);
 		}
-
-		setTab(tabPane);
 
 		table.prefWidthProperty().bind(root.widthProperty().subtract(20));
 
@@ -110,24 +123,12 @@ public class HistoryController extends EnhancementTabController {
 			return row;
 		});
 
-		items = FXCollections.observableArrayList();
-
 		final FilteredList<Enhancement> filtered = items.filtered(i -> true);
 		table.setItems(filtered);
 
 		table.prefHeightProperty().bind(Bindings.createDoubleBinding(() -> items.size() * 28 + 27.0, items));
 
 		filter.textProperty().addListener((o, oldV, newV) -> filtered.setPredicate(i -> i.getFullDescription().toLowerCase().contains(newV.toLowerCase())));
-	}
-
-	@Override
-	protected Node getControl() {
-		return root;
-	}
-
-	@Override
-	protected String getText() {
-		return "Historie";
 	}
 
 	@Override

@@ -21,31 +21,37 @@ import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import enhancement.enhancements.EnhancementTabController;
 import javafx.scene.Node;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import jsonant.event.JSONListener;
 import jsonant.value.JSONObject;
 
 public class SpellsController extends EnhancementTabController {
-	private Tab tab;
 	private final TabPane tabPane;
 	private TalentGroupController controller;
 	private final JSONListener listener;
 
 	public SpellsController(final EnhancementController controller, final TabPane tabPane) {
+		super(tabPane);
 		this.tabPane = tabPane;
-		listener = o -> setTab(tabPane);
-		setTab(tabPane);
+		listener = o -> setTab();
 	}
 
 	@Override
 	protected Node getControl() {
-		return controller.getControl();
+		return controller != null ? controller.getControl() : null;
 	}
 
 	@Override
 	protected String getText() {
 		return "Zauber";
+	}
+
+	@Override
+	protected void init() {
+		final JSONObject talents = ResourceManager.getResource("data/Zauber");
+		controller = new TalentGroupController("Zauber", talents);
+
+		setTab();
 	}
 
 	@Override
@@ -78,15 +84,16 @@ public class SpellsController extends EnhancementTabController {
 	}
 
 	@Override
-	protected void setTab(final TabPane tabPane) {
+	public void setHero(final JSONObject hero) {
+		super.setHero(hero);
+		setTab();
+		if (controller != null) {
+			controller.setHero(hero);
+		}
+	}
+
+	private void setTab() {
 		if (HeroUtil.isMagical(hero)) {
-			if (tab == null) {
-				tab = new Tab(getText());
-			}
-			if (controller == null) {
-				final JSONObject talents = ResourceManager.getResource("data/Zauber");
-				controller = new TalentGroupController("Zauber", talents);
-			}
 			if (!tabPane.getTabs().contains(tab)) {
 				tab.setContent(getControl());
 				tab.setClosable(false);
@@ -107,7 +114,7 @@ public class SpellsController extends EnhancementTabController {
 
 	@Override
 	public void update() {
-		setTab(tabPane);
+		setTab();
 		if (controller != null) {
 			controller.setHero(hero);
 		}

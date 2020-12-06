@@ -61,6 +61,21 @@ public class QuirksController extends EnhancementTabController {
 	private TableColumn<QuirkEnhancement, Boolean> cheaperColumn;
 
 	public QuirksController(final EnhancementController controller, final TabPane tabPane) {
+		super(tabPane);
+	}
+
+	@Override
+	protected Node getControl() {
+		return pane;
+	}
+
+	@Override
+	protected String getText() {
+		return "Schl. Eigenschaften";
+	}
+
+	@Override
+	protected void init() {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);
@@ -70,8 +85,6 @@ public class QuirksController extends EnhancementTabController {
 		} catch (final Exception e) {
 			ErrorLogger.logError(e);
 		}
-
-		setTab(tabPane);
 
 		table.prefWidthProperty().bind(pane.widthProperty().subtract(20));
 
@@ -155,16 +168,6 @@ public class QuirksController extends EnhancementTabController {
 				}
 			}
 		});
-	}
-
-	@Override
-	protected Node getControl() {
-		return pane;
-	}
-
-	@Override
-	protected String getText() {
-		return "Schl. Eigenschaften";
 	}
 
 	@Override

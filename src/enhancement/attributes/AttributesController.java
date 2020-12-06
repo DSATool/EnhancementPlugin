@@ -77,6 +77,21 @@ public class AttributesController extends EnhancementTabController {
 	private TableColumn<EnergyEnhancement, Boolean> energiesCheaperColumn;
 
 	public AttributesController(final EnhancementController controller, final TabPane tabPane) {
+		super(tabPane);
+	}
+
+	@Override
+	protected Node getControl() {
+		return pane;
+	}
+
+	@Override
+	protected String getText() {
+		return "Eigenschaften";
+	}
+
+	@Override
+	protected void init() {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);
@@ -86,8 +101,6 @@ public class AttributesController extends EnhancementTabController {
 		} catch (final Exception e) {
 			ErrorLogger.logError(e);
 		}
-
-		setTab(tabPane);
 
 		attributesTable.prefWidthProperty().bind(pane.widthProperty().subtract(22).divide(2));
 
@@ -231,16 +244,6 @@ public class AttributesController extends EnhancementTabController {
 				}
 			}
 		});
-	}
-
-	@Override
-	protected Node getControl() {
-		return pane;
-	}
-
-	@Override
-	protected String getText() {
-		return "Eigenschaften";
 	}
 
 	@Override

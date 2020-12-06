@@ -29,11 +29,37 @@ public abstract class EnhancementTabController implements HeroController {
 	};
 
 	protected JSONObject hero;
-	private Tab tab;
+	protected Tab tab;
+
+	private boolean stopInit = true;
+
+	public EnhancementTabController(final TabPane pane) {
+		tab = new Tab(getText());
+		tab.setClosable(false);
+		tab.setOnSelectionChanged(e -> {
+			if (tab.isSelected()) {
+				if (getControl() == null && !stopInit) {
+					init();
+					tab.setContent(getControl());
+					update();
+				}
+				if (hero != null) {
+					update();
+					registerListeners();
+				}
+			} else if (hero != null) {
+				unregisterListeners();
+			}
+		});
+		pane.getTabs().add(tab);
+		stopInit = false;
+	}
 
 	protected abstract Node getControl();
 
 	protected abstract String getText();
+
+	protected void init() {};
 
 	public abstract void recalculate(JSONObject hero);
 
@@ -45,34 +71,16 @@ public abstract class EnhancementTabController implements HeroController {
 
 	@Override
 	public void setHero(final JSONObject hero) {
-		if (this.hero != null) {
+		if (this.hero != null && getControl() != null) {
 			unregisterListeners();
 		}
 		this.hero = hero;
-		if (tab != null) {
+		if (getControl() != null) {
 			update();
 			if (hero != null && tab.isSelected()) {
 				registerListeners();
 			}
 		}
-	}
-
-	protected void setTab(final TabPane pane) {
-		tab = new Tab(getText());
-		tab.setContent(getControl());
-		tab.setClosable(false);
-
-		tab.setOnSelectionChanged(e -> {
-			if (hero != null) {
-				if (tab.isSelected()) {
-					update();
-					registerListeners();
-				} else {
-					unregisterListeners();
-				}
-			}
-		});
-		pane.getTabs().add(tab);
 	}
 
 	protected abstract void unregisterListeners();

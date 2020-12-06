@@ -43,6 +43,21 @@ public class SkillController extends EnhancementTabController {
 	private final List<SkillGroupController> skillControllers = new ArrayList<>();
 
 	public SkillController(final EnhancementController controller, final TabPane tabPane) {
+		super(tabPane);
+	}
+
+	@Override
+	protected Node getControl() {
+		return pane;
+	}
+
+	@Override
+	protected String getText() {
+		return "Sonderfertigkeiten";
+	}
+
+	@Override
+	protected void init() {
 		final FXMLLoader fxmlLoader = new FXMLLoader();
 
 		fxmlLoader.setController(this);
@@ -75,18 +90,6 @@ public class SkillController extends EnhancementTabController {
 				showAll.selectedProperty());
 		skillControllers.add(groupController);
 		box.getChildren().add(groupController.getControl());
-
-		setTab(tabPane);
-	}
-
-	@Override
-	protected Node getControl() {
-		return pane;
-	}
-
-	@Override
-	protected String getText() {
-		return "Sonderfertigkeiten";
 	}
 
 	@Override
