@@ -363,11 +363,15 @@ public class EnhancementController extends HeroSelector {
 			e.applyTemporarily(hero);
 			enhancements.push(e);
 		}
+
 		for (final HeroController controller : controllers) {
-			if (recalculateValid) {
-				((EnhancementTabController) controller).recalculateValid(hero);
+			final EnhancementTabController current = (EnhancementTabController) controller;
+			if (current.tab.isSelected()) {
+				if (recalculateValid) {
+					current.recalculateValid(hero);
+				}
+				current.recalculate(hero);
 			}
-			((EnhancementTabController) controller).recalculate(hero);
 		}
 		for (final Enhancement e : enhancements) {
 			e.unapplyTemporary(hero);

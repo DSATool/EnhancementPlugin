@@ -180,9 +180,6 @@ public class QuirksController extends EnhancementTabController {
 	@Override
 	public void recalculateValid(final JSONObject hero) {
 		update();
-		for (final QuirkEnhancement enhancement : table.getItems()) {
-			enhancement.recalculateValid(hero);
-		}
 	}
 
 	@Override
