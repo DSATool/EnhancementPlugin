@@ -116,7 +116,12 @@ public class TalentGroupController {
 		}
 
 		if (!"Zauber".equals(name)) {
-			((TitledPane) pane).setText(name);
+			final JSONObject group = ResourceManager.getResource("data/Talentgruppen").getObj(name);
+			String title = name;
+			if (group.containsKey("Steigerung")) {
+				title += " (" + DSAUtil.getEnhancementGroupString(group.getInt("Steigerung")) + ')';
+			}
+			((TitledPane) pane).setText(title);
 		}
 
 		table.prefWidthProperty().bind(pane.widthProperty().subtract(2));

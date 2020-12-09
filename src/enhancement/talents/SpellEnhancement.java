@@ -159,6 +159,7 @@ public class SpellEnhancement extends TalentEnhancement {
 
 	@Override
 	protected void updateDescription() {
-		description.set(talent.getDisplayName() + " (" + ((Spell) talent).getRepresentation() + ") (" + startString.get() + "->" + target.get() + ")");
+		description.set(talent.getDisplayName() + " (" + ((Spell) talent).getRepresentation() + ") (" + ((Spell) talent).getComplexity() + ") ("
+				+ startString.get() + "->" + target.get() + ")");
 	}
 }

@@ -123,6 +123,7 @@ public class TalentEnhancement extends Enhancement {
 	protected final StringProperty targetString;
 	protected boolean basis;
 	protected final String talentGroupName;
+	private final JSONObject hero;
 	protected final StringProperty method;
 	protected final IntegerProperty ses;
 	protected int seMin;
@@ -136,6 +137,7 @@ public class TalentEnhancement extends Enhancement {
 	public TalentEnhancement(final Talent talent, final String talentGroupName, final JSONObject hero, final boolean fixed) {
 		this.talent = talent;
 		this.talentGroupName = talentGroupName;
+		this.hero = hero;
 		basis = talent.getTalent().getBoolOrDefault("Basis", false);
 		final int value = fromStart(talent.getValue());
 		startString = new SimpleStringProperty(getOfficial(value, basis));
@@ -429,7 +431,14 @@ public class TalentEnhancement extends Enhancement {
 	}
 
 	protected void updateDescription() {
-		final String desc = talent.getDisplayName() + " (" + startString.get() + "->" + targetString.get() + ")";
+		String enhancementString = "";
+		final int enhancement = HeroUtil.getTalentComplexity(hero, talent.getName());
+		if (enhancement != ResourceManager.getResource("data/Talentgruppen").getObj(talentGroupName).getIntOrDefault("Steigerung", 0)) {
+			enhancementString = DSAUtil.getEnhancementGroupString(enhancement) + ") (";
+		}
+
+		final String desc = talent.getDisplayName() + " (" + enhancementString + startString.get() + "->"
+				+ targetString.get() + ")";
 		description.set(desc);
 	}
 }
