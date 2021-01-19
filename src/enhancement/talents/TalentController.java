@@ -113,7 +113,7 @@ public class TalentController extends EnhancementTabController {
 
 	@Override
 	public boolean removeEnhancement(final Enhancement enhancement) {
-		if (enhancement instanceof TalentEnhancement) {
+		if (enhancement instanceof TalentEnhancement && !(enhancement instanceof SpellEnhancement)) {
 			for (final TalentGroupController controller : talentControllers) {
 				if (controller.removeEnhancement((TalentEnhancement) enhancement)) {
 					break;
