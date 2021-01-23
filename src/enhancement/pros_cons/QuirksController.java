@@ -88,7 +88,7 @@ public class QuirksController extends EnhancementTabController {
 
 		table.prefWidthProperty().bind(pane.widthProperty().subtract(20));
 
-		GUIUtil.autosizeTable(table, 0, 2);
+		GUIUtil.autosizeTable(table);
 		GUIUtil.cellValueFactories(table, "description", "ses", "start", "target", "ap", "valid", "cheaper");
 
 		nameColumn.setCellFactory(c -> new TextFieldTableCell<>() {
@@ -242,7 +242,5 @@ public class QuirksController extends EnhancementTabController {
 				}
 			}
 		}
-
-		table.setMaxHeight(table.getItems().size() * 28 + 27);
 	}
 }

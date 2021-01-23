@@ -13,15 +13,14 @@
             <String fx:value="remove-vertical-scrollbar" />
             <String fx:value="remove-horizontal-scrollbar" />
          </styleClass>
-         <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
          <columns>
             <TableColumn fx:id="attributesNameColumn" text="Eigenschaft" minWidth="100" resizable="false" sortable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
-            <TableColumn fx:id="attributesSesColumn" text="SEs" prefWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="attributesStartColumn" text="Von" prefWidth="60" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="attributesTargetColumn" text="Auf" prefWidth="60" resizable="false" sortable="false" editable="true" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="attributesAPColumn" text="AP" prefWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="attributesValidColumn" minWidth="0" maxWidth="0" prefWidth="0" />
-            <TableColumn fx:id="attributesCheaperColumn" minWidth="0" maxWidth="0" prefWidth="0" />
+            <TableColumn fx:id="attributesSesColumn" text="SEs" minWidth="65" maxWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="attributesStartColumn" text="Von" minWidth="60" maxWidth="60" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="attributesTargetColumn" text="Auf" minWidth="60" maxWidth="60" resizable="false" sortable="false" editable="true" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="attributesAPColumn" text="AP" minWidth="75" maxWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="attributesValidColumn" minWidth="0" maxWidth="0" />
+            <TableColumn fx:id="attributesCheaperColumn" minWidth="0" maxWidth="0" />
          </columns>
       </TableView>
       <TableView fx:id="energiesTable" editable="true" fixedCellSize="28" >
@@ -29,15 +28,14 @@
             <String fx:value="remove-vertical-scrollbar" />
             <String fx:value="remove-horizontal-scrollbar" />
          </styleClass>
-         <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
          <columns>
             <TableColumn fx:id="energiesNameColumn" text="Basiswert" minWidth="100" resizable="false" sortable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
-            <TableColumn fx:id="energiesSesColumn" text="SEs" prefWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="energiesStartColumn" text="Von" prefWidth="60" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="energiesTargetColumn" text="Auf" prefWidth="60" resizable="false" sortable="false" editable="true" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="energiesAPColumn" text="AP" prefWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" /> 
-            <TableColumn fx:id="energiesValidColumn" minWidth="0" maxWidth="0" prefWidth="0" />
-            <TableColumn fx:id="energiesCheaperColumn" minWidth="0" maxWidth="0" prefWidth="0" />           
+            <TableColumn fx:id="energiesSesColumn" text="SEs" minWidth="65" maxWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="energiesStartColumn" text="Von" minWidth="60" maxWidth="60" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="energiesTargetColumn" text="Auf" minWidth="60" maxWidth="60" resizable="false" sortable="false" editable="true" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="energiesAPColumn" text="AP" minWidth="75" maxWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" /> 
+            <TableColumn fx:id="energiesValidColumn" minWidth="0" maxWidth="0" />
+            <TableColumn fx:id="energiesCheaperColumn" minWidth="0" maxWidth="0" />           
          </columns>
       </TableView>
    </HBox>

@@ -105,7 +105,6 @@ public class HistoryController extends EnhancementTabController {
 			costColumn.setMaxWidth(0);
 		}
 
-		GUIUtil.autosizeTable(table, 0, 2);
 		GUIUtil.cellValueFactories(table, "fullDescription", "cost", "ap", "date");
 
 		table.setRowFactory(t -> {
@@ -125,8 +124,7 @@ public class HistoryController extends EnhancementTabController {
 
 		final FilteredList<Enhancement> filtered = items.filtered(i -> true);
 		table.setItems(filtered);
-
-		table.prefHeightProperty().bind(Bindings.createDoubleBinding(() -> items.size() * 28 + 27.0, items));
+		GUIUtil.autosizeTable(table);
 
 		filter.textProperty().addListener((o, oldV, newV) -> filtered.setPredicate(i -> i.getFullDescription().toLowerCase().contains(newV.toLowerCase())));
 	}

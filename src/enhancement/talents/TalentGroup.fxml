@@ -20,20 +20,19 @@
             <String fx:value="remove-vertical-scrollbar" />
             <String fx:value="remove-horizontal-scrollbar" />
          </styleClass>
-         <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
          <placeholder>
             <Label minHeight="0" />
          </placeholder>
          <columns>
-            <TableColumn fx:id="nameColumn" text="Talent" minWidth="100" resizable="false" prefWidth="200" editable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
-            <TableColumn fx:id="sesColumn" text="SEs" prefWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="startColumn" text="Von" prefWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="targetColumn" text="Auf" prefWidth="65" resizable="false" sortable="false" editable="true" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="methodColumn" text="Lernmethode" prefWidth="130" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="costColumn" text="Kosten" prefWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="apColumn" text="AP" prefWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="validColumn" minWidth="0" maxWidth="0" prefWidth="0" />
-            <TableColumn fx:id="cheaperColumn" minWidth="0" maxWidth="0" prefWidth="0" />
+            <TableColumn fx:id="nameColumn" text="Talent" minWidth="100" resizable="false" editable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
+            <TableColumn fx:id="sesColumn" text="SEs" minWidth="65" maxWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="startColumn" text="Von" minWidth="65" maxWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="targetColumn" text="Auf" minWidth="65" maxWidth="65" resizable="false" sortable="false" editable="true" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="methodColumn" text="Lernmethode" minWidth="130" maxWidth="130" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="costColumn" text="Kosten" minWidth="75" maxWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="apColumn" text="AP" minWidth="75" maxWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="validColumn" minWidth="0" maxWidth="0" />
+            <TableColumn fx:id="cheaperColumn" minWidth="0" maxWidth="0" />
          </columns>	
       </TableView>
       <HBox spacing="2" >

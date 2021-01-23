@@ -12,7 +12,6 @@
 <VBox xmlns:fx="http://javafx.com/fxml/1" spacing="5">
    <ScrollPane hbarPolicy="NEVER" vbarPolicy="ALWAYS" fitToWidth="true" >
       <TableView fx:id="enhancementTable" editable="true" fixedCellSize="28">
-         <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
          <placeholder>
             <Label minHeight="0" />
          </placeholder>

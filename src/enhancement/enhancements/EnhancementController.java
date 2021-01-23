@@ -252,7 +252,7 @@ public class EnhancementController extends HeroSelector {
 		});
 
 		apColumn.setCellValueFactory(new PropertyValueFactory<Enhancement, Integer>("ap"));
-		apColumn.setCellFactory(o -> new IntegerSpinnerTableCell<>(0, 9999, 1, false));
+		apColumn.setCellFactory(o -> new IntegerSpinnerTableCell<>(0, 9999));
 		apColumn.setOnEditCommit(t -> {
 			t.getRowValue().setAP(t.getNewValue(), hero);
 			recalculate(false);

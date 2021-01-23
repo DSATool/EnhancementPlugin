@@ -104,7 +104,7 @@ public class AttributesController extends EnhancementTabController {
 
 		attributesTable.prefWidthProperty().bind(pane.widthProperty().subtract(22).divide(2));
 
-		GUIUtil.autosizeTable(attributesTable, 0, 2);
+		GUIUtil.autosizeTable(attributesTable);
 		GUIUtil.cellValueFactories(attributesTable, "description", "ses", "start", "target", "ap", "valid", "cheaper");
 
 		attributesSesColumn.setCellFactory(IntegerSpinnerTableCell.<AttributeEnhancement> forTableColumn(0, 0, 1, false,
@@ -175,7 +175,7 @@ public class AttributesController extends EnhancementTabController {
 
 		energiesTable.prefWidthProperty().bind(pane.widthProperty().subtract(22).divide(2));
 
-		GUIUtil.autosizeTable(energiesTable, 0, 2);
+		GUIUtil.autosizeTable(energiesTable);
 		GUIUtil.cellValueFactories(energiesTable, "description", "ses", "start", "target", "ap", "valid", "cheaper");
 
 		energiesSesColumn.setCellFactory(
@@ -307,8 +307,6 @@ public class AttributesController extends EnhancementTabController {
 			attributesTable.getItems().add(new AttributeEnhancement(new Attribute(attribute, actualAttributes.getObj(attribute)), hero));
 		}
 
-		attributesTable.setMaxHeight(attributesTable.getItems().size() * 28 + 27);
-
 		energies: for (final String derivedValue : new String[] { "Lebensenergie", "Ausdauer", "Magieresistenz", "Astralenergie" }) {
 			if ("Astralenergie".equals(derivedValue) && !HeroUtil.isMagical(hero)) {
 				continue;
@@ -321,7 +319,5 @@ public class AttributesController extends EnhancementTabController {
 			energiesTable.getItems()
 					.add(new EnergyEnhancement(new Energy(derivedValue, derivedValues.getObj(derivedValue), hero), hero));
 		}
-
-		energiesTable.setMaxHeight(energiesTable.getItems().size() * 28 + 27);
 	}
 }

@@ -137,7 +137,7 @@ public class TalentGroupController {
 			costColumn.setMaxWidth(0);
 		}
 
-		GUIUtil.autosizeTable(table, 0, "Zauber".equals(name) ? 2 : 0);
+		GUIUtil.autosizeTable(table);
 		GUIUtil.cellValueFactories(table, "description", "ses", "startString", "targetString", "method", "cost", "ap", "valid", "cheaper");
 
 		nameColumn.setCellFactory(c -> new TextFieldTableCell<>() {
@@ -320,7 +320,6 @@ public class TalentGroupController {
 			table.getItems()
 					.add(new TalentEnhancement(Talent.getTalent(talentName, talentGroup, group.getObj(talentName), null, actualGroup), talentGroupName, hero));
 		}
-		table.setPrefHeight(table.getItems().size() * 28 + 26);
 		table.sort();
 	}
 
@@ -396,7 +395,6 @@ public class TalentGroupController {
 			addButton.setDisable(true);
 		}
 
-		table.setPrefHeight(table.getItems().size() * 28 + 26);
 		table.sort();
 	}
 
@@ -415,7 +413,6 @@ public class TalentGroupController {
 			enhancement.recalculateValid(hero);
 		}
 
-		table.setPrefHeight(table.getItems().size() * 28 + 26);
 		table.sort();
 	}
 

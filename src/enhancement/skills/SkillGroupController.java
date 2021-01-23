@@ -111,8 +111,6 @@ public class SkillGroupController {
 			costColumn.setMaxWidth(0);
 		}
 
-		GUIUtil.autosizeTable(table, 1, 0);
-
 		nameColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("description"));
 		nameColumn.setCellFactory(c -> new TextFieldTableCell<>() {
 			@Override
@@ -245,18 +243,17 @@ public class SkillGroupController {
 		});
 
 		valid.addListener((final SetChangeListener.Change<?> o) -> {
-			final int size = valid.size();
-			table.setMinHeight(size * 28 + 26);
-			table.setMaxHeight(size * 28 + 26);
-
-			pane.setVisible(size != 0);
-			pane.setManaged(size != 0);
+			final boolean hasItems = !valid.isEmpty();
+			pane.setVisible(hasItems);
+			pane.setManaged(hasItems);
 		});
 
 		pane.setVisible(false);
 		pane.setManaged(false);
 
 		table.setItems(new SortedList<>(new FilteredList<>(allItems, valid::contains), (a, b) -> a.getName().compareTo(b.getName())));
+
+		GUIUtil.autosizeTable(table);
 
 		showAll.addListener((o, oldV, newV) -> {
 			if (newV) {

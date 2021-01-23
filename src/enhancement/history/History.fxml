@@ -15,15 +15,14 @@
             <String fx:value="remove-vertical-scrollbar" />
             <String fx:value="remove-horizontal-scrollbar" />
          </styleClass>
-         <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
          <placeholder>
             <Label minHeight="0" />
          </placeholder>
          <columns>
             <TableColumn fx:id="descriptionColumn" text="Steigerung" minWidth="100" resizable="false" sortable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
-            <TableColumn fx:id="costColumn" text="Kosten" prefWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="apColumn" text="AP" prefWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="dateColumn" text="Datum" prefWidth="100" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="costColumn" text="Kosten" minWidth="75" maxWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="apColumn" text="AP" minWidth="75" maxWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="dateColumn" text="Datum" minWidth="100" maxWidth="100" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
          </columns>
       </TableView>
    </ScrollPane>
