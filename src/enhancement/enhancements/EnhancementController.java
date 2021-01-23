@@ -83,20 +83,33 @@ public class EnhancementController extends HeroSelector {
 	@FXML
 	private TableColumn<Enhancement, Integer> apColumn;
 	@FXML
+	private Label apLabel;
+	@FXML
 	private Label availableApLabel;
 	@FXML
 	private HBox costBox;
 	@FXML
 	private Label costLabel;
 	@FXML
-	private Label apLabel;
+	private Label availableMoneyLabel;
 	@FXML
 	private CheckBox chargenRules;
 
 	private JSONObject hero;
 
 	private final JSONListener apListener = o -> availableApLabel
-			.setText(Integer.toString(hero.getObj("Biografie").getIntOrDefault("Abenteuerpunkte-Guthaben", 0)));
+			.setText(Integer.toString(hero.getObj("Biografie").getIntOrDefault("Abenteuerpunkte-Guthaben", 0)) + " AP");
+
+	private final JSONListener moneyListener = o -> {
+		final JSONObject money = hero.getObj("Besitz").getObj("Geld");
+		int availableMoney = 0;
+		for (final String unit : new String[] { "Dukaten", "Silbertaler", "Heller", "Kreuzer" }) {
+			availableMoney *= 10;
+			availableMoney += money.getIntOrDefault(unit, 0);
+		}
+
+		availableMoneyLabel.setText(Double.toString(availableMoney / 100.0) + " Silber");
+	};
 
 	public EnhancementController() {
 		super(false);
@@ -140,17 +153,10 @@ public class EnhancementController extends HeroSelector {
 		final double cost = calculateCost();
 
 		final JSONObject bio = hero.getObj("Biografie");
-		final JSONObject money = hero.getObj("Besitz").getObj("Geld");
-
-		int availableMoney = 0;
-		for (final String unit : new String[] { "Dukaten", "Silbertaler", "Heller", "Kreuzer" }) {
-			availableMoney *= 10;
-			availableMoney += money.getIntOrDefault(unit, 0);
-		}
 
 		String text = "Die ausgewählten Steigerungen kosten " + ap + " AP (" + bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) + " AP verfügbar).";
 		if (Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") && cost != 0) {
-			text += "\nEs werden " + cost + " Silber an Lehrmeisterkosten fällig (" + availableMoney / 100.0 + " verfügbar).";
+			text += "\nEs werden " + cost + " Silber an Lehrmeisterkosten fällig (" + availableMoneyLabel.getText() + " verfügbar).";
 		}
 
 		final Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -385,11 +391,18 @@ public class EnhancementController extends HeroSelector {
 		enhancementTable.getItems().clear();
 		if (hero != null) {
 			hero.getObj("Biografie").removeListener(apListener);
+			hero.getObj("Besitz").getObj("Geld").removeListener(moneyListener);
 		}
+
 		hero = heroes.get(index);
 		chargenRules.setSelected(applyChargenRules(hero));
-		availableApLabel.setText(Integer.toString(hero.getObj("Biografie").getIntOrDefault("Abenteuerpunkte-Guthaben", 0)));
+
 		hero.getObj("Biografie").addListener(apListener);
+		apListener.notifyChanged(null);
+
+		hero.getObj("Besitz").getObj("Geld").addListener(moneyListener);
+		moneyListener.notifyChanged(null);
+
 		super.setHero(index);
 	}
 
