@@ -19,9 +19,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import enhancement.enhancements.Enhancement;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import jsonant.value.JSONObject;
 
 public class APEnhancement extends Enhancement {
@@ -31,14 +28,14 @@ public class APEnhancement extends Enhancement {
 		return result;
 	}
 
-	private final IntegerProperty start;
-	private final IntegerProperty target;
+	private final int start;
+	private final int target;
 
 	private APEnhancement(final int start, final int target) {
-		this.start = new SimpleIntegerProperty(start);
-		this.target = new SimpleIntegerProperty(target);
+		this.start = start;
+		this.target = target;
 		fullDescription.bind(description);
-		description.set("Abenteuerpunkte (" + this.start.get() + "->" + this.target.get() + ")");
+		description.set("Abenteuerpunkte (" + start + "->" + target + ")");
 		ap.set(target - start);
 	}
 
@@ -55,7 +52,7 @@ public class APEnhancement extends Enhancement {
 
 	@Override
 	protected int getCalculatedAP(final JSONObject hero) {
-		return start.get() - target.get();
+		return start - target;
 	}
 
 	/*
@@ -73,26 +70,10 @@ public class APEnhancement extends Enhancement {
 		return "Abenteuerpunkte";
 	}
 
-	public int getStart() {
-		return start.get();
-	}
-
-	public int getTarget() {
-		return target.get();
-	}
-
-	public ReadOnlyIntegerProperty startProperty() {
-		return start;
-	}
-
-	public ReadOnlyIntegerProperty targetProperty() {
-		return target;
-	}
-
 	@Override
 	public void unapply(final JSONObject hero) {
 		final JSONObject bio = hero.getObj("Biografie");
-		bio.put("Abenteuerpunkte", start.get());
+		bio.put("Abenteuerpunkte", start);
 		bio.notifyListeners(null);
 	}
 

@@ -158,9 +158,7 @@ public class TalentGroupController {
 							final int seMin = cell.getTableView().getItems().get(cell.getIndex()).getSeMin();
 							return new Tuple<>(seMin, 99);
 						}));
-		sesColumn.setOnEditCommit(t -> {
-			t.getRowValue().setSes(t.getNewValue(), hero);
-		});
+		sesColumn.setOnEditCommit(t -> t.getRowValue().setSes(t.getNewValue(), hero));
 
 		targetColumn.setCellFactory(o -> new GraphicTableCell<>(false) {
 			@Override
@@ -203,14 +201,10 @@ public class TalentGroupController {
 				}
 			}
 		});
-		targetColumn.setOnEditCommit(t -> {
-			t.getRowValue().setTarget(t.getNewValue(), hero);
-		});
+		targetColumn.setOnEditCommit(t -> t.getRowValue().setTarget(t.getNewValue(), hero));
 
 		methodColumn.setCellFactory(ReactiveComboBoxTableCell.forTableColumn(false, "Lehrmeister", "Gegenseitiges Lehren", "Selbststudium"));
-		methodColumn.setOnEditCommit((final CellEditEvent<TalentEnhancement, String> t) -> {
-			t.getRowValue().setMethod(t.getNewValue(), hero);
-		});
+		methodColumn.setOnEditCommit((final CellEditEvent<TalentEnhancement, String> t) -> t.getRowValue().setMethod(t.getNewValue(), hero));
 
 		table.setRowFactory(t -> {
 			final TableRow<TalentEnhancement> row = new TableRow<>();
