@@ -33,7 +33,7 @@ public class EnergyEnhancement extends Enhancement {
 		final EnergyEnhancement result = new EnergyEnhancement(energy, hero);
 		result.start.set(enhancement.getInt("Von"));
 		result.target.set(enhancement.getInt("Auf"));
-		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
+		result.ses.set(energy.getSes() + enhancement.getIntOrDefault("SEs", 0));
 		result.ap.set(enhancement.getInt("AP"));
 		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
 		result.updateDescription();
@@ -45,14 +45,11 @@ public class EnergyEnhancement extends Enhancement {
 	private final IntegerProperty target;
 	private final IntegerProperty ses;
 
-	private int seMin;
-
 	public EnergyEnhancement(final Energy energy, final JSONObject hero) {
 		this.energy = energy;
 		start = new SimpleIntegerProperty(energy.getBought());
 		target = new SimpleIntegerProperty(start.get() + 1);
-		seMin = energy.getSes();
-		ses = new SimpleIntegerProperty(seMin);
+		ses = new SimpleIntegerProperty(energy.getSes());
 		fullDescription.bind(description);
 		updateDescription();
 		ap.set(getCalculatedAP(hero));
@@ -89,7 +86,6 @@ public class EnergyEnhancement extends Enhancement {
 		result.start.set(start.get());
 		result.target.set(target.get());
 		result.ses.set(ses.get());
-		result.seMin = seMin;
 		result.updateDescription();
 		return result;
 	}
@@ -114,10 +110,6 @@ public class EnergyEnhancement extends Enhancement {
 	@Override
 	public String getName() {
 		return energy.getName();
-	}
-
-	public int getSeMin() {
-		return seMin;
 	}
 
 	public int getSes() {

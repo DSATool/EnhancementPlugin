@@ -110,8 +110,7 @@ public class AttributesController extends EnhancementTabController {
 		attributesSesColumn.setCellFactory(IntegerSpinnerTableCell.<AttributeEnhancement> forTableColumn(0, 0, 1, false,
 				(final IntegerSpinnerTableCell<AttributeEnhancement> cell, final Boolean empty) -> {
 					if (empty) return new Tuple<>(0, 0);
-					final int seMin = cell.getTableView().getItems().get(cell.getIndex()).getSeMin();
-					return new Tuple<>(seMin, 99);
+					return new Tuple<>(0, 99);
 				}));
 		attributesSesColumn.setOnEditCommit(t -> {
 			t.getRowValue().setSes(t.getNewValue(), hero);
@@ -182,8 +181,7 @@ public class AttributesController extends EnhancementTabController {
 				IntegerSpinnerTableCell.<EnergyEnhancement> forTableColumn(0, 0, 1, false,
 						(final IntegerSpinnerTableCell<EnergyEnhancement> cell, final Boolean empty) -> {
 							if (empty) return new Tuple<>(0, 0);
-							final int seMin = cell.getTableView().getItems().get(cell.getIndex()).getSeMin();
-							return new Tuple<>(seMin, 99);
+							return new Tuple<>(0, 99);
 						}));
 		energiesSesColumn.setOnEditCommit(t -> {
 			t.getRowValue().setSes(t.getNewValue(), hero);

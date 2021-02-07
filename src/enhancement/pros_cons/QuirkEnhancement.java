@@ -46,7 +46,7 @@ public class QuirkEnhancement extends Enhancement {
 		}
 		result.start.set(enhancement.getInt("Von"));
 		result.setTarget(enhancement.getInt("Auf"), hero, enhancements);
-		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
+		result.ses.set(newQuirk.getActual().getIntOrDefault("SEs", 0) + enhancement.getIntOrDefault("SEs", 0));
 		result.ap.set(enhancement.getInt("AP"));
 		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
 		result.updateDescription();
@@ -57,13 +57,11 @@ public class QuirkEnhancement extends Enhancement {
 	private final IntegerProperty start;
 	private final IntegerProperty target;
 	private final IntegerProperty ses;
-	private int seMin;
 
 	public QuirkEnhancement(final ProOrCon quirk, final JSONObject hero) {
 		this.quirk = quirk;
 		start = new SimpleIntegerProperty(quirk.getValue());
-		seMin = quirk.getActual().getIntOrDefault("SEs", 0);
-		ses = new SimpleIntegerProperty(seMin);
+		ses = new SimpleIntegerProperty(quirk.getActual().getIntOrDefault("SEs", 0));
 		target = new SimpleIntegerProperty(start.get() - 1);
 		fullDescription.bind(description);
 		cheaper.bind(ses.greaterThan(0));
@@ -131,7 +129,6 @@ public class QuirkEnhancement extends Enhancement {
 		result.start.set(start.get());
 		result.setTarget(target.get(), hero, enhancements);
 		result.ses.set(ses.get());
-		result.seMin = seMin;
 		result.updateDescription();
 		return result;
 	}
@@ -159,10 +156,6 @@ public class QuirkEnhancement extends Enhancement {
 
 	public ProOrCon getQuirk() {
 		return quirk;
-	}
-
-	public int getSeMin() {
-		return seMin;
 	}
 
 	public int getSes() {

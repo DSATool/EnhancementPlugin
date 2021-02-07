@@ -87,7 +87,7 @@ public class TalentEnhancement extends Enhancement {
 		} else {
 			result.setTarget(-1, hero, false);
 		}
-		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
+		result.ses.set(newTalent.getSes() + enhancement.getIntOrDefault("SEs", 0));
 		result.method.set(enhancement.getString("Methode"));
 		result.ap.set(enhancement.getInt("AP"));
 		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
@@ -126,7 +126,6 @@ public class TalentEnhancement extends Enhancement {
 	private final JSONObject hero;
 	protected final StringProperty method;
 	protected final IntegerProperty ses;
-	protected int seMin;
 
 	private final ChangeListener<Boolean> chargenListener;
 
@@ -144,8 +143,7 @@ public class TalentEnhancement extends Enhancement {
 		start = new SimpleIntegerProperty(value);
 		target = new SimpleIntegerProperty(value + 1);
 		targetString = new SimpleStringProperty(getOfficial(value + 1, basis));
-		seMin = talent.getSes();
-		ses = new SimpleIntegerProperty(seMin);
+		ses = new SimpleIntegerProperty(talent.getSes());
 		fullDescription.bind(description);
 		method = new SimpleStringProperty(Settings.getSettingStringOrDefault("Gegenseitiges Lehren", "Steigerung", "Lernmethode"));
 		updateDescription();
@@ -162,7 +160,6 @@ public class TalentEnhancement extends Enhancement {
 			});
 			talent.sesProperty().addListener((o, oldV, newV) -> {
 				if (!suppressGlobally && !suppressUpdate) {
-					seMin = newV.intValue();
 					ses.set(newV.intValue());
 					ap.set(getCalculatedAP(hero));
 					cost.set(getCalculatedCost(hero));
@@ -227,7 +224,6 @@ public class TalentEnhancement extends Enhancement {
 		result.basis = basis;
 		result.method.set(method.get());
 		result.ses.set(ses.get());
-		result.seMin = seMin;
 		result.updateDescription();
 		return result;
 	}
@@ -277,10 +273,6 @@ public class TalentEnhancement extends Enhancement {
 	@Override
 	public String getName() {
 		return talent.getName();
-	}
-
-	public int getSeMin() {
-		return seMin;
 	}
 
 	public int getSes() {

@@ -28,11 +28,12 @@ import jsonant.value.JSONObject;
 
 public class AttributeEnhancement extends Enhancement {
 	public static AttributeEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
-		final String attribute = enhancement.getString("Eigenschaft");
-		final AttributeEnhancement result = new AttributeEnhancement(new Attribute(attribute, hero.getObj("Eigenschaften").getObj(attribute)), hero);
+		final String attributeName = enhancement.getString("Eigenschaft");
+		final Attribute attribute = new Attribute(attributeName, hero.getObj("Eigenschaften").getObj(attributeName));
+		final AttributeEnhancement result = new AttributeEnhancement(attribute, hero);
 		result.start.set(enhancement.getInt("Von"));
 		result.setTarget(enhancement.getInt("Auf"), hero);
-		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
+		result.ses.set(attribute.getSes() + enhancement.getIntOrDefault("SEs", 0));
 		result.ap.set(enhancement.getInt("AP"));
 		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
 		result.updateDescription();
@@ -43,15 +44,13 @@ public class AttributeEnhancement extends Enhancement {
 	private final IntegerProperty start;
 	private final IntegerProperty target;
 	private final IntegerProperty ses;
-	private int seMin;
 	private final boolean isMiserable;
 
 	public AttributeEnhancement(final Attribute attribute, final JSONObject hero) {
 		this.attribute = attribute;
 		start = new SimpleIntegerProperty(attribute.getValue());
 		target = new SimpleIntegerProperty(start.get() + 1);
-		seMin = attribute.getSes();
-		ses = new SimpleIntegerProperty(seMin);
+		ses = new SimpleIntegerProperty(attribute.getSes());
 		final JSONObject attributes = ResourceManager.getResource("data/Eigenschaften");
 		isMiserable = hero.getObj("Nachteile").containsKey(attributes.getObj(attribute.getName()).getString("Miserable Eigenschaft"));
 		fullDescription.bind(description);
@@ -90,7 +89,6 @@ public class AttributeEnhancement extends Enhancement {
 		result.start.set(start.get());
 		result.setTarget(target.get(), hero);
 		result.ses.set(ses.get());
-		result.seMin = seMin;
 		result.updateDescription();
 		return result;
 	}
@@ -114,10 +112,6 @@ public class AttributeEnhancement extends Enhancement {
 	@Override
 	public String getName() {
 		return attribute.getName();
-	}
-
-	public int getSeMin() {
-		return seMin;
 	}
 
 	public int getSes() {

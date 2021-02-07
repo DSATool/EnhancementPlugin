@@ -106,9 +106,8 @@ public class QuirksController extends EnhancementTabController {
 				IntegerSpinnerTableCell.<QuirkEnhancement> forTableColumn(0, 0, 1, false,
 						(final IntegerSpinnerTableCell<QuirkEnhancement> cell, final Boolean empty) -> {
 							if (empty) return new Tuple<>(0, 0);
-							final int seMin = cell.getTableView().getItems().get(cell.getIndex()).getSeMin();
-							final int seMax = cell.getTableView().getItems().get(cell.getIndex()).getStart();
-							return new Tuple<>(seMin, seMax);
+							final int ses = cell.getTableView().getItems().get(cell.getIndex()).getStart();
+							return new Tuple<>(0, ses);
 						}));
 		sesColumn.setOnEditCommit(t -> {
 			t.getRowValue().setSes(t.getNewValue(), hero);

@@ -69,7 +69,7 @@ public class SpellEnhancement extends TalentEnhancement {
 		} else {
 			result.setTarget(-1, hero, false);
 		}
-		result.ses.set(result.seMin + enhancement.getIntOrDefault("SEs", 0));
+		result.ses.set(newSpell.getSes() + enhancement.getIntOrDefault("SEs", 0));
 		result.method.set(enhancement.getString("Methode"));
 		result.ap.set(enhancement.getInt("AP"));
 		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
@@ -96,7 +96,6 @@ public class SpellEnhancement extends TalentEnhancement {
 		result.basis = basis;
 		result.method.set(method.get());
 		result.ses.set(ses.get());
-		result.seMin = seMin;
 		result.updateDescription();
 		return result;
 	}

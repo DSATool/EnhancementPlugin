@@ -155,8 +155,7 @@ public class TalentGroupController {
 				IntegerSpinnerTableCell.<TalentEnhancement> forTableColumn(0, 0, 1, false,
 						(final IntegerSpinnerTableCell<TalentEnhancement> cell, final Boolean empty) -> {
 							if (empty) return new Tuple<>(0, 0);
-							final int seMin = cell.getTableView().getItems().get(cell.getIndex()).getSeMin();
-							return new Tuple<>(seMin, 99);
+							return new Tuple<>(0, 99);
 						}));
 		sesColumn.setOnEditCommit(t -> t.getRowValue().setSes(t.getNewValue(), hero));
 
