@@ -131,9 +131,7 @@ public abstract class Enhancement {
 		hasCustomCost = true;
 	}
 
-	public JSONObject toJSON() {
-		return null;
-	}
+	public abstract JSONObject toJSON();
 
 	public abstract void unapply(JSONObject hero);
 

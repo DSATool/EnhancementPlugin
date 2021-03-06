@@ -71,6 +71,11 @@ public class APEnhancement extends Enhancement {
 	}
 
 	@Override
+	public JSONObject toJSON() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public void unapply(final JSONObject hero) {
 		final JSONObject bio = hero.getObj("Biografie");
 		bio.put("Abenteuerpunkte", start);
