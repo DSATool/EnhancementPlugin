@@ -339,11 +339,9 @@ public class TalentGroupController {
 										table.getItems().add(new SpellEnhancement(spell, hero));
 									}
 								}
-							} else {
-								if (!alreadyEnhanced.containsKey(talentName)) {
-									table.getItems().add(new SpellEnhancement(
-											Spell.getSpell(talentName, talent, actualSpell.getObj(rep), actualSpell, actualGroup, rep), hero));
-								}
+							} else if (!alreadyEnhanced.containsKey(talentName)) {
+								table.getItems().add(
+										new SpellEnhancement(Spell.getSpell(talentName, talent, actualSpell.getObj(rep), actualSpell, actualGroup, rep), hero));
 							}
 						} else {
 							notFound = true;
@@ -367,13 +365,11 @@ public class TalentGroupController {
 							}
 						}
 						talentsList.getItems().add(talentName);
-					} else {
-						if (!alreadyEnhanced.containsKey(talentName)) {
-							table.getItems()
-									.add(new TalentEnhancement(
-											Talent.getTalent(talentName, talentGroup, talents.getObj(talentName), actualGroup.getObj(talentName), actualGroup),
-											talentGroupName, hero));
-						}
+					} else if (!alreadyEnhanced.containsKey(talentName)) {
+						table.getItems()
+								.add(new TalentEnhancement(
+										Talent.getTalent(talentName, talentGroup, talents.getObj(talentName), actualGroup.getObj(talentName), actualGroup),
+										talentGroupName, hero));
 					}
 				}
 			} else if (talent.containsKey("Auswahl") || talent.containsKey("Freitext") || !alreadyEnhanced.containsKey(talentName)) {
@@ -419,7 +415,11 @@ public class TalentGroupController {
 
 	public boolean removeEnhancement(final TalentEnhancement enhancement) {
 		if (enhancement.talentGroupName.equals(talentGroupName)) {
-			alreadyEnhanced.get(enhancement.getName()).remove(enhancement.getTalent());
+			final Map<Talent, Object> enhanced = alreadyEnhanced.get(enhancement.getName());
+			enhanced.remove(enhancement.getTalent());
+			if (enhanced.isEmpty()) {
+				alreadyEnhanced.remove(enhancement.getName());
+			}
 			table.getItems().add(enhancement);
 			return true;
 		} else
@@ -427,7 +427,9 @@ public class TalentGroupController {
 	}
 
 	public void setHero(final JSONObject hero) {
-		alreadyEnhanced.clear();
+		if (hero != this.hero || EnhancementController.instance.getEnhancements().isEmpty()) {
+			alreadyEnhanced.clear();
+		}
 		this.hero = hero;
 		fillTable();
 	}

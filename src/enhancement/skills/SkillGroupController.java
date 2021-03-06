@@ -328,7 +328,9 @@ public class SkillGroupController {
 	}
 
 	public void setHero(final JSONObject hero) {
-		alreadyEnhanced.clear();
+		if (hero != this.hero || EnhancementController.instance.getEnhancements().isEmpty()) {
+			alreadyEnhanced.clear();
+		}
 		this.hero = hero;
 		fillTable();
 	}

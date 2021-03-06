@@ -15,6 +15,10 @@
  */
 package enhancement.pros_cons;
 
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 import dsa41basis.hero.ProOrCon;
 import dsatool.gui.GUIUtil;
 import dsatool.resources.ResourceManager;
@@ -59,6 +63,8 @@ public class QuirksController extends EnhancementTabController {
 	private TableColumn<QuirkEnhancement, Boolean> validColumn;
 	@FXML
 	private TableColumn<QuirkEnhancement, Boolean> cheaperColumn;
+
+	private final Map<String, Map<JSONObject, Object>> alreadyEnhanced = new HashMap<>();
 
 	public QuirksController(final EnhancementController controller, final TabPane tabPane) {
 		super(tabPane);
@@ -130,6 +136,10 @@ public class QuirksController extends EnhancementTabController {
 			contextMenu.getItems().add(lowerMenuItem);
 			lowerMenuItem.setOnAction(o -> {
 				final QuirkEnhancement item = row.getItem();
+				final String quirkName = item.getName();
+				final Map<JSONObject, Object> newSet = alreadyEnhanced.getOrDefault(quirkName, new IdentityHashMap<>());
+				newSet.put(item.getQuirk().getActual(), null);
+				alreadyEnhanced.put(quirkName, newSet);
 				EnhancementController.instance.addEnhancement(item.clone(hero, EnhancementController.instance.getEnhancements()));
 				update();
 			});
@@ -196,6 +206,12 @@ public class QuirksController extends EnhancementTabController {
 	}
 
 	@Override
+	public void setHero(final JSONObject hero) {
+		super.setHero(hero);
+		alreadyEnhanced.clear();
+	}
+
+	@Override
 	protected void unregisterListeners() {
 		hero.getObj("Nachteile").removeListener(heroListener);
 		table.getItems().clear();
@@ -208,36 +224,22 @@ public class QuirksController extends EnhancementTabController {
 		final JSONObject cons = ResourceManager.getResource("data/Nachteile");
 		final JSONObject actualCons = hero.getObj("Nachteile");
 
-		quirks: for (final String conName : actualCons.keySet()) {
+		for (final String conName : actualCons.keySet()) {
 			final JSONObject con = cons.getObj(conName);
 			if (con.getBoolOrDefault("Schlechte Eigenschaft", false)) {
 				if (con.containsKey("Auswahl") || con.containsKey("Freitext")) {
 					final JSONArray conArray = actualCons.getArr(conName);
 					for (int i = 0; i < conArray.size(); ++i) {
 						final JSONObject actualCon = conArray.getObj(i);
-						for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
-							if (enhancement instanceof QuirkEnhancement && conName.equals(enhancement.getName())) {
-								final QuirkEnhancement quirkEnhancement = (QuirkEnhancement) enhancement;
-								if (con.containsKey("Auswahl")
-										&& !quirkEnhancement.getQuirk().getActual().getString("Auswahl").equals(actualCon.getString("Auswahl"))) {
-									continue;
-								}
-								if (con.containsKey("Freitext")
-										&& !quirkEnhancement.getQuirk().getActual().getString("Freitext").equals(actualCon.getString("Freitext"))) {
-									continue;
-								}
-								continue quirks;
-							}
+						if (!alreadyEnhanced.containsKey(conName) || !alreadyEnhanced.get(conName).containsKey(actualCon)) {
+							table.getItems().add(new QuirkEnhancement(new ProOrCon(conName, hero, con, actualCon), hero));
 						}
 						table.getItems().add(new QuirkEnhancement(new ProOrCon(conName, hero, con, actualCon), hero));
 					}
 				} else {
-					for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
-						if (enhancement instanceof QuirkEnhancement && conName.equals(enhancement.getName())) {
-							continue quirks;
-						}
+					if (!alreadyEnhanced.containsKey(conName)) {
+						table.getItems().add(new QuirkEnhancement(new ProOrCon(conName, hero, con, actualCons.getObj(conName)), hero));
 					}
-					table.getItems().add(new QuirkEnhancement(new ProOrCon(conName, hero, con, actualCons.getObj(conName)), hero));
 				}
 			}
 		}

@@ -15,6 +15,9 @@
  */
 package enhancement.attributes;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import dsa41basis.hero.Attribute;
 import dsa41basis.hero.Energy;
 import dsa41basis.util.HeroUtil;
@@ -76,6 +79,8 @@ public class AttributesController extends EnhancementTabController {
 	@FXML
 	private TableColumn<EnergyEnhancement, Boolean> energiesCheaperColumn;
 
+	private final Set<String> alreadyEnhanced = new HashSet<>();
+
 	public AttributesController(final EnhancementController controller, final TabPane tabPane) {
 		super(tabPane);
 	}
@@ -134,6 +139,7 @@ public class AttributesController extends EnhancementTabController {
 			attributesContextMenu.getItems().add(attributesContextMenuItem);
 			attributesContextMenuItem.setOnAction(o -> {
 				final AttributeEnhancement item = row.getItem();
+				alreadyEnhanced.add(item.getName());
 				EnhancementController.instance.addEnhancement(item.clone(hero));
 				update();
 			});
@@ -206,6 +212,7 @@ public class AttributesController extends EnhancementTabController {
 			energiesContextMenu.getItems().add(energiesContextMenuItem);
 			energiesContextMenuItem.setOnAction(o -> {
 				final EnergyEnhancement item = row.getItem();
+				alreadyEnhanced.add(item.getName());
 				EnhancementController.instance.addEnhancement(item.clone(hero));
 				update();
 			});
@@ -270,12 +277,20 @@ public class AttributesController extends EnhancementTabController {
 	public boolean removeEnhancement(final Enhancement enhancement) {
 		if (enhancement instanceof AttributeEnhancement) {
 			attributesTable.getItems().add((AttributeEnhancement) enhancement);
+			alreadyEnhanced.remove(enhancement.getName());
 			return true;
 		} else if (enhancement instanceof EnergyEnhancement) {
 			energiesTable.getItems().add((EnergyEnhancement) enhancement);
+			alreadyEnhanced.remove(enhancement.getName());
 			return true;
 		} else
 			return false;
+	}
+
+	@Override
+	public void setHero(final JSONObject hero) {
+		super.setHero(hero);
+		alreadyEnhanced.clear();
 	}
 
 	@Override
@@ -296,26 +311,19 @@ public class AttributesController extends EnhancementTabController {
 		final JSONObject actualAttributes = hero.getObj("Eigenschaften");
 		final JSONObject derivedValues = ResourceManager.getResource("data/Basiswerte");
 
-		attributes: for (final String attribute : attributes.keySet()) {
-			for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
-				if (enhancement instanceof AttributeEnhancement && attribute.equals(enhancement.getName())) {
-					continue attributes;
-				}
+		for (final String attribute : attributes.keySet()) {
+			if (!alreadyEnhanced.contains(attribute)) {
+				attributesTable.getItems().add(new AttributeEnhancement(new Attribute(attribute, actualAttributes.getObj(attribute)), hero));
 			}
-			attributesTable.getItems().add(new AttributeEnhancement(new Attribute(attribute, actualAttributes.getObj(attribute)), hero));
 		}
 
-		energies: for (final String derivedValue : new String[] { "Lebensenergie", "Ausdauer", "Magieresistenz", "Astralenergie" }) {
+		for (final String derivedValue : new String[] { "Lebensenergie", "Ausdauer", "Magieresistenz", "Astralenergie" }) {
 			if ("Astralenergie".equals(derivedValue) && !HeroUtil.isMagical(hero)) {
 				continue;
 			}
-			for (final Enhancement enhancement : EnhancementController.instance.getEnhancements()) {
-				if (enhancement instanceof EnergyEnhancement && derivedValue.equals(enhancement.getName())) {
-					continue energies;
-				}
+			if (!alreadyEnhanced.contains(derivedValue)) {
+				energiesTable.getItems().add(new EnergyEnhancement(new Energy(derivedValue, derivedValues.getObj(derivedValue), hero), hero));
 			}
-			energiesTable.getItems()
-					.add(new EnergyEnhancement(new Energy(derivedValue, derivedValues.getObj(derivedValue), hero), hero));
 		}
 	}
 }
