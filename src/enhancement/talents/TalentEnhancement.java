@@ -122,7 +122,7 @@ public class TalentEnhancement extends Enhancement {
 	protected final StringProperty targetString;
 	protected boolean basis;
 	protected final String talentGroupName;
-	private final JSONObject hero;
+	protected final JSONObject hero;
 	protected final StringProperty method;
 	protected final IntegerProperty ses;
 

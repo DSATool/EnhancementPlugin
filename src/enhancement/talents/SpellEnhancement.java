@@ -19,6 +19,7 @@ import java.time.LocalDate;
 
 import dsa41basis.hero.Spell;
 import dsa41basis.util.DSAUtil;
+import dsa41basis.util.HeroUtil;
 import dsatool.resources.ResourceManager;
 import dsatool.resources.Settings;
 import enhancement.enhancements.EnhancementController;
@@ -157,7 +158,8 @@ public class SpellEnhancement extends TalentEnhancement {
 
 	@Override
 	protected void updateDescription() {
-		description.set(talent.getDisplayName() + " (" + ((Spell) talent).getRepresentation() + ") (" + ((Spell) talent).getComplexity() + ") ("
-				+ startString.get() + "->" + target.get() + ")");
+		final String rep = ((Spell) talent).getRepresentation();
+		final String enhancement = DSAUtil.getEnhancementGroupString(HeroUtil.getSpellComplexity(hero, talent.getName(), rep, target.get()));
+		description.set(talent.getDisplayName() + " (" + rep + ") (" + enhancement + ") (" + startString.get() + "->" + target.get() + ")");
 	}
 }
