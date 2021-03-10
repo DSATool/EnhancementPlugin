@@ -29,6 +29,7 @@ import dsatool.ui.DoubleSpinnerTableCell;
 import dsatool.ui.IntegerSpinnerTableCell;
 import dsatool.util.ErrorLogger;
 import enhancement.attributes.AttributesController;
+import enhancement.history.AdventureDialog;
 import enhancement.history.HistoryController;
 import enhancement.pros_cons.QuirksController;
 import enhancement.skills.SkillController;
@@ -58,7 +59,6 @@ import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import jsonant.event.JSONListener;
 import jsonant.value.JSONArray;
@@ -74,6 +74,8 @@ public class EnhancementController extends HeroSelector {
 	public static EnhancementController instance;
 
 	private VBox pane;
+	@FXML
+	private TabPane tabPane;
 	@FXML
 	private TableView<Enhancement> enhancementTable;
 	@FXML
@@ -123,11 +125,18 @@ public class EnhancementController extends HeroSelector {
 			ErrorLogger.logError(e);
 		}
 
+		pane.getStylesheets().add(getClass().getResource("enhancement.css").toExternalForm());
+
 		instance = this;
 
 		setContent(pane);
 
 		load();
+	}
+
+	@FXML
+	private void addAdventure() {
+		new AdventureDialog(pane.getScene().getWindow(), hero);
 	}
 
 	public void addEnhancement(final Enhancement enhancement) {
@@ -220,19 +229,15 @@ public class EnhancementController extends HeroSelector {
 
 	@Override
 	public void load() {
-		final TabPane tabs = new TabPane();
-		pane.getChildren().add(0, tabs);
-		VBox.setVgrow(tabs, Priority.ALWAYS);
-
 		try {
 			for (final Class<? extends EnhancementTabController> controller : tabControllers) {
-				controllers.add(controller.getDeclaredConstructor(EnhancementController.class, TabPane.class).newInstance(this, tabs));
+				controllers.add(controller.getDeclaredConstructor(EnhancementController.class, TabPane.class).newInstance(this, tabPane));
 			}
 		} catch (final Exception e) {
 			ErrorLogger.logError(e);
 		}
 
-		tabs.prefHeightProperty().bind(pane.heightProperty().divide(2));
+		tabPane.prefHeightProperty().bind(pane.heightProperty().divide(2));
 		enhancementTable.prefHeightProperty().bind(pane.heightProperty().divide(2).subtract(40));
 
 		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten")) {
@@ -359,7 +364,7 @@ public class EnhancementController extends HeroSelector {
 		final EnhancementTabController firstPage = (EnhancementTabController) controllers.get(0);
 		firstPage.init();
 		firstPage.update();
-		tabs.getTabs().get(0).setContent(firstPage.getControl());
+		tabPane.getTabs().get(0).setContent(firstPage.getControl());
 	}
 
 	private void recalculate(final boolean recalculateValid) {

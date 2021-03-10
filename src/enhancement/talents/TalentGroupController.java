@@ -94,7 +94,7 @@ public class TalentGroupController {
 	private final Map<String, Map<Talent, Object>> alreadyEnhanced = new HashMap<>();
 
 	private final JSONListener listener = o -> {
-		recalculateValid(hero);
+		fillTable();
 	};
 
 	public TalentGroupController(final String name, final JSONObject talents) {
@@ -395,14 +395,6 @@ public class TalentGroupController {
 		for (final TalentEnhancement enhancement : table.getItems()) {
 			enhancement.reset(hero);
 		}
-	}
-
-	public void recalculateValid(final JSONObject hero) {
-		for (final TalentEnhancement enhancement : table.getItems()) {
-			enhancement.recalculateValid(hero);
-		}
-
-		table.sort();
 	}
 
 	public void registerListeners() {

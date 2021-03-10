@@ -1,0 +1,4 @@
+.buttonedTabPane .tab-header-area .control-buttons-tab {
+	-fx-padding: 0 -126 0 0;
+	-fx-pref-width: 140;
+}

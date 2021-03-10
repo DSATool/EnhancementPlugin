@@ -111,6 +111,15 @@ public class HistoryController extends EnhancementTabController {
 			final TableRow<Enhancement> row = new TableRow<>();
 
 			final ContextMenu contextMenu = new ContextMenu();
+
+			final MenuItem editItem = new MenuItem("Bearbeiten");
+			contextMenu.getItems().add(editItem);
+			editItem.setOnAction(o -> {
+				new AdventureDialog(root.getScene().getWindow(), hero, ((AdventureEnhancement) row.getItem()).getActual());
+			});
+			editItem.visibleProperty()
+					.bind(Bindings.createBooleanBinding(() -> row.getItem() != null && row.getItem() instanceof AdventureEnhancement, row.itemProperty()));
+
 			final MenuItem undoItem = new MenuItem("Rückgängig");
 			contextMenu.getItems().add(undoItem);
 			undoItem.setOnAction(o -> {
@@ -152,13 +161,14 @@ public class HistoryController extends EnhancementTabController {
 		double cost = 0;
 		for (int i = 0; i <= index; ++i) {
 			final Enhancement enhancement = table.getItems().get(i);
-			if (enhancement instanceof APEnhancement) {
+			if (enhancement instanceof APEnhancement || enhancement instanceof AdventureEnhancement) {
 				freeAP -= enhancement.getAP();
 				totalAP += enhancement.getAP();
+				cost -= enhancement.getCost();
 			} else {
 				freeAP += enhancement.getAP();
+				cost += enhancement.getCost();
 			}
-			cost += enhancement.getCost();
 		}
 
 		final JSONObject bio = hero.getObj("Biografie");
@@ -171,8 +181,6 @@ public class HistoryController extends EnhancementTabController {
 		}
 		if (totalAP > 0) {
 			text += totalAP + " AP entfernt und ";
-		} else if (totalAP < 0) {
-			text += -totalAP + " AP wiederhergestellt und ";
 		}
 		if (freeAP < 0) {
 			text += "die freien AP um " + -freeAP + " reduziert.";
@@ -181,6 +189,8 @@ public class HistoryController extends EnhancementTabController {
 		}
 		if (cost > 0) {
 			text += "\nLehrmeisterkosten von " + cost + " Silber werden rückerstattet.";
+		} else if (cost < 0) {
+			text += "\n" + -cost + " Silber werden abgezogen.";
 		}
 
 		final int finalFreeAP = freeAP;
@@ -225,6 +235,7 @@ public class HistoryController extends EnhancementTabController {
 				case "Talent" -> TalentEnhancement.fromJSON(entry, hero);
 				case "Zauber" -> SpellEnhancement.fromJSON(entry, hero);
 				case "Abenteuerpunkte" -> APEnhancement.fromJSON(entry);
+				case "Abenteuer" -> AdventureEnhancement.fromJSON(entry);
 				default -> null;
 			};
 			items.add(enhancement);

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import dsatool.ui.ReactiveComboBox?>
+<?import dsatool.ui.ReactiveSpinner?>
+
+<VBox fx:id="root" style="-fx-padding: 2, 2, 2, 2;" spacing="2" xmlns:fx="http://javafx.com/fxml" >
+   <HBox spacing="2" alignment="CENTER_LEFT" >
+      <Label text="Name: " maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+      <TextField fx:id="name" prefWidth="200" />
+   </HBox>
+   <HBox spacing="2" alignment="CENTER_LEFT" >
+      <Label text="Datum: " maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+      <DatePicker fx:id="date" prefWidth="100" showWeekNumbers="false" />
+   </HBox>
+   <HBox spacing="2" alignment="CENTER_LEFT" >
+      <Label text="AP: " maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+      <ReactiveSpinner fx:id="ap" imin="0" imax="9999" initialValue="0" editable="true" prefWidth="100" >
+         <styleClass>
+            <String fx:value="disabled-opaque" />
+         </styleClass>
+      </ReactiveSpinner>
+   </HBox>
+   <HBox spacing="2" alignment="CENTER_LEFT" >
+      <Label text="Geld (Silber): " maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+      <ReactiveSpinner fx:id="money" dmin="0.0" dmax="99999.99" initialValue="0.0" amountToStepBy="0.01" editable="true" prefWidth="100" />
+   </HBox>
+   <Label text="Spezielle Erfahrungen: " maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+   <ScrollPane vbarPolicy="ALWAYS" fitToWidth="true" xmlns:fx="http://javafx.com/fxml" >
+      <TableView fx:id="sesTable" editable="true" fixedCellSize="25" >
+         <styleClass>
+            <String fx:value="remove-vertical-scrollbar" />
+            <String fx:value="remove-horizontal-scrollbar" />
+         </styleClass>
+         <placeholder>
+            <Label minHeight="0" />
+         </placeholder>
+         <columns>
+            <TableColumn fx:id="seNameColumn" text="Name" resizable="false" prefWidth="215" />
+            <TableColumn fx:id="seAmountColumn" text="Anzahl" resizable="false" prefWidth="55" editable="true" style="-fx-alignment: CENTER;" />
+         </columns>
+      </TableView>
+   </ScrollPane>
+   <HBox spacing="2" alignment="CENTER_LEFT" >
+      <ReactiveComboBox fx:id="attributeList" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+      <Button onAction="#addSE" prefHeight="25" minWidth="25" maxWidth="25" text="&#xE145;" >
+         <padding><Insets top="0" right="0" bottom="0" left="0"/></padding>
+         <font>
+            <Font name="Material Icons" size="20.0" />
+         </font>
+         <tooltip>
+            <Tooltip text="Hinzufügen" />
+         </tooltip>
+      </Button>
+   </HBox>
+   <HBox spacing="2" alignment="CENTER_LEFT" >
+      <ReactiveComboBox fx:id="energyList" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+      <Button onAction="#addSE" prefHeight="25" minWidth="25" maxWidth="25" text="&#xE145;" >
+         <padding><Insets top="0" right="0" bottom="0" left="0"/></padding>
+         <font>
+            <Font name="Material Icons" size="20.0" />
+         </font>
+         <tooltip>
+            <Tooltip text="Hinzufügen" />
+         </tooltip>
+      </Button>
+   </HBox>
+   <HBox spacing="2" alignment="CENTER_LEFT" >
+      <ReactiveComboBox fx:id="talentList" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+      <Button onAction="#addSE" prefHeight="25" minWidth="25" maxWidth="25" text="&#xE145;" >
+         <padding><Insets top="0" right="0" bottom="0" left="0"/></padding>
+         <font>
+            <Font name="Material Icons" size="20.0" />
+         </font>
+         <tooltip>
+            <Tooltip text="Hinzufügen" />
+         </tooltip>
+      </Button>
+   </HBox>
+   <HBox spacing="2" >
+      <ReactiveComboBox fx:id="spellList" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+      <ReactiveComboBox fx:id="representationsList" minWidth="70" maxWidth="70" />
+      <Button fx:id="addSpellButton" onAction="#addSE" prefHeight="25" minWidth="25" maxWidth="25" text="&#xE145;" >
+         <padding><Insets top="0" right="0" bottom="0" left="0"/></padding>
+         <font>
+            <Font name="Material Icons" size="20.0" />
+         </font>
+         <tooltip>
+            <Tooltip text="Hinzufügen" />
+         </tooltip>
+      </Button>
+   </HBox>
+   <HBox spacing="2" alignment="CENTER_LEFT" >
+      <Label text="Anmerkungen: " maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+      <TextField fx:id="notes" prefWidth="200" />
+   </HBox>
+   <HBox spacing="2" alignment="CENTER_LEFT" >
+      <Label maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+      <Button fx:id="okButton" text="Ok" prefWidth="75" />
+      <Button fx:id="cancelButton" text="Abbrechen" prefWidth="75" />
+   </HBox>
+</VBox>
