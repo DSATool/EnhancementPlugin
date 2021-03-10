@@ -16,7 +16,6 @@
 package enhancement.history;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import enhancement.enhancements.Enhancement;
 import jsonant.value.JSONObject;
@@ -24,7 +23,7 @@ import jsonant.value.JSONObject;
 public class APEnhancement extends Enhancement {
 	public static APEnhancement fromJSON(final JSONObject enhancement) {
 		final APEnhancement result = new APEnhancement(enhancement.getInt("Von"), enhancement.getInt("Auf"));
-		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
+		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
 		return result;
 	}
 

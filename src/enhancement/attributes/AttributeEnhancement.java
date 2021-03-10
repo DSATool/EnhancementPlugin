@@ -16,7 +16,6 @@
 package enhancement.attributes;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import dsa41basis.hero.Attribute;
 import dsa41basis.util.DSAUtil;
@@ -35,7 +34,7 @@ public class AttributeEnhancement extends Enhancement {
 		result.setTarget(enhancement.getInt("Auf"), hero);
 		result.ses.set(attribute.getSes() + enhancement.getIntOrDefault("SEs", 0));
 		result.ap.set(enhancement.getInt("AP"));
-		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
+		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
 		result.updateDescription();
 		return result;
 	}

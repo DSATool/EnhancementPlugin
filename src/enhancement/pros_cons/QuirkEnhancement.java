@@ -16,7 +16,6 @@
 package enhancement.pros_cons;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Stack;
 
@@ -48,7 +47,7 @@ public class QuirkEnhancement extends Enhancement {
 		result.setTarget(enhancement.getInt("Auf"), hero, enhancements);
 		result.ses.set(newQuirk.getActual().getIntOrDefault("SEs", 0) + enhancement.getIntOrDefault("SEs", 0));
 		result.ap.set(enhancement.getInt("AP"));
-		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
+		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
 		result.updateDescription();
 		return result;
 	}

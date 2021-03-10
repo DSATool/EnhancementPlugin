@@ -16,7 +16,6 @@
 package enhancement.talents;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import dsa41basis.hero.Spell;
 import dsa41basis.util.DSAUtil;
@@ -73,7 +72,7 @@ public class SpellEnhancement extends TalentEnhancement {
 		result.method.set(enhancement.getString("Methode"));
 		result.ap.set(enhancement.getInt("AP"));
 		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
-		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
+		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
 		result.updateDescription();
 		return result;
 	}

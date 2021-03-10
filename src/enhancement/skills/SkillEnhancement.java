@@ -16,7 +16,6 @@
 package enhancement.skills;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Stack;
 
 import dsa41basis.hero.ProOrCon;
@@ -49,7 +48,7 @@ public class SkillEnhancement extends Enhancement {
 		}
 		result.ap.set(enhancement.getInt("AP"));
 		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
-		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateTimeFormatter.ofPattern("dd.MM.uuuu")));
+		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
 		result.updateDescription();
 		return result;
 	}

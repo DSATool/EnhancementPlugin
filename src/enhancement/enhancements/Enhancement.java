@@ -15,6 +15,8 @@
  */
 package enhancement.enhancements;
 
+import java.time.format.DateTimeFormatter;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -27,6 +29,9 @@ import javafx.beans.property.StringProperty;
 import jsonant.value.JSONObject;
 
 public abstract class Enhancement {
+
+	public static final DateTimeFormatter DateFormatter = DateTimeFormatter.ofPattern("dd.MM.uuuu");
+
 	protected final StringProperty description = new SimpleStringProperty();
 	protected final StringProperty fullDescription = new SimpleStringProperty();
 	protected final DoubleProperty cost = new SimpleDoubleProperty();
