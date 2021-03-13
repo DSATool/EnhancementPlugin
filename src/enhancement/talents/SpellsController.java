@@ -62,11 +62,7 @@ public class SpellsController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateValid(final JSONObject hero) {
-		if (controller != null) {
-			controller.recalculateValid(hero);
-		}
-	}
+	public void recalculateValid(final JSONObject hero) {}
 
 	@Override
 	protected void registerListeners() {

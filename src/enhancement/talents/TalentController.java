@@ -96,11 +96,7 @@ public class TalentController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateValid(final JSONObject hero) {
-		for (final TalentGroupController controller : talentControllers) {
-			controller.recalculateValid(hero);
-		}
-	}
+	public void recalculateValid(final JSONObject hero) {}
 
 	@Override
 	protected void registerListeners() {
