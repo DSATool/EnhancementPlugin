@@ -200,6 +200,11 @@ public class QuirksController extends EnhancementTabController {
 	public boolean removeEnhancement(final Enhancement enhancement) {
 		if (enhancement instanceof QuirkEnhancement) {
 			table.getItems().add((QuirkEnhancement) enhancement);
+			final Map<JSONObject, Object> set = alreadyEnhanced.get(enhancement.getName());
+			set.remove(((QuirkEnhancement) enhancement).getQuirk().getActual());
+			if (set.isEmpty()) {
+				alreadyEnhanced.remove(enhancement.getName());
+			}
 			return true;
 		} else
 			return false;
