@@ -193,10 +193,14 @@ public class TalentEnhancement extends Enhancement {
 
 	@Override
 	public void applyTemporarily(final JSONObject hero) {
-		suppressGlobally = true;
-		talent.insertTalent(true);
-		talent.setValue(target.get());
-		suppressGlobally = false;
+		if (!suppressUpdate) {
+			suppressUpdate = true;
+			suppressGlobally = true;
+			talent.insertTalent(true);
+			talent.setValue(target.get());
+			suppressGlobally = false;
+			suppressUpdate = false;
+		}
 	}
 
 	@Override
@@ -393,21 +397,23 @@ public class TalentEnhancement extends Enhancement {
 
 	@Override
 	public void unapply(final JSONObject hero) {
-		suppressUpdate = true;
-		int value = start.get();
-		if (value < 0 && !basis) {
-			if (value == -1) {
-				value = Integer.MIN_VALUE;
-			} else {
-				++value;
+		if (!suppressUpdate) {
+			suppressUpdate = true;
+			int value = start.get();
+			if (value < 0 && !basis) {
+				if (value == -1) {
+					value = Integer.MIN_VALUE;
+				} else {
+					++value;
+				}
 			}
+			talent.setValue(value);
+			talent.setSes(ses.get());
+			if (value == Integer.MIN_VALUE) {
+				talent.removeTalent();
+			}
+			suppressUpdate = false;
 		}
-		talent.setValue(value);
-		talent.setSes(ses.get());
-		if (value == Integer.MIN_VALUE) {
-			talent.removeTalent();
-		}
-		suppressUpdate = false;
 	}
 
 	@Override
