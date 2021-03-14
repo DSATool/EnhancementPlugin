@@ -234,7 +234,6 @@ public class QuirksController extends EnhancementTabController {
 						if (!alreadyEnhanced.containsKey(conName) || !alreadyEnhanced.get(conName).containsKey(actualCon)) {
 							table.getItems().add(new QuirkEnhancement(new ProOrCon(conName, hero, con, actualCon), hero));
 						}
-						table.getItems().add(new QuirkEnhancement(new ProOrCon(conName, hero, con, actualCon), hero));
 					}
 				} else {
 					if (!alreadyEnhanced.containsKey(conName)) {
