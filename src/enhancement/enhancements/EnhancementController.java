@@ -24,6 +24,7 @@ import java.util.Stack;
 import dsa41basis.ui.hero.HeroController;
 import dsa41basis.ui.hero.HeroSelector;
 import dsa41basis.util.HeroUtil;
+import dsatool.gui.GUIUtil;
 import dsatool.resources.Settings;
 import dsatool.ui.DoubleSpinnerTableCell;
 import dsatool.ui.IntegerSpinnerTableCell;
@@ -54,10 +55,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import jsonant.event.JSONListener;
@@ -269,6 +266,8 @@ public class EnhancementController extends HeroSelector {
 			recalculate(false);
 		});
 
+		final boolean[] reordering = { false };
+
 		enhancementTable.setRowFactory(tableView -> {
 			final TableRow<Enhancement> row = new TableRow<>() {
 				@Override
@@ -281,49 +280,12 @@ public class EnhancementController extends HeroSelector {
 				}
 			};
 
-			row.setOnDragDetected(event -> {
-				if (!row.isEmpty()) {
-					final Integer index = row.getIndex();
-					final Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
-					db.setDragView(row.snapshot(null, null));
-					final ClipboardContent cc = new ClipboardContent();
-					cc.put(DataFormat.PLAIN_TEXT, index);
-					db.setContent(cc);
-					event.consume();
+			GUIUtil.dragDropReorder(row, () -> reordering[0] = true, () -> {}, moved -> {
+				reordering[0] = false;
+				if (moved.length > 0) {
+					recalculate(true);
 				}
-			});
-
-			row.setOnDragOver(event -> {
-				final Dragboard db = event.getDragboard();
-				if (db.hasContent(DataFormat.PLAIN_TEXT)) {
-					if (row.getIndex() != ((Integer) db.getContent(DataFormat.PLAIN_TEXT)).intValue()) {
-						event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-						event.consume();
-					}
-				}
-			});
-
-			row.setOnDragDropped(event -> {
-				final Dragboard db = event.getDragboard();
-				if (db.hasContent(DataFormat.PLAIN_TEXT)) {
-					final int draggedIndex = (Integer) db.getContent(DataFormat.PLAIN_TEXT);
-					final Enhancement draggedItem = enhancementTable.getItems().remove(draggedIndex);
-
-					int dropIndex;
-
-					if (row.isEmpty()) {
-						dropIndex = tableView.getItems().size();
-					} else {
-						dropIndex = row.getIndex();
-					}
-
-					tableView.getItems().add(dropIndex, draggedItem);
-
-					event.setDropCompleted(true);
-					tableView.getSelectionModel().select(dropIndex);
-					event.consume();
-				}
-			});
+			}, tableView);
 
 			final ContextMenu contextMenu = new ContextMenu();
 			final MenuItem resetItem = new MenuItem("Zurücksetzen");
@@ -353,7 +315,9 @@ public class EnhancementController extends HeroSelector {
 		costLabel.setText("0");
 
 		enhancementTable.getItems().addListener((final Change<? extends Enhancement> c) -> {
-			recalculate(true);
+			if (!reordering[0]) {
+				recalculate(true);
+			}
 		});
 
 		usesChargenRules.bindBidirectional(chargenRules.selectedProperty());
