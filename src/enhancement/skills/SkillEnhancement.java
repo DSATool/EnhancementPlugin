@@ -31,6 +31,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
+import jsonant.value.JSONValue;
 
 public class SkillEnhancement extends Enhancement {
 	public static SkillEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
@@ -198,8 +199,8 @@ public class SkillEnhancement extends Enhancement {
 	 * @see enhancement.enhancements.Enhancement#toJSON()
 	 */
 	@Override
-	public JSONObject toJSON() {
-		final JSONObject result = new JSONObject(null);
+	public JSONObject toJSON(final JSONValue parent) {
+		final JSONObject result = new JSONObject(parent);
 		result.put("Typ", "Sonderfertigkeit");
 		result.put("Sonderfertigkeit", skill.getName());
 		final JSONObject con = skill.getProOrCon();

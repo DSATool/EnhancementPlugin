@@ -125,8 +125,8 @@ public class SpellEnhancement extends TalentEnhancement {
 	 * @see enhancement.enhancements.Enhancement#toJSON()
 	 */
 	@Override
-	public JSONObject toJSON() {
-		final JSONObject result = new JSONObject(null);
+	public JSONObject toJSON(final JSONValue parent) {
+		final JSONObject result = new JSONObject(parent);
 		result.put("Typ", "Zauber");
 		result.put("Zauber", talent.getName());
 		result.put("Repräsentation", ((Spell) talent).getRepresentation());

@@ -27,6 +27,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import jsonant.value.JSONObject;
+import jsonant.value.JSONValue;
 
 public abstract class Enhancement {
 
@@ -136,7 +137,7 @@ public abstract class Enhancement {
 		hasCustomCost = true;
 	}
 
-	public abstract JSONObject toJSON();
+	public abstract JSONObject toJSON(JSONValue parent);
 
 	public abstract void unapply(JSONObject hero);
 

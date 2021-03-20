@@ -19,6 +19,7 @@ import java.time.LocalDate;
 
 import enhancement.enhancements.Enhancement;
 import jsonant.value.JSONObject;
+import jsonant.value.JSONValue;
 
 public class APEnhancement extends Enhancement {
 	public static APEnhancement fromJSON(final JSONObject enhancement) {
@@ -70,7 +71,7 @@ public class APEnhancement extends Enhancement {
 	}
 
 	@Override
-	public JSONObject toJSON() {
+	public JSONObject toJSON(final JSONValue parent) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -27,6 +27,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
+import jsonant.value.JSONValue;
 
 public class QuirkEnhancement extends Enhancement {
 	public static QuirkEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero, final Collection<Enhancement> enhancements) {
@@ -209,8 +210,8 @@ public class QuirkEnhancement extends Enhancement {
 	 * @see enhancement.enhancements.Enhancement#toJSON()
 	 */
 	@Override
-	public JSONObject toJSON() {
-		final JSONObject result = new JSONObject(null);
+	public JSONObject toJSON(final JSONValue parent) {
+		final JSONObject result = new JSONObject(parent);
 		result.put("Typ", "Schlechte Eigenschaft");
 		result.put("Schlechte Eigenschaft", quirk.getName());
 		final JSONObject con = quirk.getProOrCon();

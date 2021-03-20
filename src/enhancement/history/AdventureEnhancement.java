@@ -186,13 +186,8 @@ public class AdventureEnhancement extends Enhancement {
 		return notes;
 	}
 
-	@Override
-	public JSONObject toJSON() {
-		throw new UnsupportedOperationException();
-	}
-
-	public JSONObject toJSON(final JSONObject hero) {
-		final JSONObject result = new JSONObject(null);
+	public JSONObject toJSON(final JSONObject hero, final JSONValue parent) {
+		final JSONObject result = new JSONObject(parent);
 		result.put("Typ", "Abenteuer");
 		result.put("Name", description.get());
 
@@ -242,6 +237,11 @@ public class AdventureEnhancement extends Enhancement {
 
 		result.put("Datum", LocalDate.parse(date.get(), DateFormatter).toString());
 		return result;
+	}
+
+	@Override
+	public JSONObject toJSON(final JSONValue parent) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

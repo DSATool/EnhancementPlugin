@@ -110,7 +110,7 @@ public class AdventureDialog {
 
 		okButton.setOnAction(event -> {
 			final JSONArray history = hero.getArr("Historie");
-			history.add(enhancement.toJSON(hero).clone(history));
+			history.add(enhancement.toJSON(hero, history));
 			history.notifyListeners(null);
 			enhancement.apply(hero);
 			stage.close();
@@ -226,7 +226,7 @@ public class AdventureDialog {
 
 		okButton.setOnAction(event -> {
 			final JSONArray history = hero.getArr("Historie");
-			history.set(history.indexOf(enhancement), this.enhancement.toJSON(hero));
+			history.set(history.indexOf(enhancement), this.enhancement.toJSON(hero, history));
 			history.notifyListeners(null);
 			HeroUtil.addMoney(hero, (int) ((money.getValue() - enhancement.getDouble("Silber")) * 100));
 			stage.close();

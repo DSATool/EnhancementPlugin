@@ -24,6 +24,7 @@ import enhancement.enhancements.Enhancement;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import jsonant.value.JSONObject;
+import jsonant.value.JSONValue;
 
 public class AttributeEnhancement extends Enhancement {
 	public static AttributeEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
@@ -155,8 +156,8 @@ public class AttributeEnhancement extends Enhancement {
 	 * @see enhancement.enhancements.Enhancement#toJSON()
 	 */
 	@Override
-	public JSONObject toJSON() {
-		final JSONObject result = new JSONObject(null);
+	public JSONObject toJSON(final JSONValue parent) {
+		final JSONObject result = new JSONObject(parent);
 		result.put("Typ", "Eigenschaft");
 		result.put("Eigenschaft", attribute.getName());
 		result.put("Von", start.get());

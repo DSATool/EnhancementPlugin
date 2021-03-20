@@ -365,8 +365,8 @@ public class TalentEnhancement extends Enhancement {
 	 * @see enhancement.enhancements.Enhancement#toJSON()
 	 */
 	@Override
-	public JSONObject toJSON() {
-		final JSONObject result = new JSONObject(null);
+	public JSONObject toJSON(final JSONValue parent) {
+		final JSONObject result = new JSONObject(parent);
 		result.put("Typ", "Talent");
 		result.put("Talent", talent.getName());
 		if (talent.getTalent().containsKey("Auswahl")) {

@@ -179,7 +179,7 @@ public class EnhancementController extends HeroSelector {
 			final ArrayList<Enhancement> enhancements = new ArrayList<>(enhancementTable.getItems());
 			enhancementTable.getItems().clear();
 			for (final Enhancement enhancement : enhancements) {
-				history.add(enhancement.toJSON().clone(history));
+				history.add(enhancement.toJSON(history));
 				enhancement.apply(hero);
 			}
 			bio.notifyListeners(null);
