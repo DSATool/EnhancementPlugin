@@ -320,15 +320,15 @@ public class EnhancementController extends HeroSelector {
 			}
 		});
 
-		usesChargenRules.bindBidirectional(chargenRules.selectedProperty());
-		usesChargenRules.addListener((o, oldV, newV) -> recalculate(false));
-
 		super.load();
 
 		final EnhancementTabController firstPage = (EnhancementTabController) controllers.get(0);
 		firstPage.init();
 		firstPage.update();
 		tabPane.getTabs().get(0).setContent(firstPage.getControl());
+
+		usesChargenRules.bindBidirectional(chargenRules.selectedProperty());
+		usesChargenRules.addListener((o, oldV, newV) -> recalculate(false));
 	}
 
 	private void recalculate(final boolean recalculateValid) {
