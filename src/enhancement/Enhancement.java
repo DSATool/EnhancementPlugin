@@ -48,9 +48,7 @@ public class Enhancement extends Plugin {
 	 */
 	@Override
 	public void initialize() {
-		Main.addDetachableToolComposite("Helden", "Steigern", 300, 200, () -> {
-			return new EnhancementController().getRoot();
-		});
+		Main.addDetachableToolComposite("Helden", "Steigern", 300, 200, () -> new EnhancementController().getRoot());
 		Settings.addSetting(new StringChoiceSetting("Lernmethode", "Gegenseitiges Lehren",
 				List.of("Lehrmeister", "Gegenseitiges Lehren", "Selbststudium"), "Steigerung", "Lernmethode"));
 		Settings.addSetting(new BooleanSetting("Lehrmeisterkosten", true, "Steigerung", "Lehrmeisterkosten"));

@@ -166,8 +166,7 @@ public class SkillEnhancement extends Enhancement {
 	 */
 	@Override
 	protected double getCalculatedCost(final JSONObject hero) {
-		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten")) return 0;
-		if (EnhancementController.usesChargenRules.get()) return 0;
+		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") || EnhancementController.usesChargenRules.get()) return 0;
 
 		final JSONObject group = (JSONObject) skill.getProOrCon().getParent();
 		if (group == ResourceManager.getResource("data/Sonderfertigkeiten").getObj("Magische Sonderfertigkeiten") ||

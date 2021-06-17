@@ -15,6 +15,7 @@
  */
 package enhancement.skills;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -251,7 +252,7 @@ public class SkillGroupController {
 		pane.setVisible(false);
 		pane.setManaged(false);
 
-		table.setItems(new SortedList<>(new FilteredList<>(allItems, valid::contains), (a, b) -> a.getName().compareTo(b.getName())));
+		table.setItems(new SortedList<>(new FilteredList<>(allItems, valid::contains), Comparator.comparing(SkillEnhancement::getName)));
 
 		GUIUtil.autosizeTable(table);
 

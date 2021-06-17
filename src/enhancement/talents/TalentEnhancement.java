@@ -257,8 +257,7 @@ public class TalentEnhancement extends Enhancement {
 	 */
 	@Override
 	protected double getCalculatedCost(final JSONObject hero) {
-		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten")) return 0;
-		if (!"Lehrmeister".equals(method.get())) return 0;
+		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") || !"Lehrmeister".equals(method.get())) return 0;
 		if (hasCustomAP)
 			return ap.get() * 7 / 10.0;
 		else {
