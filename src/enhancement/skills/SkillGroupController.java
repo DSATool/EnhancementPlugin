@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import dsa41basis.hero.ProOrCon;
+import dsa41basis.hero.ProOrCon.ChoiceOrTextEnum;
 import dsa41basis.util.DSAUtil;
 import dsatool.gui.GUIUtil;
 import dsatool.resources.Settings;
@@ -155,8 +156,11 @@ public class SkillGroupController {
 			}
 		});
 		descColumn.setOnEditCommit(t -> {
-			t.getRowValue().getSkill().setDescription(t.getNewValue(), false);
-			t.getRowValue().reset(hero);
+			final SkillEnhancement enhancement = t.getRowValue();
+			if (enhancement != null) {
+				enhancement.getSkill().setDescription(t.getNewValue(), false);
+				enhancement.reset(hero);
+			}
 		});
 
 		variantColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("skillVariant"));
@@ -188,8 +192,11 @@ public class SkillGroupController {
 			}
 		});
 		variantColumn.setOnEditCommit(t -> {
-			t.getRowValue().getSkill().setVariant(t.getNewValue(), false);
-			t.getRowValue().reset(hero);
+			final SkillEnhancement enhancement = t.getRowValue();
+			if (enhancement != null) {
+				enhancement.getSkill().setVariant(t.getNewValue(), false);
+				enhancement.reset(hero);
+			}
 		});
 
 		costColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Double>("cost"));
