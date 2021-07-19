@@ -234,7 +234,10 @@ public class SkillGroupController {
 			contextMenu.getItems().add(contextMenuItem);
 			contextMenuItem.setOnAction(o -> {
 				final SkillEnhancement item = row.getItem();
-				allItems.remove(item);
+				final ProOrCon skill = item.getSkill();
+				if (skill.firstChoiceOrText() == ChoiceOrTextEnum.NONE) {
+					allItems.remove(item);
+				}
 				alreadyEnhanced.add(item.getName());
 				EnhancementController.instance.addEnhancement(item.clone(hero));
 			});
