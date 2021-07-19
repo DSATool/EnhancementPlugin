@@ -158,7 +158,10 @@ public class SkillGroupController {
 		descColumn.setOnEditCommit(t -> {
 			final SkillEnhancement enhancement = t.getRowValue();
 			if (enhancement != null) {
-				enhancement.getSkill().setDescription(t.getNewValue(), false);
+				final ProOrCon skill = enhancement.getSkill();
+				skill.setDescription(t.getNewValue(), false);
+				final Set<String> variants = skill.getSecondChoiceItems(true);
+				skill.setVariant(variants.isEmpty() ? "Spezialisierung" : variants.iterator().next(), false);
 				enhancement.reset(hero);
 			}
 		});
