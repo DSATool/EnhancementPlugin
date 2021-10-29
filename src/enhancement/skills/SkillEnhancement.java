@@ -37,7 +37,7 @@ public class SkillEnhancement extends Enhancement {
 	public static SkillEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
 		final String skillName = enhancement.getString("Sonderfertigkeit");
 		final JSONObject skill = HeroUtil.findSkill(skillName);
-		final ProOrCon newSkill = new ProOrCon(skillName, hero, skill, new JSONObject(null));
+		final ProOrCon newSkill = new ProOrCon(skillName, hero, skill, new JSONObject(hero.getObj("Sonderfertigkeiten")));
 		final SkillEnhancement result = new SkillEnhancement(newSkill, hero);
 		if (skill.containsKey("Auswahl")) {
 			newSkill.setDescription(enhancement.getString("Auswahl"), false);
@@ -49,6 +49,14 @@ public class SkillEnhancement extends Enhancement {
 		}
 		result.ap.set(enhancement.getInt("AP"));
 		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
+		if (result.ap.get() != newSkill.getCost()) {
+			final double numCheaper = Math.log(newSkill.getCost() / result.ap.get()) / Math.log(2);
+			if (numCheaper == (int) numCheaper) {
+				newSkill.setNumCheaper((int) numCheaper);
+			} else {
+				newSkill.setCost(result.ap.get());
+			}
+		}
 		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
 		result.updateDescription();
 		return result;
@@ -220,6 +228,28 @@ public class SkillEnhancement extends Enhancement {
 
 	@Override
 	public void unapply(final JSONObject hero) {
+		unapplyTemporary(hero);
+
+		if (cheaper.get()) {
+			final JSONObject actual = skill.getActual();
+			final JSONObject cheaperSkills = hero.getObj("Verbilligte Sonderfertigkeiten");
+			final JSONObject skill = this.skill.getProOrCon();
+			final String name = this.skill.getName();
+			JSONObject newSkill;
+			if (skill.containsKey("Auswahl") || skill.containsKey("Freitext")) {
+				JSONArray actualSkill;
+				actualSkill = cheaperSkills.getArr(name);
+				newSkill = actual.clone(actualSkill);
+				actualSkill.add(newSkill);
+			} else {
+				newSkill = actual.clone(cheaperSkills);
+				cheaperSkills.put(name, newSkill);
+			}
+		}
+	}
+
+	@Override
+	public void unapplyTemporary(final JSONObject hero) {
 		final JSONObject actual = skill.getActual();
 		final JSONObject skills = hero.getObj("Sonderfertigkeiten");
 		final JSONObject skill = this.skill.getProOrCon();
@@ -242,12 +272,8 @@ public class SkillEnhancement extends Enhancement {
 		} else {
 			skills.removeKey(name);
 		}
-		HeroUtil.unapplyEffect(hero, name, skill, actual);
-	}
 
-	@Override
-	public void unapplyTemporary(final JSONObject hero) {
-		unapply(hero);
+		HeroUtil.unapplyEffect(hero, name, skill, actual);
 	}
 
 	public void unregister() {
