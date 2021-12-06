@@ -136,7 +136,7 @@ public class QuirkEnhancement extends Enhancement {
 	@Override
 	protected int getCalculatedAP(final JSONObject hero) {
 		final int SELevel = start.get() - Math.min(ses.get(), start.get() - target.get());
-		return (int) (((start.get() - SELevel) * 50 + (SELevel - target.get()) * 75) * quirk.getProOrCon().getDoubleOrDefault("Kosten", 1.0));
+		return (int) (((start.get() - SELevel) * 50 + (SELevel - target.get()) * 75) * quirk.getProOrCon().getDoubleOrDefault("Kosten", 1.0) + 0.5);
 	}
 
 	/*
