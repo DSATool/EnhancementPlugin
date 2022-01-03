@@ -92,10 +92,9 @@ public class TalentGroupController {
 	private final String talentGroupName;
 	protected JSONObject hero;
 	private final Map<String, Map<Talent, Object>> alreadyEnhanced = new HashMap<>();
-	private int numTalents = 0;
 
 	private final JSONListener listener = o -> {
-		fillTable(false);
+		fillTable();
 	};
 
 	public TalentGroupController(final String name, final JSONObject talents) {
@@ -317,14 +316,13 @@ public class TalentGroupController {
 		table.sort();
 	}
 
-	protected void fillTable(final boolean forceFill) {
+	protected void fillTable() {
 		final JSONObject actualGroup = "Zauber".equals(talentGroupName) ? hero.getObj("Zauber") : hero.getObj("Talente").getObj(talentGroupName);
-		if (!forceFill && numTalents == actualGroup.size()) return;
+		if (TalentEnhancement.suppressGlobally) return;
 
 		talentsList.getItems().clear();
 		table.getItems().forEach(TalentEnhancement::unregister);
 		table.getItems().clear();
-		numTalents = actualGroup.size();
 
 		final JSONObject talentGroups = ResourceManager.getResource("data/Talentgruppen");
 
@@ -428,7 +426,7 @@ public class TalentGroupController {
 			alreadyEnhanced.clear();
 		}
 		this.hero = hero;
-		fillTable(true);
+		fillTable();
 	}
 
 	public void unregisterListeners() {

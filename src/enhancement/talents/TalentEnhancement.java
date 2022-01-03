@@ -38,7 +38,7 @@ import jsonant.value.JSONObject;
 import jsonant.value.JSONValue;
 
 public class TalentEnhancement extends Enhancement {
-	private static boolean suppressGlobally = false;
+	static boolean suppressGlobally = false;
 
 	public static TalentEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
 		final String talentName = enhancement.getString("Talent");
