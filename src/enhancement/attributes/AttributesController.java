@@ -118,7 +118,9 @@ public class AttributesController extends EnhancementTabController {
 					return new Tuple<>(0, 99);
 				}));
 		attributesSesColumn.setOnEditCommit(t -> {
-			t.getRowValue().setSes(t.getNewValue(), hero);
+			if (t.getRowValue() != null) {
+				t.getRowValue().setSes(t.getNewValue(), hero);
+			}
 		});
 
 		attributesTargetColumn
@@ -128,7 +130,9 @@ public class AttributesController extends EnhancementTabController {
 							return new Tuple<>(cell.getTableView().getItems().get(cell.getIndex()).getStart() + 1, 50);
 						}));
 		attributesTargetColumn.setOnEditCommit(t -> {
-			t.getRowValue().setTarget(t.getNewValue(), hero);
+			if (t.getRowValue() != null) {
+				t.getRowValue().setTarget(t.getNewValue(), hero);
+			}
 		});
 
 		attributesTable.setRowFactory(t -> {
@@ -190,7 +194,9 @@ public class AttributesController extends EnhancementTabController {
 							return new Tuple<>(0, 99);
 						}));
 		energiesSesColumn.setOnEditCommit(t -> {
-			t.getRowValue().setSes(t.getNewValue(), hero);
+			if (t.getRowValue() != null) {
+				t.getRowValue().setSes(t.getNewValue(), hero);
+			}
 		});
 
 		energiesTargetColumn
@@ -200,7 +206,9 @@ public class AttributesController extends EnhancementTabController {
 							return new Tuple<>(cell.getTableView().getItems().get(cell.getIndex()).getStart() + 1, 99);
 						}));
 		energiesTargetColumn.setOnEditCommit(t -> {
-			t.getRowValue().setTarget(t.getNewValue(), hero);
+			if (t.getRowValue() != null) {
+				t.getRowValue().setTarget(t.getNewValue(), hero);
+			}
 			energiesTable.refresh();
 		});
 

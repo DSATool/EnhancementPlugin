@@ -171,6 +171,7 @@ public class EnhancementController extends HeroSelector {
 		alert.setContentText("Sollen die Steigerungen wirklich angewendet werden?");
 		alert.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
 		alert.showAndWait().filter(response -> response.equals(ButtonType.OK)).ifPresent(response -> {
+			final int index = Math.max(list.getSelectionModel().getSelectedIndex(), 0);
 			final JSONArray history = hero.getArr("Historie");
 			bio.put("Abenteuerpunkte-Guthaben", bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) - ap);
 			if (Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") && cost != 0) {
@@ -184,7 +185,7 @@ public class EnhancementController extends HeroSelector {
 			}
 			bio.notifyListeners(null);
 			history.notifyListeners(null);
-			setHero(list.getSelectionModel().getSelectedIndex());
+			setHero(index);
 		});
 	}
 
@@ -216,7 +217,7 @@ public class EnhancementController extends HeroSelector {
 		alert.setHeaderText("Dies wird die ausgewählten Steigerungen löschen.");
 		alert.setContentText("Sollen die Steigerungen wirklich zurückgesetzt werden?");
 		alert.showAndWait().filter(response -> response == ButtonType.OK).ifPresent(response -> {
-			setHero(list.getSelectionModel().getSelectedIndex());
+			setHero(Math.max(list.getSelectionModel().getSelectedIndex(), 0));
 		});
 	}
 
@@ -255,15 +256,19 @@ public class EnhancementController extends HeroSelector {
 		costColumn.setCellValueFactory(new PropertyValueFactory<Enhancement, Double>("cost"));
 		costColumn.setCellFactory(o -> new DoubleSpinnerTableCell<>(0, 9999, 0.1, false));
 		costColumn.setOnEditCommit(t -> {
-			t.getRowValue().setCost(t.getNewValue());
-			recalculate(false);
+			if (t.getRowValue() != null) {
+				t.getRowValue().setCost(t.getNewValue());
+				recalculate(false);
+			}
 		});
 
 		apColumn.setCellValueFactory(new PropertyValueFactory<Enhancement, Integer>("ap"));
 		apColumn.setCellFactory(o -> new IntegerSpinnerTableCell<>(0, 9999));
 		apColumn.setOnEditCommit(t -> {
-			t.getRowValue().setAP(t.getNewValue(), hero);
-			recalculate(false);
+			if (t.getRowValue() != null) {
+				t.getRowValue().setAP(t.getNewValue(), hero);
+				recalculate(false);
+			}
 		});
 
 		final boolean[] reordering = { false };

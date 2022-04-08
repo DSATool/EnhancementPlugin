@@ -116,7 +116,9 @@ public class QuirksController extends EnhancementTabController {
 							return new Tuple<>(0, ses);
 						}));
 		sesColumn.setOnEditCommit(t -> {
-			t.getRowValue().setSes(t.getNewValue(), hero);
+			if (t.getRowValue() != null) {
+				t.getRowValue().setSes(t.getNewValue(), hero);
+			}
 		});
 
 		targetColumn.setCellFactory(
@@ -125,7 +127,9 @@ public class QuirksController extends EnhancementTabController {
 					return new Tuple<>(0, cell.getTableView().getItems().get(cell.getIndex()).getStart() - 1);
 				}));
 		targetColumn.setOnEditCommit(t -> {
-			t.getRowValue().setTarget(t.getNewValue(), hero, EnhancementController.instance.getEnhancements());
+			if (t.getRowValue() != null) {
+				t.getRowValue().setTarget(t.getNewValue(), hero, EnhancementController.instance.getEnhancements());
+			}
 		});
 
 		table.setRowFactory(t -> {
