@@ -50,9 +50,13 @@ public class SkillEnhancement extends Enhancement {
 		result.ap.set(enhancement.getInt("AP"));
 		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
 		if (result.ap.get() != newSkill.getCost()) {
-			final double numCheaper = Math.log(newSkill.getCost() / result.ap.get()) / Math.log(2);
-			if (numCheaper == (int) numCheaper) {
-				newSkill.setNumCheaper((int) numCheaper);
+			if (result.ap.get() != 0) {
+				final double numCheaper = Math.log(newSkill.getCost() / result.ap.get()) / Math.log(2);
+				if (numCheaper == (int) numCheaper) {
+					newSkill.setNumCheaper((int) numCheaper);
+				} else {
+					newSkill.setCost(result.ap.get());
+				}
 			} else {
 				newSkill.setCost(result.ap.get());
 			}
