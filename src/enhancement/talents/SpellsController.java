@@ -72,8 +72,8 @@ public class SpellsController extends EnhancementTabController {
 
 	@Override
 	public boolean removeEnhancement(final Enhancement enhancement) {
-		if (enhancement instanceof SpellEnhancement) {
-			controller.removeEnhancement((TalentEnhancement) enhancement);
+		if (enhancement instanceof final SpellEnhancement se) {
+			controller.removeEnhancement(se);
 			return true;
 		} else
 			return false;

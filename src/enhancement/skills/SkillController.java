@@ -115,9 +115,9 @@ public class SkillController extends EnhancementTabController {
 
 	@Override
 	public boolean removeEnhancement(final Enhancement enhancement) {
-		if (enhancement instanceof SkillEnhancement) {
+		if (enhancement instanceof final SkillEnhancement se) {
 			for (final SkillGroupController controller : skillControllers) {
-				if (controller.removeEnhancement((SkillEnhancement) enhancement)) {
+				if (controller.removeEnhancement(se)) {
 					break;
 				}
 			}

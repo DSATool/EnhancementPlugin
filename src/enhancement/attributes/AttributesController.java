@@ -283,13 +283,13 @@ public class AttributesController extends EnhancementTabController {
 
 	@Override
 	public boolean removeEnhancement(final Enhancement enhancement) {
-		if (enhancement instanceof AttributeEnhancement) {
-			attributesTable.getItems().add((AttributeEnhancement) enhancement);
-			alreadyEnhanced.remove(enhancement.getName());
+		if (enhancement instanceof final AttributeEnhancement ae) {
+			attributesTable.getItems().add(ae);
+			alreadyEnhanced.remove(ae.getName());
 			return true;
-		} else if (enhancement instanceof EnergyEnhancement) {
-			energiesTable.getItems().add((EnergyEnhancement) enhancement);
-			alreadyEnhanced.remove(enhancement.getName());
+		} else if (enhancement instanceof final EnergyEnhancement ee) {
+			energiesTable.getItems().add(ee);
+			alreadyEnhanced.remove(ee.getName());
 			return true;
 		} else
 			return false;
