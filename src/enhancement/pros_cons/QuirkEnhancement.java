@@ -93,8 +93,12 @@ public class QuirkEnhancement extends Enhancement {
 					} else {
 						actualCon.put("Stufe", target.get());
 						if (!temporary) {
-							final int resultSes = Math.max(ses.get() - (target.get() - start.get()), 0);
-							actualCon.put("SEs", resultSes);
+							final int resultSes = Math.max(ses.get() - (start.get() - target.get()), 0);
+							if (resultSes <= 0) {
+								actualCon.removeKey("SEs");
+							} else {
+								actualCon.put("SEs", resultSes);
+							}
 						}
 					}
 					break;
@@ -107,8 +111,12 @@ public class QuirkEnhancement extends Enhancement {
 				final JSONObject actualCon = cons.getObj(name);
 				actualCon.put("Stufe", target.get());
 				if (!temporary) {
-					final int resultSes = Math.max(ses.get() - (target.get() - start.get()), 0);
-					actualCon.put("SEs", resultSes);
+					final int resultSes = Math.max(ses.get() - (start.get() - target.get()), 0);
+					if (resultSes <= 0) {
+						actualCon.removeKey("SEs");
+					} else {
+						actualCon.put("SEs", resultSes);
+					}
 				}
 			}
 		}
