@@ -216,8 +216,8 @@ public class QuirksController extends EnhancementTabController {
 
 	@Override
 	public void setHero(final JSONObject hero) {
-		super.setHero(hero);
 		alreadyEnhanced.clear();
+		super.setHero(hero);
 	}
 
 	@Override
