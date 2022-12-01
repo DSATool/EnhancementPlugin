@@ -14,7 +14,7 @@
 <?import dsatool.ui.ReactiveComboBox?>
 
 <VBox fx:id="pane" style="-fx-padding: 0, 0, 0, 0;" xmlns:fx="http://javafx.com/fxml" >
-   <ScrollPane hbarPolicy="NEVER" vbarPolicy="ALWAYS" fitToWidth="true" >
+   <ScrollPane hbarPolicy="NEVER" vbarPolicy="ALWAYS" prefHeight="9999" fitToWidth="true" >
       <TableView fx:id="table" fixedCellSize="28" editable="true" >
          <styleClass>
             <String fx:value="remove-vertical-scrollbar" />
