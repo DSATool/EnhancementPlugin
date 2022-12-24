@@ -28,7 +28,7 @@
             <TableColumn fx:id="sesColumn" text="SEs" minWidth="65" maxWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
             <TableColumn fx:id="startColumn" text="Von" minWidth="65" maxWidth="65" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
             <TableColumn fx:id="targetColumn" text="Auf" minWidth="65" maxWidth="65" resizable="false" sortable="false" editable="true" style="-fx-alignment: CENTER;" />
-            <TableColumn fx:id="methodColumn" text="Lernmethode" minWidth="130" maxWidth="130" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="methodColumn" text="Lernmethode" minWidth="160" maxWidth="160" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
             <TableColumn fx:id="costColumn" text="Kosten" minWidth="75" maxWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
             <TableColumn fx:id="apColumn" text="AP" minWidth="75" maxWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
             <TableColumn fx:id="validColumn" minWidth="0" maxWidth="0" />
