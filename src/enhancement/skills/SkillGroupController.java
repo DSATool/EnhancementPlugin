@@ -160,8 +160,10 @@ public class SkillGroupController {
 			if (enhancement != null) {
 				final ProOrCon skill = enhancement.getSkill();
 				skill.setDescription(t.getNewValue(), false);
-				final Set<String> variants = skill.getSecondChoiceItems(true);
-				skill.setVariant(variants.isEmpty() ? "Spezialisierung" : variants.iterator().next(), false);
+				if (skill.secondChoiceOrText() != ChoiceOrTextEnum.NONE) {
+					final Set<String> variants = skill.getSecondChoiceItems(true);
+					skill.setVariant(variants.isEmpty() ? "Spezialisierung" : variants.iterator().next(), false);
+				}
 				enhancement.reset(hero);
 			}
 		});
