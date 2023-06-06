@@ -38,7 +38,7 @@
    </ScrollPane>
    <HBox spacing="2" >
       <ReactiveComboBox fx:id="talentsList" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
-      <ReactiveComboBox fx:id="representationsList"  minWidth="70" maxWidth="70" />
+      <ReactiveComboBox fx:id="representationsList"  minWidth="80" maxWidth="70" />
       <Button fx:id="addButton" onAction="#addTalent" prefHeight="25" minWidth="25" maxWidth="25" text="&#xE145;" >
          <padding><Insets top="0" right="0" bottom="0" left="0"/></padding>
          <font>

@@ -30,14 +30,14 @@
    </ScrollPane>
    <HBox spacing="2">
       <Label text=" AP: " />
-      <Label fx:id="apLabel" prefWidth="35" alignment="CENTER_RIGHT" />
+      <Label fx:id="apLabel" prefWidth="40" alignment="CENTER_RIGHT" />
       <Label text=" / " />
-      <Label fx:id="availableApLabel" prefWidth="50" />
+      <Label fx:id="availableApLabel" prefWidth="55" />
       <HBox fx:id="costBox" spacing="2">
          <Label text="Kosten: " />
-         <Label fx:id="costLabel" prefWidth="35" alignment="CENTER_RIGHT" />
+         <Label fx:id="costLabel" prefWidth="45" alignment="CENTER_RIGHT" />
          <Label text=" / " />
-         <Label fx:id="availableMoneyLabel" prefWidth="125" />
+         <Label fx:id="availableMoneyLabel" prefWidth="135" />
       </HBox>
       <CheckBox fx:id="chargenRules" text="Generierungsregeln" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
       <Button text="Zurücksetzen" onAction="#clear" />
