@@ -405,7 +405,7 @@ public class TalentGroupController {
 	}
 
 	public void recalculate(final JSONObject hero) {
-		for (final TalentEnhancement enhancement : table.getItems()) {
+		for (final TalentEnhancement enhancement : table.getItems().toArray(new TalentEnhancement[] {})) {
 			enhancement.reset(hero);
 		}
 	}
