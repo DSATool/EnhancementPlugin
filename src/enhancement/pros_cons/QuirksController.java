@@ -60,8 +60,6 @@ public class QuirksController extends EnhancementTabController {
 	@FXML
 	private TableColumn<QuirkEnhancement, Integer> apColumn;
 	@FXML
-	private TableColumn<QuirkEnhancement, Boolean> validColumn;
-	@FXML
 	private TableColumn<QuirkEnhancement, Boolean> cheaperColumn;
 
 	private final Map<String, Map<JSONObject, Object>> alreadyEnhanced = new HashMap<>();
@@ -95,7 +93,7 @@ public class QuirksController extends EnhancementTabController {
 		table.prefWidthProperty().bind(pane.widthProperty().subtract(20));
 
 		GUIUtil.autosizeTable(table);
-		GUIUtil.cellValueFactories(table, "description", "ses", "start", "target", "ap", "valid", "cheaper");
+		GUIUtil.cellValueFactories(table, "description", "ses", "start", "target", "ap", "cheaper");
 
 		nameColumn.setCellFactory(c -> new TextFieldTableCell<>() {
 			@Override
@@ -153,20 +151,6 @@ public class QuirksController extends EnhancementTabController {
 			return row;
 		});
 
-		validColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
-			@Override
-			public void updateItem(final Boolean valid, final boolean empty) {
-				super.updateItem(valid, empty);
-				@SuppressWarnings("all")
-				final TableRow<QuirkEnhancement> row = getTableRow();
-				row.getStyleClass().remove("invalid");
-				if (!empty && !valid) {
-					row.getStyleClass().remove("valid");
-					row.getStyleClass().add("invalid");
-				}
-			}
-		});
-
 		cheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {
@@ -175,8 +159,7 @@ public class QuirksController extends EnhancementTabController {
 				final TableRow<QuirkEnhancement> row = getTableRow();
 				final QuirkEnhancement item = row.getItem();
 				row.getStyleClass().remove("valid");
-				if (!empty && item != null && item.isValid() && cheaper) {
-					row.getStyleClass().remove("invalid");
+				if (!empty && item != null && cheaper) {
 					row.getStyleClass().add("valid");
 				}
 			}
@@ -191,9 +174,7 @@ public class QuirksController extends EnhancementTabController {
 	}
 
 	@Override
-	public void recalculateValid(final JSONObject hero) {
-		update();
-	}
+	public void recalculateValid(final JSONObject hero) {}
 
 	@Override
 	protected void registerListeners() {

@@ -21,7 +21,6 @@
          <TableColumn fx:id="startColumn" text="Von" minWidth="60" maxWidth="60" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
          <TableColumn fx:id="targetColumn" text="Auf" minWidth="60" maxWidth="60" resizable="false" sortable="false" editable="true" style="-fx-alignment: CENTER;" />
          <TableColumn fx:id="apColumn" text="AP" minWidth="75" maxWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
-         <TableColumn fx:id="validColumn" minWidth="0" maxWidth="0" />
          <TableColumn fx:id="cheaperColumn" minWidth="0" maxWidth="0" />
       </columns>
    </TableView>
