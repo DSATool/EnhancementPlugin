@@ -251,9 +251,9 @@ public class EnhancementController extends HeroSelector {
 		width = width.subtract(apColumn.widthProperty());
 		descriptionColumn.prefWidthProperty().bind(width);
 
-		descriptionColumn.setCellValueFactory(new PropertyValueFactory<Enhancement, String>("fullDescription"));
+		descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("fullDescription"));
 
-		costColumn.setCellValueFactory(new PropertyValueFactory<Enhancement, Double>("cost"));
+		costColumn.setCellValueFactory(new PropertyValueFactory<>("cost"));
 		costColumn.setCellFactory(o -> new DoubleSpinnerTableCell<>(0, 9999, 0.1, false));
 		costColumn.setOnEditCommit(t -> {
 			if (t.getRowValue() != null) {
@@ -262,7 +262,7 @@ public class EnhancementController extends HeroSelector {
 			}
 		});
 
-		apColumn.setCellValueFactory(new PropertyValueFactory<Enhancement, Integer>("ap"));
+		apColumn.setCellValueFactory(new PropertyValueFactory<>("ap"));
 		apColumn.setCellFactory(o -> new IntegerSpinnerTableCell<>(0, 9999));
 		apColumn.setOnEditCommit(t -> {
 			if (t.getRowValue() != null) {

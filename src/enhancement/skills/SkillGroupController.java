@@ -113,7 +113,7 @@ public class SkillGroupController {
 			costColumn.setMaxWidth(0);
 		}
 
-		nameColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("description"));
+		nameColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
 		nameColumn.setCellFactory(c -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final String item, final boolean empty) {
@@ -127,7 +127,7 @@ public class SkillGroupController {
 			}
 		});
 
-		descColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("skillDescription"));
+		descColumn.setCellValueFactory(new PropertyValueFactory<>("skillDescription"));
 		descColumn.setCellFactory(c -> new GraphicTableCell<>(false) {
 			@Override
 			protected void createGraphic() {
@@ -168,7 +168,7 @@ public class SkillGroupController {
 			}
 		});
 
-		variantColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, String>("skillVariant"));
+		variantColumn.setCellValueFactory(new PropertyValueFactory<>("skillVariant"));
 		variantColumn.setCellFactory(c -> new GraphicTableCell<>(false) {
 			@Override
 			protected void createGraphic() {
@@ -204,10 +204,10 @@ public class SkillGroupController {
 			}
 		});
 
-		costColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Double>("cost"));
-		apColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Integer>("ap"));
+		costColumn.setCellValueFactory(new PropertyValueFactory<>("cost"));
+		apColumn.setCellValueFactory(new PropertyValueFactory<>("ap"));
 
-		validColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Boolean>("valid"));
+		validColumn.setCellValueFactory(new PropertyValueFactory<>("valid"));
 		validColumn.setCellFactory(tableColumn -> new TableCell<>() {
 			@Override
 			public void updateItem(final Boolean valid, final boolean empty) {
