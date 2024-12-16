@@ -267,7 +267,7 @@ public class SkillGroupController {
 		pane.setVisible(false);
 		pane.setManaged(false);
 
-		table.setItems(new SortedList<>(new FilteredList<>(allItems, valid::contains), Comparator.comparing(SkillEnhancement::getName)));
+		table.setItems(new SortedList<>(new FilteredList<>(allItems, valid::contains), Comparator.comparing(SkillEnhancement::getFullDescription)));
 
 		GUIUtil.autosizeTable(table);
 
