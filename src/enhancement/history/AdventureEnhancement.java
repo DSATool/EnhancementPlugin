@@ -170,6 +170,11 @@ public class AdventureEnhancement extends Enhancement {
 	}
 
 	@Override
+	public String getInvalidReason(final JSONObject hero) {
+		return "";
+	}
+
+	@Override
 	public String getName() {
 		return description.get();
 	}

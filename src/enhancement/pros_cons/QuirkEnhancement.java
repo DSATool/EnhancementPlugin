@@ -158,6 +158,11 @@ public class QuirkEnhancement extends Enhancement {
 	}
 
 	@Override
+	public String getInvalidReason(final JSONObject hero) {
+		return "";
+	}
+
+	@Override
 	public String getName() {
 		return quirk.getName();
 	}

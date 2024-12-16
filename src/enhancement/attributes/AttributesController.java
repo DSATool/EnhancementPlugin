@@ -40,6 +40,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
 import jsonant.value.JSONObject;
 
@@ -160,9 +161,15 @@ public class AttributesController extends EnhancementTabController {
 				@SuppressWarnings("all")
 				final TableRow<AttributeEnhancement> row = getTableRow();
 				row.getStyleClass().remove("invalid");
+				row.setTooltip(null);
 				if (!empty && !valid) {
 					row.getStyleClass().remove("valid");
 					row.getStyleClass().add("invalid");
+					final Tooltip tooltip = new Tooltip();
+					tooltip.setOnShowing(o -> {
+						tooltip.setText(row.getItem().getInvalidReason(hero));
+					});
+					row.setTooltip(tooltip);
 				}
 			}
 		});
@@ -236,9 +243,15 @@ public class AttributesController extends EnhancementTabController {
 				@SuppressWarnings("all")
 				final TableRow<EnergyEnhancement> row = getTableRow();
 				row.getStyleClass().remove("invalid");
+				row.setTooltip(null);
 				if (!empty && !valid) {
 					row.getStyleClass().remove("valid");
 					row.getStyleClass().add("invalid");
+					final Tooltip tooltip = new Tooltip();
+					tooltip.setOnShowing(o -> {
+						tooltip.setText(row.getItem().getInvalidReason(hero));
+					});
+					row.setTooltip(tooltip);
 				}
 			}
 		});

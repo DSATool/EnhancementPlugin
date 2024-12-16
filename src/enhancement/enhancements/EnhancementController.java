@@ -54,6 +54,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -279,8 +280,14 @@ public class EnhancementController extends HeroSelector {
 				protected void updateItem(final Enhancement enhancement, final boolean empty) {
 					super.updateItem(enhancement, empty);
 					getStyleClass().remove("invalid");
+					setTooltip(null);
 					if (!empty && !enhancement.isValid()) {
 						getStyleClass().add("invalid");
+						final Tooltip tooltip = new Tooltip();
+						tooltip.setOnShowing(o -> {
+							tooltip.setText(getItem().getInvalidReason(hero));
+						});
+						setTooltip(tooltip);
 					}
 				}
 			};

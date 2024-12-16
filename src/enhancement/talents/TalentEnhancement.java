@@ -16,6 +16,8 @@
 package enhancement.talents;
 
 import java.time.LocalDate;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 import dsa41basis.hero.Talent;
@@ -24,6 +26,7 @@ import dsa41basis.util.HeroUtil;
 import dsa41basis.util.RequirementsUtil;
 import dsatool.resources.ResourceManager;
 import dsatool.resources.Settings;
+import dsatool.util.StringUtil;
 import dsatool.util.Tuple;
 import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
@@ -227,6 +230,7 @@ public class TalentEnhancement extends Enhancement {
 		result.basis = basis;
 		result.method.set(method.get());
 		result.ses.set(ses.get());
+		result.valid.set(valid.get());
 		result.updateDescription();
 		return result;
 	}
@@ -266,6 +270,27 @@ public class TalentEnhancement extends Enhancement {
 					EnhancementController.usesChargenRules.get());
 			return ap * 7 / 10.0;
 		}
+	}
+
+	@Override
+	public String getInvalidReason(final JSONObject hero) {
+		final List<String> unfulfilled = new LinkedList<>();
+		final JSONObject talent = this.talent.getTalent();
+		if (target.get() > this.talent.getMaximum(hero)) {
+			unfulfilled.add("Talentmaximum " + getName() + ' ' + this.talent.getMaximum(hero));
+		}
+		if (talent.containsKey("Voraussetzungen")) {
+			final JSONArray requirements = talent.getArr("Voraussetzungen");
+			for (int i = 0; i < requirements.size(); ++i) {
+				final JSONObject requirement = requirements.getObj(i);
+				if (!requirement.containsKey("Ab") || target.get() > requirement.getInt("Ab")) {
+					if (!RequirementsUtil.isRequirementFulfilled(hero, requirement, null, null, false)) {
+						unfulfilled.add(RequirementsUtil.unfulfilledRequirements(hero, requirement, null, null, false));
+					}
+				}
+			}
+		}
+		return StringUtil.mkString(unfulfilled, "\n");
 	}
 
 	public String getMethod() {

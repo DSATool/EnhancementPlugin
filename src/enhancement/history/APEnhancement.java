@@ -66,6 +66,11 @@ public class APEnhancement extends Enhancement {
 	}
 
 	@Override
+	public String getInvalidReason(final JSONObject hero) {
+		return "";
+	}
+
+	@Override
 	public String getName() {
 		return "Abenteuerpunkte";
 	}

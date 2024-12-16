@@ -89,6 +89,7 @@ public class AttributeEnhancement extends Enhancement {
 		result.start.set(start.get());
 		result.setTarget(target.get(), hero);
 		result.ses.set(ses.get());
+		result.valid.set(valid.get());
 		result.updateDescription();
 		return result;
 	}
@@ -107,6 +108,12 @@ public class AttributeEnhancement extends Enhancement {
 	@Override
 	protected double getCalculatedCost(final JSONObject hero) {
 		return 0;
+	}
+
+	@Override
+	public String getInvalidReason(final JSONObject hero) {
+		if (target.get() > attribute.getMaximum()) return "Eigenschaftsmaximum " + attribute.getMaximum();
+		return "";
 	}
 
 	@Override

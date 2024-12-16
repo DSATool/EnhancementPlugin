@@ -94,6 +94,8 @@ public abstract class Enhancement {
 		return fullDescription.get();
 	}
 
+	abstract public String getInvalidReason(JSONObject hero);
+
 	public abstract String getName();
 
 	public boolean isCheaper() {

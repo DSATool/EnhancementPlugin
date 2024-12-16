@@ -86,6 +86,7 @@ public class EnergyEnhancement extends Enhancement {
 		result.start.set(start.get());
 		result.target.set(target.get());
 		result.ses.set(ses.get());
+		result.valid.set(valid.get());
 		result.updateDescription();
 		return result;
 	}
@@ -105,6 +106,12 @@ public class EnergyEnhancement extends Enhancement {
 	@Override
 	protected double getCalculatedCost(final JSONObject hero) {
 		return 0;
+	}
+
+	@Override
+	public String getInvalidReason(final JSONObject hero) {
+		if (target.get() > energy.getBuyableMaximum()) return "Maximale Steigerung " + (energy.getMax() - energy.getBought() + energy.getBuyableMaximum());
+		return "";
 	}
 
 	@Override

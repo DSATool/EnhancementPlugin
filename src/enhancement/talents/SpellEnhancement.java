@@ -96,6 +96,7 @@ public class SpellEnhancement extends TalentEnhancement {
 		result.basis = basis;
 		result.method.set(method.get());
 		result.ses.set(ses.get());
+		result.valid.set(valid.get());
 		result.updateDescription();
 		return result;
 	}

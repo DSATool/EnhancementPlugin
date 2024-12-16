@@ -52,6 +52,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import jsonant.event.JSONListener;
@@ -215,14 +216,20 @@ public class SkillGroupController {
 				@SuppressWarnings("all")
 				final TableRow<SkillEnhancement> row = getTableRow();
 				row.getStyleClass().remove("invalid");
+				row.setTooltip(null);
 				if (!empty && !valid) {
 					row.getStyleClass().remove("valid");
 					row.getStyleClass().add("invalid");
+					final Tooltip tooltip = new Tooltip();
+					tooltip.setOnShowing(o -> {
+						tooltip.setText(row.getItem().getInvalidReason(hero));
+					});
+					row.setTooltip(tooltip);
 				}
 			}
 		});
 
-		cheaperColumn.setCellValueFactory(new PropertyValueFactory<SkillEnhancement, Boolean>("cheaper"));
+		cheaperColumn.setCellValueFactory(new PropertyValueFactory<>("cheaper"));
 		cheaperColumn.setCellFactory(tableColumn -> new TableCell<>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {

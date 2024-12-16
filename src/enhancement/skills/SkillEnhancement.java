@@ -19,10 +19,8 @@ import java.time.LocalDate;
 import java.util.Stack;
 
 import dsa41basis.hero.ProOrCon;
-import dsa41basis.hero.ProOrCon.ChoiceOrTextEnum;
 import dsa41basis.util.DSAUtil;
 import dsa41basis.util.HeroUtil;
-import dsa41basis.util.RequirementsUtil;
 import dsatool.resources.ResourceManager;
 import dsatool.resources.Settings;
 import enhancement.enhancements.Enhancement;
@@ -141,12 +139,7 @@ public class SkillEnhancement extends Enhancement {
 
 	@Override
 	protected boolean calculateValid(final JSONObject hero) {
-		final JSONObject actualSkill = skill.getProOrCon();
-		if (!actualSkill.containsKey("Voraussetzungen")) return true;
-		final String choice = skill.firstChoiceOrText() == ChoiceOrTextEnum.CHOICE ? skill.getDescription() : null;
-		final String text = skill.firstChoiceOrText() == ChoiceOrTextEnum.TEXT ? skill.getDescription()
-				: skill.secondChoiceOrText() == ChoiceOrTextEnum.TEXT ? skill.getVariant() : null;
-		return RequirementsUtil.isRequirementFulfilled(hero, actualSkill.getObj("Voraussetzungen"), choice, text, false);
+		return skill.getValid(false);
 	}
 
 	public SkillEnhancement clone(final JSONObject hero) {
@@ -173,6 +166,11 @@ public class SkillEnhancement extends Enhancement {
 				group.getParent() == ResourceManager.getResource("data/Rituale") || group == ResourceManager.getResource("data/Schamanenrituale"))
 			return ap.get() * 5;
 		return ap.get() * 7 / 10.0;
+	}
+
+	@Override
+	public String getInvalidReason(final JSONObject hero) {
+		return skill.getInvalidReason(false);
 	}
 
 	@Override
