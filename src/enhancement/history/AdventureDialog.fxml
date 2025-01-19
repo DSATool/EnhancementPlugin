@@ -91,7 +91,7 @@
    </HBox>
    <HBox spacing="2" >
       <ReactiveComboBox fx:id="spellList" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
-      <ReactiveComboBox fx:id="representationsList" minWidth="70" maxWidth="70" />
+      <ReactiveComboBox fx:id="representationsList" minWidth="75" maxWidth="75" />
       <Button fx:id="addSpellButton" onAction="#addSE" prefHeight="25" minWidth="25" maxWidth="25" text="&#xE145;" >
          <padding><Insets top="0" right="0" bottom="-5" left="0"/></padding>
          <font>

@@ -171,7 +171,7 @@ public class AdventureDialog {
 
 		stage = new Stage();
 		stage.setTitle("Abenteuerabschluss");
-		stage.setScene(new Scene(root, 290, 420));
+		stage.setScene(new Scene(root, 310, 420));
 		stage.initModality(Modality.WINDOW_MODAL);
 		stage.setResizable(false);
 		stage.initOwner(window);
