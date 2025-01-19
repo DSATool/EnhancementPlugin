@@ -17,6 +17,7 @@ package enhancement.enhancements;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Stack;
@@ -32,6 +33,7 @@ import dsatool.util.ErrorLogger;
 import enhancement.attributes.AttributesController;
 import enhancement.history.AdventureDialog;
 import enhancement.history.HistoryController;
+import enhancement.planned.PlannedController;
 import enhancement.pros_cons.QuirksController;
 import enhancement.skills.SkillController;
 import enhancement.talents.SpellsController;
@@ -65,7 +67,7 @@ import jsonant.value.JSONObject;
 public class EnhancementController extends HeroSelector {
 
 	public static List<Class<? extends EnhancementTabController>> tabControllers = new ArrayList<>(List.of(AttributesController.class, QuirksController.class,
-			SkillController.class, TalentController.class, SpellsController.class, HistoryController.class));
+			SkillController.class, TalentController.class, SpellsController.class, PlannedController.class, HistoryController.class));
 
 	public static BooleanProperty usesChargenRules = new SimpleBooleanProperty();
 
@@ -181,7 +183,7 @@ public class EnhancementController extends HeroSelector {
 			final ArrayList<Enhancement> enhancements = new ArrayList<>(enhancementTable.getItems());
 			enhancementTable.getItems().clear();
 			for (final Enhancement enhancement : enhancements) {
-				history.add(enhancement.toJSON(history));
+				history.add(enhancement.toJSON(history, false));
 				enhancement.apply(hero);
 			}
 			bio.notifyListeners(null);
@@ -220,6 +222,10 @@ public class EnhancementController extends HeroSelector {
 		alert.showAndWait().filter(response -> response == ButtonType.OK).ifPresent(response -> {
 			setHero(Math.max(list.getSelectionModel().getSelectedIndex(), 0));
 		});
+	}
+
+	public List<HeroController> getControllers() {
+		return Collections.unmodifiableList(controllers);
 	}
 
 	public Collection<Enhancement> getEnhancements() {
@@ -306,6 +312,17 @@ public class EnhancementController extends HeroSelector {
 				row.getItem().reset(hero);
 				recalculate(false);
 			});
+
+			final MenuItem planItem = new MenuItem("Vormerken");
+			contextMenu.getItems().add(planItem);
+			planItem.setOnAction(o -> {
+				final Enhancement item = row.getItem();
+				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
+				planned.add(item.toJSON(planned, true));
+				planned.notifyListeners(null);
+				enhancementTable.getItems().remove(item);
+			});
+
 			final MenuItem removeItem = new MenuItem("Entfernen");
 			contextMenu.getItems().add(removeItem);
 			removeItem.setOnAction(o -> {

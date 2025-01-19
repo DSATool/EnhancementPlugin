@@ -16,6 +16,7 @@
 package enhancement.skills;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Stack;
 
 import dsa41basis.hero.ProOrCon;
@@ -32,7 +33,8 @@ import jsonant.value.JSONObject;
 import jsonant.value.JSONValue;
 
 public class SkillEnhancement extends Enhancement {
-	public static SkillEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
+
+	public static SkillEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero, final boolean planned) {
 		final String skillName = enhancement.getString("Sonderfertigkeit");
 		final JSONObject skill = HeroUtil.findSkill(skillName);
 		final ProOrCon newSkill = new ProOrCon(skillName, hero, skill, new JSONObject(null));
@@ -47,7 +49,9 @@ public class SkillEnhancement extends Enhancement {
 		}
 		result.ap.set(enhancement.getInt("AP"));
 		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
-		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
+		if (!planned) {
+			result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
+		}
 		result.updateDescription();
 		return result;
 	}
@@ -142,7 +146,8 @@ public class SkillEnhancement extends Enhancement {
 		return skill.getValid(false);
 	}
 
-	public SkillEnhancement clone(final JSONObject hero) {
+	@Override
+	public SkillEnhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
 		return new SkillEnhancement(new ProOrCon(skill.getName(), hero, skill.getProOrCon(), skill.getActual().clone(null)), hero);
 	}
 
@@ -196,7 +201,7 @@ public class SkillEnhancement extends Enhancement {
 	 * @see enhancement.enhancements.Enhancement#toJSON()
 	 */
 	@Override
-	public JSONObject toJSON(final JSONValue parent) {
+	public JSONObject toJSON(final JSONValue parent, final boolean planned) {
 		final JSONObject result = new JSONObject(parent);
 		result.put("Typ", "Sonderfertigkeit");
 		result.put("Sonderfertigkeit", skill.getName());
@@ -211,8 +216,10 @@ public class SkillEnhancement extends Enhancement {
 		if (Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") && cost.get() != 0) {
 			result.put("Kosten", cost.get());
 		}
-		final LocalDate currentDate = LocalDate.now();
-		result.put("Datum", currentDate.toString());
+		if (!planned) {
+			final LocalDate currentDate = LocalDate.now();
+			result.put("Datum", currentDate.toString());
+		}
 		return result;
 	}
 

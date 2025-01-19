@@ -56,6 +56,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import jsonant.event.JSONListener;
+import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
 
 public class SkillGroupController {
@@ -249,17 +250,33 @@ public class SkillGroupController {
 			final TableRow<SkillEnhancement> row = new TableRow<>();
 
 			final ContextMenu contextMenu = new ContextMenu();
-			final MenuItem contextMenuItem = new MenuItem("Erlernen");
-			contextMenu.getItems().add(contextMenuItem);
-			contextMenuItem.setOnAction(o -> {
+
+			final MenuItem applyItem = new MenuItem("Erlernen");
+			contextMenu.getItems().add(applyItem);
+			applyItem.setOnAction(o -> {
 				final SkillEnhancement item = row.getItem();
 				final ProOrCon skill = item.getSkill();
 				if (skill.firstChoiceOrText() == ChoiceOrTextEnum.NONE) {
 					allItems.remove(item);
 				}
 				alreadyEnhanced.add(item.getName());
-				EnhancementController.instance.addEnhancement(item.clone(hero));
+				EnhancementController.instance.addEnhancement(item.clone(hero, EnhancementController.instance.getEnhancements()));
 			});
+
+			final MenuItem planItem = new MenuItem("Vormerken");
+			contextMenu.getItems().add(planItem);
+			planItem.setOnAction(o -> {
+				final SkillEnhancement item = row.getItem();
+				final ProOrCon skill = item.getSkill();
+				if (skill.firstChoiceOrText() == ChoiceOrTextEnum.NONE) {
+					allItems.remove(item);
+				}
+				alreadyEnhanced.add(item.getName());
+				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
+				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
+				planned.notifyListeners(null);
+			});
+
 			row.contextMenuProperty().bind(Bindings.when(row.itemProperty().isNotNull()).then(contextMenu).otherwise((ContextMenu) null));
 
 			return row;

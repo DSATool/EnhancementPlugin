@@ -16,6 +16,7 @@
 package enhancement.history;
 
 import java.time.LocalDate;
+import java.util.Collection;
 
 import dsa41basis.hero.Attribute;
 import dsa41basis.hero.Energy;
@@ -115,6 +116,11 @@ public class AdventureEnhancement extends Enhancement {
 	@Override
 	protected boolean calculateValid(final JSONObject hero) {
 		return true;
+	}
+
+	@Override
+	public Enhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -245,7 +251,7 @@ public class AdventureEnhancement extends Enhancement {
 	}
 
 	@Override
-	public JSONObject toJSON(final JSONValue parent) {
+	public JSONObject toJSON(final JSONValue parent, final boolean planned) {
 		throw new UnsupportedOperationException();
 	}
 

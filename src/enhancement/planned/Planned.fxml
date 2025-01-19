@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="root" xmlns:fx="http://javafx.com/fxml" >
+   <ScrollPane VBox.vgrow="ALWAYS" vbarPolicy="ALWAYS" fitToWidth="true">
+      <TableView fx:id="table" fixedCellSize="28" >
+         <styleClass>
+            <String fx:value="remove-vertical-scrollbar" />
+            <String fx:value="remove-horizontal-scrollbar" />
+         </styleClass>
+         <placeholder>
+            <Label minHeight="0" />
+         </placeholder>
+         <columns>
+            <TableColumn fx:id="descriptionColumn" text="Steigerung" minWidth="100" resizable="false" sortable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
+            <TableColumn fx:id="costColumn" text="Kosten" minWidth="75" maxWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="apColumn" text="AP" minWidth="75" maxWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+            <TableColumn fx:id="validColumn" minWidth="0" maxWidth="0" />
+            <TableColumn fx:id="cheaperColumn" minWidth="0" maxWidth="0" />
+         </columns>
+      </TableView>
+   </ScrollPane>
+   <TextField fx:id="filter" />
+</VBox>

@@ -16,6 +16,7 @@
 package enhancement.talents;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -43,7 +44,7 @@ import jsonant.value.JSONValue;
 public class TalentEnhancement extends Enhancement {
 	static boolean suppressGlobally = false;
 
-	public static TalentEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
+	public static TalentEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero, final boolean planned) {
 		final String talentName = enhancement.getString("Talent");
 		final Tuple<JSONObject, String> talentAndGroup = HeroUtil.findTalent(talentName);
 		final String groupName = talentAndGroup._2;
@@ -74,13 +75,15 @@ public class TalentEnhancement extends Enhancement {
 			talentGroup = talentGroup.getObj(talentAndGroup._1.getBoolOrDefault("Schrift", false) ? "Schriften" : "Sprachen");
 		}
 		final Talent newTalent = Talent.getTalent(talentName, talentGroup, talentAndGroup._1, actual, actualTalentAndGroup._2);
-		final TalentEnhancement result = new TalentEnhancement(newTalent, talentAndGroup._2, hero, true);
+		final TalentEnhancement result = new TalentEnhancement(newTalent, talentAndGroup._2, hero, !planned);
 		final boolean basis = talentAndGroup._1.getBoolOrDefault("Basis", false);
-		if (enhancement.containsKey("Von")) {
-			final int start = enhancement.getInt("Von");
-			result.start.set(start < 0 && !basis ? start - 1 : start);
-		} else {
-			result.start.set(-1);
+		if (!planned) {
+			if (enhancement.containsKey("Von")) {
+				final int start = enhancement.getInt("Von");
+				result.start.set(start < 0 && !basis ? start - 1 : start);
+			} else {
+				result.start.set(-1);
+			}
 		}
 		result.startString.set(getOfficial(result.start.get(), basis));
 		if (enhancement.containsKey("Auf")) {
@@ -93,7 +96,9 @@ public class TalentEnhancement extends Enhancement {
 		result.method.set(enhancement.getString("Methode"));
 		result.ap.set(enhancement.getInt("AP"));
 		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
-		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
+		if (!planned) {
+			result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
+		}
 		result.updateDescription();
 		return result;
 	}
@@ -221,7 +226,8 @@ public class TalentEnhancement extends Enhancement {
 		return valid;
 	}
 
-	public TalentEnhancement clone(final JSONObject hero) {
+	@Override
+	public TalentEnhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
 		final TalentEnhancement result = new TalentEnhancement(talent, talentGroupName, hero);
 		result.start.set(start.get());
 		result.startString.set(startString.get());
@@ -389,7 +395,7 @@ public class TalentEnhancement extends Enhancement {
 	 * @see enhancement.enhancements.Enhancement#toJSON()
 	 */
 	@Override
-	public JSONObject toJSON(final JSONValue parent) {
+	public JSONObject toJSON(final JSONValue parent, final boolean planned) {
 		final JSONObject result = new JSONObject(parent);
 		result.put("Typ", "Talent");
 		result.put("Talent", talent.getName());
@@ -399,7 +405,7 @@ public class TalentEnhancement extends Enhancement {
 		if (talent.getTalent().containsKey("Freitext")) {
 			result.put("Freitext", talent.getActual().getString("Freitext"));
 		}
-		if (start.get() != -1 || basis) {
+		if (!planned && (start.get() != -1 || basis)) {
 			result.put("Von", start.get() < 0 && !basis ? start.get() + 1 : start.get());
 		}
 		if (target.get() != -1 || basis) {
@@ -414,8 +420,10 @@ public class TalentEnhancement extends Enhancement {
 		if (Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") && cost.get() != 0) {
 			result.put("Kosten", cost.get());
 		}
-		final LocalDate currentDate = LocalDate.now();
-		result.put("Datum", currentDate.toString());
+		if (!planned) {
+			final LocalDate currentDate = LocalDate.now();
+			result.put("Datum", currentDate.toString());
+		}
 		return result;
 	}
 

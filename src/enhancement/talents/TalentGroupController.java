@@ -221,16 +221,31 @@ public class TalentGroupController {
 			final TableRow<TalentEnhancement> row = new TableRow<>();
 
 			final ContextMenu contextMenu = new ContextMenu();
-			final MenuItem contextMenuItem = new MenuItem("Steigern");
-			contextMenu.getItems().add(contextMenuItem);
-			contextMenuItem.setOnAction(o -> {
+
+			final MenuItem applyItem = new MenuItem("Steigern");
+			contextMenu.getItems().add(applyItem);
+			applyItem.setOnAction(o -> {
 				final TalentEnhancement item = row.getItem();
 				table.getItems().remove(item);
 				final String talentName = item.getName();
 				final Map<Talent, Object> newSet = alreadyEnhanced.getOrDefault(talentName, new IdentityHashMap<>());
 				newSet.put(item.getTalent(), null);
 				alreadyEnhanced.put(talentName, newSet);
-				EnhancementController.instance.addEnhancement(item.clone(hero));
+				EnhancementController.instance.addEnhancement(item.clone(hero, EnhancementController.instance.getEnhancements()));
+			});
+
+			final MenuItem planItem = new MenuItem("Vormerken");
+			contextMenu.getItems().add(planItem);
+			planItem.setOnAction(o -> {
+				final TalentEnhancement item = row.getItem();
+				table.getItems().remove(item);
+				final String talentName = item.getName();
+				final Map<Talent, Object> newSet = alreadyEnhanced.getOrDefault(talentName, new IdentityHashMap<>());
+				newSet.put(item.getTalent(), null);
+				alreadyEnhanced.put(talentName, newSet);
+				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
+				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
+				planned.notifyListeners(null);
 			});
 
 			row.contextMenuProperty().bind(Bindings.when(row.itemProperty().isNotNull()).then(contextMenu).otherwise((ContextMenu) null));
@@ -348,26 +363,21 @@ public class TalentGroupController {
 			if (actualGroup.containsKey(talentName)) {
 				if ("Zauber".equals(talentGroupName)) {
 					final JSONObject actualSpell = actualGroup.getObj(talentName);
-					boolean notFound = false;
-					for (final String rep : talent.getObj("Repräsentationen").keySet()) {
-						if (actualSpell.containsKey(rep)) {
-							if (talent.containsKey("Auswahl") || talent.containsKey("Freitext")) {
-								final JSONArray choiceTalent = actualSpell.getArr(rep);
-								for (int i = 0; i < choiceTalent.size(); ++i) {
-									final Spell spell = Spell.getSpell(talentName, talent, choiceTalent.getObj(i), actualSpell, actualGroup, rep);
-									if (!alreadyEnhanced.containsKey(talentName) || !alreadyEnhanced.get(talentName).containsKey(spell)) {
-										table.getItems().add(new SpellEnhancement(spell, hero));
-									}
+					for (final String rep : actualSpell.keySet()) {
+						if (talent.containsKey("Auswahl") || talent.containsKey("Freitext")) {
+							final JSONArray choiceTalent = actualSpell.getArr(rep);
+							for (int i = 0; i < choiceTalent.size(); ++i) {
+								final Spell spell = Spell.getSpell(talentName, talent, choiceTalent.getObj(i), actualSpell, actualGroup, rep);
+								if (!alreadyEnhanced.containsKey(talentName) || !alreadyEnhanced.get(talentName).containsKey(spell)) {
+									table.getItems().add(new SpellEnhancement(spell, hero));
 								}
-							} else if (!alreadyEnhanced.containsKey(talentName)) {
-								table.getItems().add(
-										new SpellEnhancement(Spell.getSpell(talentName, talent, actualSpell.getObj(rep), actualSpell, actualGroup, rep), hero));
 							}
-						} else {
-							notFound = true;
+						} else if (!alreadyEnhanced.containsKey(talentName)) {
+							table.getItems().add(
+									new SpellEnhancement(Spell.getSpell(talentName, talent, actualSpell.getObj(rep), actualSpell, actualGroup, rep), hero));
 						}
 					}
-					if (notFound) {
+					if (talent.getObj("Repräsentationen").keySet().stream().anyMatch(rep -> !actualSpell.containsKey(rep))) {
 						talentsList.getItems().add(talentName);
 					}
 				} else {

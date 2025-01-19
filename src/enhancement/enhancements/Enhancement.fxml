@@ -14,7 +14,7 @@
 <VBox xmlns:fx="http://javafx.com/fxml/1" spacing="5">
    <StackPane xmlns:fx="http://javafx.com/fxml" VBox.Vgrow="ALWAYS" >
       <TabPane fx:id="tabPane" styleClass="buttonedTabPane" />
-      <Button text="Abenteuerabschluss" onAction="#addAdventure" StackPane.alignment="TOP_RIGHT" styleClass="tabPaneButton" />
+      <Button text="Abenteuer" onAction="#addAdventure" StackPane.alignment="TOP_RIGHT" styleClass="tabPaneButton" />
    </StackPane>
    <ScrollPane hbarPolicy="NEVER" vbarPolicy="ALWAYS" fitToWidth="true" >
       <TableView fx:id="enhancementTable" editable="true" fixedCellSize="28">

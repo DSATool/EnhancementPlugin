@@ -42,6 +42,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
+import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
 
 public class AttributesController extends EnhancementTabController {
@@ -140,12 +141,24 @@ public class AttributesController extends EnhancementTabController {
 			final TableRow<AttributeEnhancement> row = new TableRow<>();
 
 			final ContextMenu attributesContextMenu = new ContextMenu();
-			final MenuItem attributesContextMenuItem = new MenuItem("Steigern");
-			attributesContextMenu.getItems().add(attributesContextMenuItem);
-			attributesContextMenuItem.setOnAction(o -> {
+
+			final MenuItem attributesApplyItem = new MenuItem("Steigern");
+			attributesContextMenu.getItems().add(attributesApplyItem);
+			attributesApplyItem.setOnAction(o -> {
 				final AttributeEnhancement item = row.getItem();
 				alreadyEnhanced.add(item.getName());
-				EnhancementController.instance.addEnhancement(item.clone(hero));
+				EnhancementController.instance.addEnhancement(item.clone(hero, EnhancementController.instance.getEnhancements()));
+				update();
+			});
+
+			final MenuItem planItem = new MenuItem("Vormerken");
+			attributesContextMenu.getItems().add(planItem);
+			planItem.setOnAction(o -> {
+				final AttributeEnhancement item = row.getItem();
+				alreadyEnhanced.add(item.getName());
+				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
+				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
+				planned.notifyListeners(null);
 				update();
 			});
 
@@ -223,14 +236,27 @@ public class AttributesController extends EnhancementTabController {
 			final TableRow<EnergyEnhancement> row = new TableRow<>();
 
 			final ContextMenu energiesContextMenu = new ContextMenu();
-			final MenuItem energiesContextMenuItem = new MenuItem("Steigern");
-			energiesContextMenu.getItems().add(energiesContextMenuItem);
-			energiesContextMenuItem.setOnAction(o -> {
+
+			final MenuItem energiesApplyItem = new MenuItem("Steigern");
+			energiesContextMenu.getItems().add(energiesApplyItem);
+			energiesApplyItem.setOnAction(o -> {
 				final EnergyEnhancement item = row.getItem();
 				alreadyEnhanced.add(item.getName());
-				EnhancementController.instance.addEnhancement(item.clone(hero));
+				EnhancementController.instance.addEnhancement(item.clone(hero, EnhancementController.instance.getEnhancements()));
 				update();
 			});
+
+			final MenuItem planItem = new MenuItem("Vormerken");
+			energiesContextMenu.getItems().add(planItem);
+			planItem.setOnAction(o -> {
+				final EnergyEnhancement item = row.getItem();
+				alreadyEnhanced.add(item.getName());
+				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
+				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
+				planned.notifyListeners(null);
+				update();
+			});
+
 			row.contextMenuProperty().bind(Bindings.when(row.itemProperty().isNotNull()).then(energiesContextMenu).otherwise((ContextMenu) null));
 
 			return row;

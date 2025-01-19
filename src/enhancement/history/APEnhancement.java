@@ -16,6 +16,7 @@
 package enhancement.history;
 
 import java.time.LocalDate;
+import java.util.Collection;
 
 import enhancement.enhancements.Enhancement;
 import jsonant.value.JSONObject;
@@ -51,6 +52,11 @@ public class APEnhancement extends Enhancement {
 	}
 
 	@Override
+	public Enhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	protected int getCalculatedAP(final JSONObject hero) {
 		return start - target;
 	}
@@ -76,7 +82,7 @@ public class APEnhancement extends Enhancement {
 	}
 
 	@Override
-	public JSONObject toJSON(final JSONValue parent) {
+	public JSONObject toJSON(final JSONValue parent, final boolean planned) {
 		throw new UnsupportedOperationException();
 	}
 

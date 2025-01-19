@@ -134,6 +134,7 @@ public class QuirksController extends EnhancementTabController {
 			final TableRow<QuirkEnhancement> row = new TableRow<>();
 
 			final ContextMenu contextMenu = new ContextMenu();
+
 			final MenuItem lowerMenuItem = new MenuItem("Senken");
 			contextMenu.getItems().add(lowerMenuItem);
 			lowerMenuItem.setOnAction(o -> {
@@ -143,6 +144,20 @@ public class QuirksController extends EnhancementTabController {
 				newSet.put(item.getQuirk().getActual(), null);
 				alreadyEnhanced.put(quirkName, newSet);
 				EnhancementController.instance.addEnhancement(item.clone(hero, EnhancementController.instance.getEnhancements()));
+				update();
+			});
+
+			final MenuItem planItem = new MenuItem("Vormerken");
+			contextMenu.getItems().add(planItem);
+			planItem.setOnAction(o -> {
+				final QuirkEnhancement item = row.getItem();
+				final String quirkName = item.getName();
+				final Map<JSONObject, Object> newSet = alreadyEnhanced.getOrDefault(quirkName, new IdentityHashMap<>());
+				newSet.put(item.getQuirk().getActual(), null);
+				alreadyEnhanced.put(quirkName, newSet);
+				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
+				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
+				planned.notifyListeners(null);
 				update();
 			});
 

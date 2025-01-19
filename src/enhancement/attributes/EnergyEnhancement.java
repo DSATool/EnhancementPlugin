@@ -16,6 +16,7 @@
 package enhancement.attributes;
 
 import java.time.LocalDate;
+import java.util.Collection;
 
 import dsa41basis.hero.Energy;
 import dsa41basis.util.DSAUtil;
@@ -27,7 +28,8 @@ import jsonant.value.JSONObject;
 import jsonant.value.JSONValue;
 
 public class EnergyEnhancement extends Enhancement {
-	public static EnergyEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
+
+	public static EnergyEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero, final boolean planned) {
 		final String energyName = enhancement.getString("Basiswert");
 		final Energy energy = new Energy(energyName, ResourceManager.getResource("data/Basiswerte").getObj(energyName), hero);
 		final EnergyEnhancement result = new EnergyEnhancement(energy, hero);
@@ -35,7 +37,9 @@ public class EnergyEnhancement extends Enhancement {
 		result.target.set(enhancement.getInt("Auf"));
 		result.ses.set(energy.getSes() + enhancement.getIntOrDefault("SEs", 0));
 		result.ap.set(enhancement.getInt("AP"));
-		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
+		if (!planned) {
+			result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
+		}
 		result.updateDescription();
 		return result;
 	}
@@ -81,7 +85,8 @@ public class EnergyEnhancement extends Enhancement {
 		return target.getValue() <= energy.getBuyableMaximum();
 	}
 
-	public EnergyEnhancement clone(final JSONObject hero) {
+	@Override
+	public EnergyEnhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
 		final EnergyEnhancement result = new EnergyEnhancement(energy, hero);
 		result.start.set(start.get());
 		result.target.set(target.get());
@@ -153,7 +158,7 @@ public class EnergyEnhancement extends Enhancement {
 	 * @see enhancement.enhancements.Enhancement#toJSON()
 	 */
 	@Override
-	public JSONObject toJSON(final JSONValue parent) {
+	public JSONObject toJSON(final JSONValue parent, final boolean planned) {
 		final JSONObject result = new JSONObject(parent);
 		result.put("Typ", "Basiswert");
 		result.put("Basiswert", energy.getName());
@@ -164,8 +169,10 @@ public class EnergyEnhancement extends Enhancement {
 			result.put("SEs", resultSes);
 		}
 		result.put("AP", ap.get());
-		final LocalDate currentDate = LocalDate.now();
-		result.put("Datum", currentDate.toString());
+		if (!planned) {
+			final LocalDate currentDate = LocalDate.now();
+			result.put("Datum", currentDate.toString());
+		}
 		return result;
 	}
 

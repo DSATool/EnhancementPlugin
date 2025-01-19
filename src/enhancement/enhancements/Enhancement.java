@@ -16,6 +16,7 @@
 package enhancement.enhancements;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -57,6 +58,8 @@ public abstract class Enhancement {
 	public BooleanProperty cheaperProperty() {
 		return cheaper;
 	}
+
+	public abstract Enhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements);
 
 	public DoubleProperty costProperty() {
 		return cost;
@@ -139,7 +142,7 @@ public abstract class Enhancement {
 		hasCustomCost = true;
 	}
 
-	public abstract JSONObject toJSON(JSONValue parent);
+	public abstract JSONObject toJSON(JSONValue parent, boolean planned);
 
 	public abstract void unapply(JSONObject hero);
 

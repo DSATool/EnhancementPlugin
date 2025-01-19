@@ -16,6 +16,7 @@
 package enhancement.attributes;
 
 import java.time.LocalDate;
+import java.util.Collection;
 
 import dsa41basis.hero.Attribute;
 import dsa41basis.util.DSAUtil;
@@ -27,7 +28,8 @@ import jsonant.value.JSONObject;
 import jsonant.value.JSONValue;
 
 public class AttributeEnhancement extends Enhancement {
-	public static AttributeEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
+
+	public static AttributeEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero, final boolean planned) {
 		final String attributeName = enhancement.getString("Eigenschaft");
 		final Attribute attribute = new Attribute(attributeName, hero.getObj("Eigenschaften").getObj(attributeName));
 		final AttributeEnhancement result = new AttributeEnhancement(attribute, hero);
@@ -35,7 +37,9 @@ public class AttributeEnhancement extends Enhancement {
 		result.setTarget(enhancement.getInt("Auf"), hero);
 		result.ses.set(attribute.getSes() + enhancement.getIntOrDefault("SEs", 0));
 		result.ap.set(enhancement.getInt("AP"));
-		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
+		if (!planned) {
+			result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
+		}
 		result.updateDescription();
 		return result;
 	}
@@ -84,7 +88,8 @@ public class AttributeEnhancement extends Enhancement {
 		return target.get() <= attribute.getMaximum();
 	}
 
-	public AttributeEnhancement clone(final JSONObject hero) {
+	@Override
+	public AttributeEnhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
 		final AttributeEnhancement result = new AttributeEnhancement(attribute, hero);
 		result.start.set(start.get());
 		result.setTarget(target.get(), hero);
@@ -163,7 +168,7 @@ public class AttributeEnhancement extends Enhancement {
 	 * @see enhancement.enhancements.Enhancement#toJSON()
 	 */
 	@Override
-	public JSONObject toJSON(final JSONValue parent) {
+	public JSONObject toJSON(final JSONValue parent, final boolean planned) {
 		final JSONObject result = new JSONObject(parent);
 		result.put("Typ", "Eigenschaft");
 		result.put("Eigenschaft", attribute.getName());
@@ -174,8 +179,10 @@ public class AttributeEnhancement extends Enhancement {
 			result.put("SEs", resultSes);
 		}
 		result.put("AP", ap.get());
-		final LocalDate currentDate = LocalDate.now();
-		result.put("Datum", currentDate.toString());
+		if (!planned) {
+			final LocalDate currentDate = LocalDate.now();
+			result.put("Datum", currentDate.toString());
+		}
 		return result;
 	}
 

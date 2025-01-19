@@ -30,7 +30,9 @@ import jsonant.value.JSONObject;
 import jsonant.value.JSONValue;
 
 public class QuirkEnhancement extends Enhancement {
-	public static QuirkEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero, final Collection<Enhancement> enhancements) {
+
+	public static QuirkEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero, final Collection<Enhancement> enhancements,
+			final boolean planned) {
 		final String quirkName = enhancement.getString("Schlechte Eigenschaft");
 		final JSONObject con = ResourceManager.getResource("data/Nachteile").getObj(quirkName);
 
@@ -48,7 +50,9 @@ public class QuirkEnhancement extends Enhancement {
 		result.setTarget(enhancement.getInt("Auf"), hero, enhancements);
 		result.ses.set(newQuirk.getActual().getIntOrDefault("SEs", 0) + enhancement.getIntOrDefault("SEs", 0));
 		result.ap.set(enhancement.getInt("AP"));
-		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
+		if (!planned) {
+			result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
+		}
 		result.updateDescription();
 		return result;
 	}
@@ -132,6 +136,7 @@ public class QuirkEnhancement extends Enhancement {
 		return true;
 	}
 
+	@Override
 	public QuirkEnhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
 		final QuirkEnhancement result = new QuirkEnhancement(quirk, hero);
 		result.start.set(start.get());
@@ -223,7 +228,7 @@ public class QuirkEnhancement extends Enhancement {
 	 * @see enhancement.enhancements.Enhancement#toJSON()
 	 */
 	@Override
-	public JSONObject toJSON(final JSONValue parent) {
+	public JSONObject toJSON(final JSONValue parent, final boolean planned) {
 		final JSONObject result = new JSONObject(parent);
 		result.put("Typ", "Schlechte Eigenschaft");
 		result.put("Schlechte Eigenschaft", quirk.getName());
@@ -241,8 +246,10 @@ public class QuirkEnhancement extends Enhancement {
 			result.put("SEs", resultSes);
 		}
 		result.put("AP", ap.get());
-		final LocalDate currentDate = LocalDate.now();
-		result.put("Datum", currentDate.toString());
+		if (!planned) {
+			final LocalDate currentDate = LocalDate.now();
+			result.put("Datum", currentDate.toString());
+		}
 		return result;
 	}
 

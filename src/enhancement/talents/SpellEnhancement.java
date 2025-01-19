@@ -16,19 +16,21 @@
 package enhancement.talents;
 
 import java.time.LocalDate;
+import java.util.Collection;
 
 import dsa41basis.hero.Spell;
 import dsa41basis.util.DSAUtil;
 import dsa41basis.util.HeroUtil;
 import dsatool.resources.ResourceManager;
 import dsatool.resources.Settings;
+import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import jsonant.value.JSONArray;
 import jsonant.value.JSONObject;
 import jsonant.value.JSONValue;
 
 public class SpellEnhancement extends TalentEnhancement {
-	public static SpellEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero) {
+	public static SpellEnhancement fromJSON(final JSONObject enhancement, final JSONObject hero, final boolean planned) {
 		final String spellName = enhancement.getString("Zauber");
 		final JSONObject spell = ResourceManager.getResource("data/Zauber").getObj(spellName);
 		final JSONObject actualSpell = hero.getObj("Zauber").getObj(spellName);
@@ -55,12 +57,14 @@ public class SpellEnhancement extends TalentEnhancement {
 			actual = (JSONObject) actualRep;
 		}
 		final Spell newSpell = Spell.getSpell(spellName, spell, actual, actualSpell, hero.getObj("Zauber"), rep);
-		final SpellEnhancement result = new SpellEnhancement(newSpell, hero, true);
-		if (enhancement.containsKey("Von")) {
-			final int start = enhancement.getInt("Von");
-			result.start.set(start < 0 ? start - 1 : start);
-		} else {
-			result.start.set(-1);
+		final SpellEnhancement result = new SpellEnhancement(newSpell, hero, !planned);
+		if (!planned) {
+			if (enhancement.containsKey("Von")) {
+				final int start = enhancement.getInt("Von");
+				result.start.set(start < 0 ? start - 1 : start);
+			} else {
+				result.start.set(-1);
+			}
 		}
 		result.startString.set(getOfficial(result.start.get(), false));
 		if (enhancement.containsKey("Auf")) {
@@ -73,7 +77,9 @@ public class SpellEnhancement extends TalentEnhancement {
 		result.method.set(enhancement.getString("Methode"));
 		result.ap.set(enhancement.getInt("AP"));
 		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
-		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
+		if (!planned) {
+			result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
+		}
 		result.updateDescription();
 		return result;
 	}
@@ -87,7 +93,7 @@ public class SpellEnhancement extends TalentEnhancement {
 	}
 
 	@Override
-	public SpellEnhancement clone(final JSONObject hero) {
+	public SpellEnhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
 		final SpellEnhancement result = new SpellEnhancement((Spell) talent, hero);
 		result.start.set(start.get());
 		result.startString.set(startString.get());
@@ -125,7 +131,7 @@ public class SpellEnhancement extends TalentEnhancement {
 	 * @see enhancement.enhancements.Enhancement#toJSON()
 	 */
 	@Override
-	public JSONObject toJSON(final JSONValue parent) {
+	public JSONObject toJSON(final JSONValue parent, final boolean planned) {
 		final JSONObject result = new JSONObject(parent);
 		result.put("Typ", "Zauber");
 		result.put("Zauber", talent.getName());
@@ -136,7 +142,7 @@ public class SpellEnhancement extends TalentEnhancement {
 		if (talent.getTalent().containsKey("Freitext")) {
 			result.put("Freitext", talent.getActual().getString("Freitext"));
 		}
-		if (start.get() != -1) {
+		if (!planned && start.get() != -1) {
 			result.put("Von", start.get() < 0 && !basis ? start.get() + 1 : start.get());
 		}
 		if (target.get() != -1) {
@@ -151,8 +157,10 @@ public class SpellEnhancement extends TalentEnhancement {
 		if (Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") && cost.get() != 0) {
 			result.put("Kosten", cost.get());
 		}
-		final LocalDate currentDate = LocalDate.now();
-		result.put("Datum", currentDate.toString());
+		if (!planned) {
+			final LocalDate currentDate = LocalDate.now();
+			result.put("Datum", currentDate.toString());
+		}
 		return result;
 	}
 
