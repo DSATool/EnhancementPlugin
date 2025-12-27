@@ -238,11 +238,6 @@ public class TalentGroupController {
 			contextMenu.getItems().add(planItem);
 			planItem.setOnAction(o -> {
 				final TalentEnhancement item = row.getItem();
-				table.getItems().remove(item);
-				final String talentName = item.getName();
-				final Map<Talent, Object> newSet = alreadyEnhanced.getOrDefault(talentName, new IdentityHashMap<>());
-				newSet.put(item.getTalent(), null);
-				alreadyEnhanced.put(talentName, newSet);
 				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
 				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
 				planned.notifyListeners(null);
@@ -438,9 +433,11 @@ public class TalentGroupController {
 	public boolean removeEnhancement(final TalentEnhancement enhancement) {
 		if (enhancement.talentGroupName.equals(talentGroupName)) {
 			final Map<Talent, Object> enhanced = alreadyEnhanced.get(enhancement.getName());
-			enhanced.remove(enhancement.getTalent());
-			if (enhanced.isEmpty()) {
-				alreadyEnhanced.remove(enhancement.getName());
+			if (enhanced != null) {
+				enhanced.remove(enhancement.getTalent());
+				if (enhanced.isEmpty()) {
+					alreadyEnhanced.remove(enhancement.getName());
+				}
 			}
 			table.getItems().add(enhancement);
 			table.sort();

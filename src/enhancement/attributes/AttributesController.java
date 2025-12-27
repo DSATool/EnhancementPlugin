@@ -155,7 +155,6 @@ public class AttributesController extends EnhancementTabController {
 			attributesContextMenu.getItems().add(planItem);
 			planItem.setOnAction(o -> {
 				final AttributeEnhancement item = row.getItem();
-				alreadyEnhanced.add(item.getName());
 				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
 				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
 				planned.notifyListeners(null);
@@ -250,7 +249,6 @@ public class AttributesController extends EnhancementTabController {
 			energiesContextMenu.getItems().add(planItem);
 			planItem.setOnAction(o -> {
 				final EnergyEnhancement item = row.getItem();
-				alreadyEnhanced.add(item.getName());
 				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
 				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
 				planned.notifyListeners(null);

@@ -37,7 +37,9 @@ public class AttributeEnhancement extends Enhancement {
 		result.setTarget(enhancement.getInt("Auf"), hero);
 		result.ses.set(attribute.getSes() + enhancement.getIntOrDefault("SEs", 0));
 		result.ap.set(enhancement.getInt("AP"));
-		if (!planned) {
+		if (planned) {
+			if (result.getStart() >= result.getTarget()) return null;
+		} else {
 			result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
 		}
 		result.updateDescription();
@@ -95,6 +97,8 @@ public class AttributeEnhancement extends Enhancement {
 		result.setTarget(target.get(), hero);
 		result.ses.set(ses.get());
 		result.valid.set(valid.get());
+		result.setCost(cost.get());
+		result.setAP(ap.get(), hero);
 		result.updateDescription();
 		return result;
 	}

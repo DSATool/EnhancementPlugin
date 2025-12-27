@@ -18,7 +18,6 @@ package enhancement.planned;
 import java.util.HashMap;
 import java.util.Map;
 
-import dsa41basis.ui.hero.HeroController;
 import dsatool.gui.GUIUtil;
 import dsatool.resources.Settings;
 import dsatool.util.ErrorLogger;
@@ -171,11 +170,6 @@ public class PlannedController extends EnhancementTabController {
 			contextMenu.getItems().add(removeItem);
 			removeItem.setOnAction(o -> {
 				final Enhancement removed = row.getItem();
-				for (final HeroController controller : EnhancementController.instance.getControllers()) {
-					if (((EnhancementTabController) controller).removeEnhancement(removed)) {
-						break;
-					}
-				}
 				hero.getArr("Vorgemerkte Steigerungen").remove(itemObjectMap.get(removed));
 				items.remove(removed);
 			});
@@ -232,8 +226,12 @@ public class PlannedController extends EnhancementTabController {
 				case "Zauber" -> SpellEnhancement.fromJSON(entry, hero, true);
 				default -> null;
 			};
-			items.add(enhancement);
-			itemObjectMap.put(enhancement, entry);
+			if (enhancement == null) {
+				planned.removeAt(i);
+			} else {
+				items.add(enhancement);
+				itemObjectMap.put(enhancement, entry);
+			}
 		}
 	}
 }

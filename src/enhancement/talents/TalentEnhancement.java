@@ -96,7 +96,9 @@ public class TalentEnhancement extends Enhancement {
 		result.method.set(enhancement.getString("Methode"));
 		result.ap.set(enhancement.getInt("AP"));
 		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
-		if (!planned) {
+		if (planned) {
+			if (result.getStart() >= result.getTarget()) return null;
+		} else {
 			result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
 		}
 		result.updateDescription();

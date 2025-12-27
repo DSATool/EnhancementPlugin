@@ -77,7 +77,9 @@ public class SpellEnhancement extends TalentEnhancement {
 		result.method.set(enhancement.getString("Methode"));
 		result.ap.set(enhancement.getInt("AP"));
 		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
-		if (!planned) {
+		if (planned) {
+			if (result.getStart() >= result.getTarget()) return null;
+		} else {
 			result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
 		}
 		result.updateDescription();
@@ -103,6 +105,8 @@ public class SpellEnhancement extends TalentEnhancement {
 		result.method.set(method.get());
 		result.ses.set(ses.get());
 		result.valid.set(valid.get());
+		result.setCost(cost.get());
+		result.setAP(ap.get(), hero);
 		result.updateDescription();
 		return result;
 	}
@@ -167,7 +171,8 @@ public class SpellEnhancement extends TalentEnhancement {
 	@Override
 	protected void updateDescription() {
 		final String rep = ((Spell) talent).getRepresentation();
-		final String enhancement = DSAUtil.getEnhancementGroupString(HeroUtil.getSpellComplexity(hero, talent.getName(), rep, target.get()));
+		final String enhancement = DSAUtil
+				.getEnhancementGroupString(HeroUtil.getSpellComplexity(hero, talent.getActual(), talent.getName(), rep, target.get()));
 		description.set(talent.getDisplayName() + " (" + rep + ") (" + enhancement + ") (" + startString.get() + "->" + target.get() + ")");
 	}
 }

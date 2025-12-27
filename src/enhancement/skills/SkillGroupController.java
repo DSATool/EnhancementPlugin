@@ -267,11 +267,6 @@ public class SkillGroupController {
 			contextMenu.getItems().add(planItem);
 			planItem.setOnAction(o -> {
 				final SkillEnhancement item = row.getItem();
-				final ProOrCon skill = item.getSkill();
-				if (skill.firstChoiceOrText() == ChoiceOrTextEnum.NONE) {
-					allItems.remove(item);
-				}
-				alreadyEnhanced.add(item.getName());
 				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
 				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
 				planned.notifyListeners(null);

@@ -86,6 +86,8 @@ public class TalentController extends EnhancementTabController {
 			}
 			box.getChildren().add(talentController.getControl());
 		}
+
+		updateVisibility();
 	}
 
 	@Override

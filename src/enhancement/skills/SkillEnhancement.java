@@ -49,7 +49,30 @@ public class SkillEnhancement extends Enhancement {
 		}
 		result.ap.set(enhancement.getInt("AP"));
 		result.cost.set(enhancement.getDoubleOrDefault("Kosten", 0.0));
-		if (!planned) {
+		if (planned) {
+			final JSONObject skills = hero.getObj("Sonderfertigkeiten");
+			if (skills.containsKey(skillName)) {
+				if (skill.containsKey("Auswahl")) {
+					final JSONArray actualSkills = skills.getArr(skillName);
+					for (final JSONObject actualSkill : actualSkills.getObjs()) {
+						if (newSkill.getDescription().equals(actualSkill.getString("Auswahl")))
+							if (skill.containsKey("Freitext")) {
+								if (newSkill.getVariant().equals(actualSkill.getString("Freitext")))
+									return null;
+							} else
+							return null;
+					}
+
+				} else if (skill.containsKey("Freitext")) {
+					final JSONArray actualSkills = skills.getArr(skillName);
+					for (final JSONObject actualSkill : actualSkills.getObjs()) {
+						if (newSkill.getDescription().equals(actualSkill.getString("Freitext")))
+							return null;
+					}
+				} else
+					return null;
+			}
+		} else {
 			result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
 		}
 		result.updateDescription();
@@ -148,7 +171,10 @@ public class SkillEnhancement extends Enhancement {
 
 	@Override
 	public SkillEnhancement clone(final JSONObject hero, final Collection<Enhancement> enhancements) {
-		return new SkillEnhancement(new ProOrCon(skill.getName(), hero, skill.getProOrCon(), skill.getActual().clone(null)), hero);
+		final SkillEnhancement result = new SkillEnhancement(new ProOrCon(skill.getName(), hero, skill.getProOrCon(), skill.getActual().clone(null)), hero);
+		result.setCost(cost.get());
+		result.setAP(ap.get(), hero);
+		return result;
 	}
 
 	@Override

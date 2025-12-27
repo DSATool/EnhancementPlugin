@@ -37,7 +37,9 @@ public class EnergyEnhancement extends Enhancement {
 		result.target.set(enhancement.getInt("Auf"));
 		result.ses.set(energy.getSes() + enhancement.getIntOrDefault("SEs", 0));
 		result.ap.set(enhancement.getInt("AP"));
-		if (!planned) {
+		if (planned) {
+			if (result.getStart() >= result.getTarget()) return null;
+		} else {
 			result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
 		}
 		result.updateDescription();
@@ -92,6 +94,8 @@ public class EnergyEnhancement extends Enhancement {
 		result.target.set(target.get());
 		result.ses.set(ses.get());
 		result.valid.set(valid.get());
+		result.setCost(cost.get());
+		result.setAP(ap.get(), hero);
 		result.updateDescription();
 		return result;
 	}

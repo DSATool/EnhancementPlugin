@@ -50,7 +50,9 @@ public class QuirkEnhancement extends Enhancement {
 		result.setTarget(enhancement.getInt("Auf"), hero, enhancements);
 		result.ses.set(newQuirk.getActual().getIntOrDefault("SEs", 0) + enhancement.getIntOrDefault("SEs", 0));
 		result.ap.set(enhancement.getInt("AP"));
-		if (!planned) {
+		if (planned) {
+			if (result.getStart() <= result.getTarget()) return null;
+		} else {
 			result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
 		}
 		result.updateDescription();
@@ -142,6 +144,8 @@ public class QuirkEnhancement extends Enhancement {
 		result.start.set(start.get());
 		result.setTarget(target.get(), hero, enhancements);
 		result.ses.set(ses.get());
+		result.setCost(cost.get());
+		result.setAP(ap.get(), hero);
 		result.updateDescription();
 		return result;
 	}
