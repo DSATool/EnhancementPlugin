@@ -228,7 +228,7 @@ public class AdventureEnhancement extends Enhancement {
 		if (attributes.size() != 0) {
 			sesList.put("Eigenschaften", attributes);
 		}
-		if (attributes.size() != 0) {
+		if (energies.size() != 0) {
 			sesList.put("Basiswerte", energies);
 		}
 		if (talents.size() != 0) {
