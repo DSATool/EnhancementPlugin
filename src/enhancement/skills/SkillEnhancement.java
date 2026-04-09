@@ -192,11 +192,19 @@ public class SkillEnhancement extends Enhancement {
 	protected double getCalculatedCost(final JSONObject hero) {
 		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") || EnhancementController.usesChargenRules.get()) return 0;
 
-		final JSONObject group = (JSONObject) skill.getProOrCon().getParent();
+		final JSONObject skillData = skill.getProOrCon();
+
+		if (skillData.containsKey("Lehrmeisterkosten"))
+			return skillData.getDouble("Lehrmeisterkosten");
+
+		final JSONObject group = (JSONObject) skillData.getParent();
 		if (group == ResourceManager.getResource("data/Sonderfertigkeiten").getObj("Magische Sonderfertigkeiten") ||
 				group.getParent() == ResourceManager.getResource("data/Rituale") || group == ResourceManager.getResource("data/Schamanenrituale"))
-			return ap.get() * 5;
-		return ap.get() * 7 / 10.0;
+			return ap.get() * Settings.getSettingIntOrDefault(500, "Steigerung", "Lehrmeisterkosten:Sonderfertigkeiten:Magisch") / 100.0;
+		if (group == ResourceManager.getResource("data/Sonderfertigkeiten").getObj("Klerikale Sonderfertigkeiten")
+				|| group.getParent() == ResourceManager.getResource("data/Liturgien"))
+			return ap.get() * Settings.getSettingIntOrDefault(70, "Steigerung", "Lehrmeisterkosten:Sonderfertigkeiten:Klerikal") / 100.0;
+		return ap.get() * Settings.getSettingIntOrDefault(70, "Steigerung", "Lehrmeisterkosten:Sonderfertigkeiten") / 100.0;
 	}
 
 	@Override

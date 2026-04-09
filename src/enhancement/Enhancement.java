@@ -21,6 +21,7 @@ import dsatool.gui.Main;
 import dsatool.plugins.Plugin;
 import dsatool.resources.Settings;
 import dsatool.settings.BooleanSetting;
+import dsatool.settings.IntegerSetting;
 import dsatool.settings.StringChoiceSetting;
 import enhancement.enhancements.EnhancementController;
 
@@ -52,6 +53,14 @@ public class Enhancement extends Plugin {
 		Settings.addSetting(new StringChoiceSetting("Lernmethode", "Gegenseitiges Lehren",
 				List.of("Lehrmeister", "Gegenseitiges Lehren", "Selbststudium"), "Steigerung", "Lernmethode"));
 		Settings.addSetting(new BooleanSetting("Lehrmeisterkosten", true, "Steigerung", "Lehrmeisterkosten"));
+		Settings.addSetting(new IntegerSetting("Lehrmeisterkosten Talente (Kreuzer/AP)", 70, 0, 10000, "Steigerung", "Lehrmeisterkosten:Talente"));
+		Settings.addSetting(new IntegerSetting("Lehrmeisterkosten Zauber (Kreuzer/AP)", 500, 0, 10000, "Steigerung", "Lehrmeisterkosten:Zauber"));
+		Settings.addSetting(new IntegerSetting("Lehrmeisterkosten Sonderfertigkeiten Allgemein (Kreuzer/AP)", 70, 0, 10000, "Steigerung",
+				"Lehrmeisterkosten:Sonderfertigkeiten"));
+		Settings.addSetting(new IntegerSetting("Lehrmeisterkosten Sonderfertigkeiten Magisch (Kreuzer/AP)", 500, 0, 10000, "Steigerung",
+				"Lehrmeisterkosten:Sonderfertigkeiten:Magisch"));
+		Settings.addSetting(new IntegerSetting("Lehrmeisterkosten Sonderfertigkeiten Klerikal (Kreuzer/AP)", 70, 0, 10000, "Steigerung",
+				"Lehrmeisterkosten:Sonderfertigkeiten:Klerikal"));
 	}
 
 	/*

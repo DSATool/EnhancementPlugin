@@ -271,12 +271,12 @@ public class TalentEnhancement extends Enhancement {
 	protected double getCalculatedCost(final JSONObject hero) {
 		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") || !"Lehrmeister".equals(method.get())) return 0;
 		if (hasCustomAP)
-			return ap.get() * 7 / 10.0;
+			return ap.get() * Settings.getSettingIntOrDefault(70, "Steigerung", "Lehrmeisterkosten:Talente") / 100.0;
 		else {
 			final int SELevel = start.get() + Math.min(target.get() - start.get(), ses.get());
 			final int ap = DSAUtil.getEnhancementCost(talent, hero, "Lehrmeister", SELevel, Math.max(target.get(), SELevel),
 					EnhancementController.usesChargenRules.get());
-			return ap * 7 / 10.0;
+			return ap * Settings.getSettingIntOrDefault(70, "Steigerung", "Lehrmeisterkosten:Talente") / 100.0;
 		}
 	}
 

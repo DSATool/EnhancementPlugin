@@ -120,12 +120,12 @@ public class SpellEnhancement extends TalentEnhancement {
 	protected double getCalculatedCost(final JSONObject hero) {
 		if (!Settings.getSettingBoolOrDefault(true, "Steigerung", "Lehrmeisterkosten") || !"Lehrmeister".equals(method.get())) return 0;
 		if (hasCustomAP)
-			return ap.get() * 5;
+			return ap.get() * Settings.getSettingIntOrDefault(500, "Steigerung", "Lehrmeisterkosten:Zauber") / 100.0;
 		else {
 			final int SELevel = start.get() + Math.min(target.get() - start.get(), ses.get());
 			final int ap = DSAUtil.getEnhancementCost(talent, hero, "Lehrmeister", SELevel, Math.max(target.get(), SELevel),
 					EnhancementController.usesChargenRules.get());
-			return ap * 5;
+			return ap * Settings.getSettingIntOrDefault(500, "Steigerung", "Lehrmeisterkosten:Zauber") / 100.0;
 		}
 	}
 
