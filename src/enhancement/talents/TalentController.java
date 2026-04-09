@@ -154,7 +154,7 @@ public class TalentController extends EnhancementTabController {
 		} else {
 			box.getChildren().remove(ritualKnowledge);
 		}
-		if (HeroUtil.isClerical(hero, false)) {
+		if (HeroUtil.isClerical(hero, true)) {
 			if (!box.getChildren().contains(liturgyKnowledge)) {
 				box.getChildren().add(liturgyKnowledge);
 			}
