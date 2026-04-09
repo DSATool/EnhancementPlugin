@@ -134,7 +134,7 @@ public class SkillGroupController {
 			@Override
 			protected void createGraphic() {
 				final ObservableList<String> items = FXCollections
-						.<String> observableArrayList(getTableView().getItems().get(getIndex()).getSkill().getFirstChoiceItems(false));
+						.<String> observableArrayList(getTableView().getItems().get(getIndex()).getSkill().getFirstChoiceItems(true));
 				switch (getTableView().getItems().get(getIndex()).getSkill().firstChoiceOrText()) {
 					case TEXT:
 						if (items.size() > 0) {
@@ -175,7 +175,7 @@ public class SkillGroupController {
 			@Override
 			protected void createGraphic() {
 				final ObservableList<String> items = FXCollections
-						.<String> observableArrayList(getTableView().getItems().get(getIndex()).getSkill().getSecondChoiceItems(false));
+						.<String> observableArrayList(getTableView().getItems().get(getIndex()).getSkill().getSecondChoiceItems(true));
 				switch (getTableView().getItems().get(getIndex()).getSkill().secondChoiceOrText()) {
 					case TEXT:
 						if (items.size() > 0) {
