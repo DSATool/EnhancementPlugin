@@ -26,6 +26,7 @@ import dsa41basis.ui.hero.HeroController;
 import dsa41basis.ui.hero.HeroSelector;
 import dsa41basis.util.HeroUtil;
 import dsatool.gui.GUIUtil;
+import dsatool.gui.ThemedAlert;
 import dsatool.resources.Settings;
 import dsatool.ui.DoubleSpinnerTableCell;
 import dsatool.ui.IntegerSpinnerTableCell;
@@ -147,7 +148,7 @@ public class EnhancementController extends HeroSelector {
 	private void apply() {
 		for (final Enhancement enhancement : enhancementTable.getItems()) {
 			if (!enhancement.isValid()) {
-				final Alert alert = new Alert(AlertType.WARNING);
+				final Alert alert = new ThemedAlert(AlertType.WARNING);
 				alert.setTitle("Voraussetzungen nicht erfüllt");
 				alert.setHeaderText("Die Voraussetzungen für eine oder mehrere ausgewählte Steigerung sind nicht erfüllt.");
 				alert.setContentText("Sollen die Steigerungen wirklich angewendet werden?");
@@ -168,7 +169,7 @@ public class EnhancementController extends HeroSelector {
 			text += "\nEs werden " + cost + " Silber an Lehrmeisterkosten fällig (" + availableMoneyLabel.getText() + " verfügbar).";
 		}
 
-		final Alert alert = new Alert(AlertType.CONFIRMATION);
+		final Alert alert = new ThemedAlert(AlertType.CONFIRMATION);
 		alert.setTitle("Steigerungen anwenden");
 		alert.setHeaderText(text);
 		alert.setContentText("Sollen die Steigerungen wirklich angewendet werden?");
@@ -215,7 +216,7 @@ public class EnhancementController extends HeroSelector {
 
 	@FXML
 	private void clear() {
-		final Alert alert = new Alert(AlertType.CONFIRMATION);
+		final Alert alert = new ThemedAlert(AlertType.CONFIRMATION);
 		alert.setTitle("Zurücksetzen");
 		alert.setHeaderText("Dies wird die ausgewählten Steigerungen löschen.");
 		alert.setContentText("Sollen die Steigerungen wirklich zurückgesetzt werden?");
@@ -341,7 +342,7 @@ public class EnhancementController extends HeroSelector {
 		});
 
 		apLabel.setText("0");
-		costLabel.setText("0");
+		costLabel.setText("0.0");
 
 		enhancementTable.getItems().addListener((final Change<? extends Enhancement> c) -> {
 			if (!reordering[0]) {

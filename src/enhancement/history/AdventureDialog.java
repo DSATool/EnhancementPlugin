@@ -36,7 +36,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
@@ -48,7 +47,6 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import jsonant.value.JSONArray;
@@ -169,12 +167,7 @@ public class AdventureDialog {
 
 		this.enhancement = enhancement;
 
-		stage = new Stage();
-		stage.setTitle("Abenteuerabschluss");
-		stage.setScene(new Scene(root, 310, 420));
-		stage.initModality(Modality.WINDOW_MODAL);
-		stage.setResizable(false);
-		stage.initOwner(window);
+		stage = GUIUtil.setupStage(root, 310, 420, "Abenteuerabschluss", window, true);
 
 		cancelButton.setOnAction(event -> stage.close());
 

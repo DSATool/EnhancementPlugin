@@ -75,7 +75,7 @@ public class QuirksController extends EnhancementTabController {
 
 	@Override
 	protected String getText() {
-		return "Schl. Eigenschaften";
+		return "Nachteile";
 	}
 
 	@Override

@@ -17,6 +17,7 @@ package enhancement.history;
 
 import dsa41basis.util.HeroUtil;
 import dsatool.gui.GUIUtil;
+import dsatool.gui.ThemedAlert;
 import dsatool.resources.Settings;
 import dsatool.util.ErrorLogger;
 import enhancement.attributes.AttributeEnhancement;
@@ -196,7 +197,7 @@ public class HistoryController extends EnhancementTabController {
 		final int finalFreeAP = freeAP;
 		final double finalCost = cost;
 
-		final Alert alert = new Alert(AlertType.CONFIRMATION);
+		final Alert alert = new ThemedAlert(AlertType.CONFIRMATION);
 		alert.setTitle("Steigerungen rückgängig machen");
 		alert.setHeaderText(text);
 		alert.setContentText("Sollen die Steigerungen wirklich rückgängig gemacht werden?");

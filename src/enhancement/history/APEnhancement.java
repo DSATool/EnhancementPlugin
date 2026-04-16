@@ -23,6 +23,7 @@ import jsonant.value.JSONObject;
 import jsonant.value.JSONValue;
 
 public class APEnhancement extends Enhancement {
+
 	public static APEnhancement fromJSON(final JSONObject enhancement) {
 		final APEnhancement result = new APEnhancement(enhancement.getInt("Von"), enhancement.getInt("Auf"));
 		result.date.set(LocalDate.parse(enhancement.getString("Datum")).format(DateFormatter));
