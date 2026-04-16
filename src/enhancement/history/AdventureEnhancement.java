@@ -160,7 +160,8 @@ public class AdventureEnhancement extends Enhancement {
 				final Tuple<JSONValue, JSONObject> actualTalent = HeroUtil.findActualTalent(hero, name);
 				final JSONObject talent = talentAndGroup._1.containsKey("Auswahl") || talentAndGroup._1.containsKey("Freitext")
 						? ((JSONArray) actualTalent._1).getObj(0) : (JSONObject) actualTalent._1;
-				yield Talent.getTalent(name, ResourceManager.getResource("data/Talente").getObj(talentAndGroup._2), talentAndGroup._1, talent, actualTalent._2);
+				yield Talent.getTalent(name, ResourceManager.getResource("data/Talente").getObj(talentAndGroup._2), talentAndGroup._1, hero, talent,
+						actualTalent._2);
 			}
 			case SPELL -> {
 				final int repStart = name.lastIndexOf('(');

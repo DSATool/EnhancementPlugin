@@ -339,7 +339,8 @@ public class TalentGroupController {
 					hero));
 		} else {
 			table.getItems()
-					.add(new TalentEnhancement(Talent.getTalent(talentName, talentGroup, group.getObj(talentName), null, actualGroup), talentGroupName, hero));
+					.add(new TalentEnhancement(Talent.getTalent(talentName, talentGroup, group.getObj(talentName), hero, null, actualGroup), talentGroupName,
+							hero));
 		}
 		table.sort();
 	}
@@ -383,7 +384,7 @@ public class TalentGroupController {
 					if (talent.containsKey("Auswahl") || talent.containsKey("Freitext")) {
 						final JSONArray choiceTalent = actualGroup.getArr(talentName);
 						for (int i = 0; i < choiceTalent.size(); ++i) {
-							final Talent actualTalent = Talent.getTalent(talentName, talentGroup, talents.getObj(talentName), choiceTalent.getObj(i),
+							final Talent actualTalent = Talent.getTalent(talentName, talentGroup, talents.getObj(talentName), hero, choiceTalent.getObj(i),
 									actualGroup);
 							if (!alreadyEnhanced.containsKey(talentName) || !alreadyEnhanced.get(talentName).containsKey(actualTalent)) {
 								table.getItems().add(new TalentEnhancement(actualTalent, talentGroupName, hero));
@@ -391,10 +392,9 @@ public class TalentGroupController {
 						}
 						talentsList.getItems().add(talentName);
 					} else if (!alreadyEnhanced.containsKey(talentName)) {
-						table.getItems()
-								.add(new TalentEnhancement(
-										Talent.getTalent(talentName, talentGroup, talents.getObj(talentName), actualGroup.getObj(talentName), actualGroup),
-										talentGroupName, hero));
+						table.getItems().add(new TalentEnhancement(
+								Talent.getTalent(talentName, talentGroup, talents.getObj(talentName), hero, actualGroup.getObj(talentName), actualGroup),
+								talentGroupName, hero));
 					}
 				}
 			} else if (talent.containsKey("Auswahl") || talent.containsKey("Freitext") || !alreadyEnhanced.containsKey(talentName)) {

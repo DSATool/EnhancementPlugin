@@ -74,7 +74,7 @@ public class TalentEnhancement extends Enhancement {
 		if ("Sprachen und Schriften".equals(groupName)) {
 			talentGroup = talentGroup.getObj(talentAndGroup._1.getBoolOrDefault("Schrift", false) ? "Schriften" : "Sprachen");
 		}
-		final Talent newTalent = Talent.getTalent(talentName, talentGroup, talentAndGroup._1, actual, actualTalentAndGroup._2);
+		final Talent newTalent = Talent.getTalent(talentName, talentGroup, talentAndGroup._1, hero, actual, actualTalentAndGroup._2);
 		final TalentEnhancement result = new TalentEnhancement(newTalent, talentAndGroup._2, hero, !planned);
 		final boolean basis = talentAndGroup._1.getBoolOrDefault("Basis", false);
 		if (!planned) {
