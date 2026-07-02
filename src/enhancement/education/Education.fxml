@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+
+<ScrollPane fx:id="pane" vbarPolicy="ALWAYS" fitToWidth="true" style="-fx-padding: 2, 2, 2, 2;" xmlns:fx="http://javafx.com/fxml" >
+   <TableView fx:id="table" editable="true" fixedCellSize="28" >
+      <styleClass>
+         <String fx:value="remove-vertical-scrollbar" />
+         <String fx:value="remove-horizontal-scrollbar" />
+      </styleClass>
+      <placeholder>
+         <Label minHeight="0" />
+      </placeholder>
+      <columns>
+         <TableColumn fx:id="nameColumn" text="Weiterbildung" minWidth="175" resizable="false" sortable="false" editable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
+         <TableColumn fx:id="descColumn" text="Auswahl" minWidth="60" prefWidth="100" sortable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
+         <TableColumn fx:id="variantColumn" text="Variante / TaP*" minWidth="60" prefWidth="100" resizable="false" sortable="false" styleClass="left-aligned" style="-fx-alignment: CENTER-LEFT;" />
+         <TableColumn fx:id="costColumn" text="Kosten" minWidth="75" maxWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+         <TableColumn fx:id="apColumn" text="AP" minWidth="75" maxWidth="75" resizable="false" sortable="false" style="-fx-alignment: CENTER;" />
+         <TableColumn fx:id="validColumn" minWidth="0" maxWidth="0" />
+      </columns>
+   </TableView>
+</ScrollPane>

@@ -22,6 +22,7 @@ import dsatool.resources.Settings;
 import dsatool.util.ErrorLogger;
 import enhancement.attributes.AttributeEnhancement;
 import enhancement.attributes.EnergyEnhancement;
+import enhancement.education.EducationEnhancement;
 import enhancement.enhancements.Enhancement;
 import enhancement.enhancements.EnhancementController;
 import enhancement.enhancements.EnhancementTabController;
@@ -235,6 +236,7 @@ public class HistoryController extends EnhancementTabController {
 				case "Sonderfertigkeit" -> SkillEnhancement.fromJSON(entry, hero, false);
 				case "Talent" -> TalentEnhancement.fromJSON(entry, hero, false);
 				case "Zauber" -> SpellEnhancement.fromJSON(entry, hero, false);
+				case "Weiterbildung" -> EducationEnhancement.fromJSON(entry, hero);
 				case "Abenteuerpunkte" -> APEnhancement.fromJSON(entry);
 				case "Abenteuer" -> AdventureEnhancement.fromJSON(entry);
 				default -> null;

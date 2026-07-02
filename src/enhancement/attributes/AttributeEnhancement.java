@@ -87,7 +87,7 @@ public class AttributeEnhancement extends Enhancement {
 
 	@Override
 	protected boolean calculateValid(final JSONObject hero) {
-		return target.get() <= attribute.getMaximum();
+		return target.get() <= attribute.getMaximum(hero);
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class AttributeEnhancement extends Enhancement {
 
 	@Override
 	public String getInvalidReason(final JSONObject hero) {
-		if (target.get() > attribute.getMaximum()) return "Eigenschaftsmaximum " + attribute.getMaximum();
+		if (target.get() > attribute.getMaximum(hero)) return "Eigenschaftsmaximum " + attribute.getMaximum(hero);
 		return "";
 	}
 

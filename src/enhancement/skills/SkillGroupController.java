@@ -17,6 +17,7 @@ package enhancement.skills;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import dsa41basis.hero.ProOrCon;
@@ -310,7 +311,8 @@ public class SkillGroupController {
 		final JSONObject actual = hero.getObj("Sonderfertigkeiten");
 
 		DSAUtil.foreach(skill -> true, (skillName, skill) -> {
-			if (!actual.containsKey(skillName) || skill.containsKey("Auswahl") || skill.containsKey("Freitext")) {
+			if ((!actual.containsKey(skillName) || skill.containsKey("Auswahl") || skill.containsKey("Freitext"))
+					&& !List.of("Kontakt zum Großen Geist", "Spätweihe").contains(skillName)) {
 				final SkillEnhancement newEnhancement = new SkillEnhancement(new ProOrCon(skillName, hero, skill, new JSONObject(null)), hero);
 				if (skill.containsKey("Auswahl") || skill.containsKey("Freitext") || !alreadyEnhanced.contains(skillName)) {
 					if (showAll.get() || newEnhancement.isValid()) {
@@ -346,7 +348,6 @@ public class SkillGroupController {
 				}
 			}
 		}
-
 	}
 
 	public void registerListeners() {

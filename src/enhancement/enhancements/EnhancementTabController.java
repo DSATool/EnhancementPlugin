@@ -83,6 +83,14 @@ public abstract class EnhancementTabController implements HeroController {
 		}
 	}
 
+	protected void setHighlight(final boolean highlight) {
+		if (highlight) {
+			tab.getStyleClass().add("valid");
+		} else {
+			tab.getStyleClass().remove("valid");
+		}
+	}
+
 	protected abstract void unregisterListeners();
 
 	public abstract void update();

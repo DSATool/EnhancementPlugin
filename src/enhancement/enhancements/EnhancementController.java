@@ -17,7 +17,6 @@ package enhancement.enhancements;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Stack;
@@ -32,6 +31,7 @@ import dsatool.ui.DoubleSpinnerTableCell;
 import dsatool.ui.IntegerSpinnerTableCell;
 import dsatool.util.ErrorLogger;
 import enhancement.attributes.AttributesController;
+import enhancement.education.EducationController;
 import enhancement.history.AdventureDialog;
 import enhancement.history.HistoryController;
 import enhancement.planned.PlannedController;
@@ -68,7 +68,8 @@ import jsonant.value.JSONObject;
 public class EnhancementController extends HeroSelector {
 
 	public static List<Class<? extends EnhancementTabController>> tabControllers = new ArrayList<>(List.of(AttributesController.class, QuirksController.class,
-			SkillController.class, TalentController.class, SpellsController.class, PlannedController.class, HistoryController.class));
+			SkillController.class, TalentController.class, SpellsController.class, EducationController.class, PlannedController.class,
+			HistoryController.class));
 
 	public static BooleanProperty usesChargenRules = new SimpleBooleanProperty();
 
@@ -184,8 +185,8 @@ public class EnhancementController extends HeroSelector {
 			final ArrayList<Enhancement> enhancements = new ArrayList<>(enhancementTable.getItems());
 			enhancementTable.getItems().clear();
 			for (final Enhancement enhancement : enhancements) {
-				history.add(enhancement.toJSON(history, false));
 				enhancement.apply(hero);
+				history.add(enhancement.toJSON(history, false));
 			}
 			bio.notifyListeners(null);
 			history.notifyListeners(null);
@@ -223,10 +224,6 @@ public class EnhancementController extends HeroSelector {
 		alert.showAndWait().filter(response -> response == ButtonType.OK).ifPresent(response -> {
 			setHero(Math.max(list.getSelectionModel().getSelectedIndex(), 0));
 		});
-	}
-
-	public List<HeroController> getControllers() {
-		return Collections.unmodifiableList(controllers);
 	}
 
 	public Collection<Enhancement> getEnhancements() {

@@ -84,7 +84,7 @@ public class EnergyEnhancement extends Enhancement {
 
 	@Override
 	protected boolean calculateValid(final JSONObject hero) {
-		return target.getValue() <= energy.getBuyableMaximum();
+		return target.getValue() <= energy.getMaximum(hero);
 	}
 
 	@Override
@@ -103,8 +103,8 @@ public class EnergyEnhancement extends Enhancement {
 	@Override
 	protected int getCalculatedAP(final JSONObject hero) {
 		final int SELevel = energy.getBought() + Math.min(target.getValue() - energy.getBought(), ses.get());
-		return DSAUtil.getEnhancementCost(energy.getEnhancementCost() - 1, energy.getBought(), SELevel)
-				+ DSAUtil.getEnhancementCost(energy.getEnhancementCost(), SELevel, target.getValue());
+		return DSAUtil.getEnhancementCost(energy.getEnhancementComplexity(hero, SELevel) - 1, energy.getBought(), SELevel)
+				+ DSAUtil.getEnhancementCost(energy.getEnhancementComplexity(hero, target.getValue()), SELevel, target.getValue());
 	}
 
 	/*
@@ -119,7 +119,7 @@ public class EnergyEnhancement extends Enhancement {
 
 	@Override
 	public String getInvalidReason(final JSONObject hero) {
-		if (target.get() > energy.getBuyableMaximum()) return "Maximale Steigerung " + (energy.getMax() - energy.getBought() + energy.getBuyableMaximum());
+		if (target.get() > energy.getMaximum(hero)) return "Maximale Steigerung " + (energy.getValue() - energy.getBought() + energy.getMaximum(hero));
 		return "";
 	}
 
@@ -133,11 +133,11 @@ public class EnergyEnhancement extends Enhancement {
 	}
 
 	public int getStart() {
-		return energy.getMax() - energy.getBought() + start.get();
+		return energy.getValue() - energy.getBought() + start.get();
 	}
 
 	public int getTarget() {
-		return energy.getMax() - energy.getBought() + target.get();
+		return energy.getValue() - energy.getBought() + target.get();
 	}
 
 	public IntegerProperty sesProperty() {
@@ -150,7 +150,7 @@ public class EnergyEnhancement extends Enhancement {
 	}
 
 	public void setTarget(final int target, final JSONObject hero) {
-		this.target.set(target + energy.getBought() - energy.getMax());
+		this.target.set(target + energy.getBought() - energy.getValue());
 		updateDescription();
 		recalculateValid(hero);
 		reset(hero);
@@ -194,8 +194,8 @@ public class EnergyEnhancement extends Enhancement {
 	}
 
 	private void updateDescription() {
-		final String desc = energy.getName() + " (" + (energy.getMax() - energy.getBought() + start.getValue()) + "->"
-				+ (energy.getMax() - energy.getBought() + target.get()) + ")";
+		final String desc = energy.getName() + " (" + (energy.getValue() - energy.getBought() + start.getValue()) + "->"
+				+ (energy.getValue() - energy.getBought() + target.get()) + ")";
 		description.set(desc);
 	}
 }
