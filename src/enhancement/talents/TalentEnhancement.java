@@ -157,7 +157,7 @@ public class TalentEnhancement extends Enhancement {
 		method = new SimpleStringProperty(Settings.getSettingStringOrDefault("Gegenseitiges Lehren", "Steigerung", "Lernmethode"));
 		updateDescription();
 		if (!fixed) {
-			talent.valueProperty().addListener((o, oldV, newV) -> {
+			talent.valueProperty().addListener((_, _, newV) -> {
 				if (!suppressGlobally && !suppressUpdate) {
 					final int newValue = fromStart(newV.intValue());
 					final int difference = start.get() - newValue;
@@ -167,7 +167,7 @@ public class TalentEnhancement extends Enhancement {
 					updateDescription();
 				}
 			});
-			talent.sesProperty().addListener((o, oldV, newV) -> {
+			talent.sesProperty().addListener((_, _, newV) -> {
 				if (!suppressGlobally && !suppressUpdate) {
 					ses.set(newV.intValue());
 					ap.set(getCalculatedAP(hero));
@@ -189,7 +189,7 @@ public class TalentEnhancement extends Enhancement {
 		}
 
 		cheaper.bind(ses.greaterThan(0));
-		chargenListener = (o, oldV, newV) -> reset(hero);
+		chargenListener = (_, _, _) -> reset(hero);
 		EnhancementController.usesChargenRules.addListener(chargenListener);
 	}
 

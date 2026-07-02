@@ -106,7 +106,7 @@ public class AdventureDialog {
 		date.setValue(LocalDate.now());
 		enhancement.dateProperty().bind(Bindings.createStringBinding(() -> date.getValue().format(Enhancement.DateFormatter), date.valueProperty()));
 
-		okButton.setOnAction(event -> {
+		okButton.setOnAction(_ -> {
 			final JSONArray history = hero.getArr("Historie");
 			history.add(enhancement.toJSON(hero, history));
 			history.notifyListeners(null);
@@ -114,11 +114,11 @@ public class AdventureDialog {
 			stage.close();
 		});
 
-		sesTable.setRowFactory(table -> {
+		sesTable.setRowFactory(_ -> {
 			final TableRow<Tuple3<String, Integer, Type>> row = new TableRow<>();
 			final ContextMenu contextMenu = new ContextMenu();
 			final MenuItem deleteItem = new MenuItem("Entfernen");
-			deleteItem.setOnAction(event -> {
+			deleteItem.setOnAction(_ -> {
 				final Tuple3<String, Integer, Type> item = row.getItem();
 				final String name = item._1;
 				chosen.remove(name);
@@ -169,7 +169,7 @@ public class AdventureDialog {
 
 		stage = GUIUtil.setupStage(root, 310, 420, "Abenteuerabschluss", window, true);
 
-		cancelButton.setOnAction(event -> stage.close());
+		cancelButton.setOnAction(_ -> stage.close());
 
 		okButton.setDefaultButton(true);
 		okButton.disableProperty().bind(name.textProperty().isEmpty());
@@ -179,7 +179,7 @@ public class AdventureDialog {
 		GUIUtil.autosizeTable(sesTable);
 		GUIUtil.cellValueFactories(sesTable, "_1", "_2");
 
-		seAmountColumn.setCellFactory(c -> new IntegerSpinnerTableCell<>(0, 9));
+		seAmountColumn.setCellFactory(_ -> new IntegerSpinnerTableCell<>(0, 9));
 		seAmountColumn.setOnEditCommit(t -> {
 			final Tuple3<String, Integer, Type> oldV = t.getRowValue();
 			sesTable.getItems().set(t.getTablePosition().getRow(), new Tuple3<>(oldV._1, t.getNewValue(), oldV._3));
@@ -217,7 +217,7 @@ public class AdventureDialog {
 		date.setValue(LocalDate.parse(this.enhancement.getDate(), Enhancement.DateFormatter));
 		this.enhancement.dateProperty().bind(Bindings.createStringBinding(() -> date.getValue().format(Enhancement.DateFormatter), date.valueProperty()));
 
-		okButton.setOnAction(event -> {
+		okButton.setOnAction(_ -> {
 			final JSONArray history = hero.getArr("Historie");
 			history.set(history.indexOf(enhancement), this.enhancement.toJSON(hero, history));
 			history.notifyListeners(null);
@@ -292,7 +292,7 @@ public class AdventureDialog {
 		initTalentList();
 
 		final JSONObject spells = ResourceManager.getResource("data/Zauber");
-		spellList.getSelectionModel().selectedItemProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
+		spellList.getSelectionModel().selectedItemProperty().addListener((ChangeListener<String>) (_, _, newValue) -> {
 			if (newValue != null) {
 				representationsList.getItems().clear();
 				final JSONObject spell = spells.getObj(newValue);

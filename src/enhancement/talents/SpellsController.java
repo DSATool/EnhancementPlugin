@@ -33,7 +33,7 @@ public class SpellsController extends EnhancementTabController {
 	public SpellsController(final EnhancementController controller, final TabPane tabPane) {
 		super(tabPane);
 		this.tabPane = tabPane;
-		listener = o -> setTab();
+		listener = _ -> setTab();
 	}
 
 	@Override

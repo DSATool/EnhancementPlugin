@@ -91,16 +91,16 @@ public class SkillEnhancement extends Enhancement {
 
 		updateValid(hero);
 
-		skill.descriptionProperty().addListener(o -> {
+		skill.descriptionProperty().addListener(_ -> {
 			updateDescription();
 			updateValid(hero);
 		});
-		skill.variantProperty().addListener(o -> {
+		skill.variantProperty().addListener(_ -> {
 			updateDescription();
 			updateValid(hero);
 		});
 
-		chargenListener = (o, oldV, newV) -> reset(hero);
+		chargenListener = (_, _, _) -> reset(hero);
 		EnhancementController.usesChargenRules.addListener(chargenListener);
 	}
 

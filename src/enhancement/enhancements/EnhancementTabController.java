@@ -24,7 +24,7 @@ import jsonant.value.JSONObject;
 
 public abstract class EnhancementTabController implements HeroController {
 
-	protected JSONListener heroListener = o -> {
+	protected JSONListener heroListener = _ -> {
 		update();
 	};
 
@@ -36,7 +36,7 @@ public abstract class EnhancementTabController implements HeroController {
 	public EnhancementTabController(final TabPane pane) {
 		tab = new Tab(getText());
 		tab.setClosable(false);
-		tab.setOnSelectionChanged(e -> {
+		tab.setOnSelectionChanged(_ -> {
 			if (tab.isSelected()) {
 				if (getControl() == null && !stopInit) {
 					init();

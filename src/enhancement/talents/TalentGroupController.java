@@ -93,7 +93,7 @@ public class TalentGroupController {
 	protected JSONObject hero;
 	private final Map<String, Map<Talent, Object>> alreadyEnhanced = new HashMap<>();
 
-	private final JSONListener listener = o -> {
+	private final JSONListener listener = _ -> {
 		fillTable();
 	};
 
@@ -140,7 +140,7 @@ public class TalentGroupController {
 		GUIUtil.autosizeTable(table);
 		GUIUtil.cellValueFactories(table, "description", "ses", "startString", "targetString", "method", "cost", "ap", "valid", "cheaper");
 
-		nameColumn.setCellFactory(c -> new TextFieldTableCell<>() {
+		nameColumn.setCellFactory(_ -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final String item, final boolean empty) {
 				super.updateItem(item, empty);
@@ -153,7 +153,7 @@ public class TalentGroupController {
 
 		sesColumn.setCellFactory(
 				IntegerSpinnerTableCell.<TalentEnhancement> forTableColumn(0, 0, 1, false,
-						(final IntegerSpinnerTableCell<TalentEnhancement> cell, final Boolean empty) -> {
+						(final IntegerSpinnerTableCell<TalentEnhancement> _, final Boolean empty) -> {
 							if (empty) return new Tuple<>(0, 0);
 							return new Tuple<>(0, 99);
 						}));
@@ -163,7 +163,7 @@ public class TalentGroupController {
 			}
 		});
 
-		targetColumn.setCellFactory(o -> new GraphicTableCell<>(false) {
+		targetColumn.setCellFactory(_ -> new GraphicTableCell<>(false) {
 			@Override
 			protected void createGraphic() {
 				final List<String> entries = new LinkedList<>();
@@ -217,14 +217,14 @@ public class TalentGroupController {
 			}
 		});
 
-		table.setRowFactory(t -> {
+		table.setRowFactory(_ -> {
 			final TableRow<TalentEnhancement> row = new TableRow<>();
 
 			final ContextMenu contextMenu = new ContextMenu();
 
 			final MenuItem applyItem = new MenuItem("Steigern");
 			contextMenu.getItems().add(applyItem);
-			applyItem.setOnAction(o -> {
+			applyItem.setOnAction(_ -> {
 				final TalentEnhancement item = row.getItem();
 				table.getItems().remove(item);
 				final String talentName = item.getName();
@@ -236,7 +236,7 @@ public class TalentGroupController {
 
 			final MenuItem planItem = new MenuItem("Vormerken");
 			contextMenu.getItems().add(planItem);
-			planItem.setOnAction(o -> {
+			planItem.setOnAction(_ -> {
 				final TalentEnhancement item = row.getItem();
 				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
 				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
@@ -248,7 +248,7 @@ public class TalentGroupController {
 			return row;
 		});
 
-		validColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
+		validColumn.setCellFactory(_ -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
@@ -260,7 +260,7 @@ public class TalentGroupController {
 					row.getStyleClass().remove("valid");
 					row.getStyleClass().add("invalid");
 					final Tooltip tooltip = new Tooltip();
-					tooltip.setOnShowing(o -> {
+					tooltip.setOnShowing(_ -> {
 						tooltip.setText(row.getItem().getInvalidReason(hero));
 					});
 					row.setTooltip(tooltip);
@@ -268,7 +268,7 @@ public class TalentGroupController {
 			}
 		});
 
-		cheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
+		cheaperColumn.setCellFactory(_ -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
@@ -284,7 +284,7 @@ public class TalentGroupController {
 		});
 
 		if (representationsList != null) {
-			talentsList.getSelectionModel().selectedItemProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
+			talentsList.getSelectionModel().selectedItemProperty().addListener((ChangeListener<String>) (_, _, newValue) -> {
 				if (newValue != null) {
 					representationsList.getItems().clear();
 					final JSONObject spell = talents.getObj(newValue);
@@ -355,7 +355,7 @@ public class TalentGroupController {
 
 		final JSONObject talentGroups = ResourceManager.getResource("data/Talentgruppen");
 
-		DSAUtil.foreach(talent -> true, (talentName, talent) -> {
+		DSAUtil.foreach(_ -> true, (talentName, talent) -> {
 			if (actualGroup.containsKey(talentName)) {
 				if ("Zauber".equals(talentGroupName)) {
 					final JSONObject actualSpell = actualGroup.getObj(talentName);

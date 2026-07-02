@@ -86,9 +86,9 @@ public class SkillGroupController {
 	private final Set<String> alreadyEnhanced = new HashSet<>();
 
 	private final ObservableSet<SkillEnhancement> valid = FXCollections.observableSet();
-	private final ObservableList<SkillEnhancement> allItems = FXCollections.observableArrayList(item -> new Observable[] { valid });
+	private final ObservableList<SkillEnhancement> allItems = FXCollections.observableArrayList(_ -> new Observable[] { valid });
 
-	private final JSONListener listener = o -> {
+	private final JSONListener listener = _ -> {
 		recalculateValid(hero);
 	};
 
@@ -117,7 +117,7 @@ public class SkillGroupController {
 		}
 
 		nameColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
-		nameColumn.setCellFactory(c -> new TextFieldTableCell<>() {
+		nameColumn.setCellFactory(_ -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final String item, final boolean empty) {
 				super.updateItem(item, empty);
@@ -131,7 +131,7 @@ public class SkillGroupController {
 		});
 
 		descColumn.setCellValueFactory(new PropertyValueFactory<>("skillDescription"));
-		descColumn.setCellFactory(c -> new GraphicTableCell<>(false) {
+		descColumn.setCellFactory(_ -> new GraphicTableCell<>(false) {
 			@Override
 			protected void createGraphic() {
 				final ObservableList<String> items = FXCollections
@@ -153,7 +153,7 @@ public class SkillGroupController {
 						break;
 					case NONE:
 						final Label l = new Label();
-						createGraphic(l, () -> "", s -> {});
+						createGraphic(l, () -> "", _ -> {});
 						break;
 				}
 			}
@@ -172,7 +172,7 @@ public class SkillGroupController {
 		});
 
 		variantColumn.setCellValueFactory(new PropertyValueFactory<>("skillVariant"));
-		variantColumn.setCellFactory(c -> new GraphicTableCell<>(false) {
+		variantColumn.setCellFactory(_ -> new GraphicTableCell<>(false) {
 			@Override
 			protected void createGraphic() {
 				final ObservableList<String> items = FXCollections
@@ -194,7 +194,7 @@ public class SkillGroupController {
 						break;
 					case NONE:
 						final Label l = new Label();
-						createGraphic(l, () -> "", s -> {});
+						createGraphic(l, () -> "", _ -> {});
 						break;
 				}
 			}
@@ -211,7 +211,7 @@ public class SkillGroupController {
 		apColumn.setCellValueFactory(new PropertyValueFactory<>("ap"));
 
 		validColumn.setCellValueFactory(new PropertyValueFactory<>("valid"));
-		validColumn.setCellFactory(tableColumn -> new TableCell<>() {
+		validColumn.setCellFactory(_ -> new TableCell<>() {
 			@Override
 			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
@@ -223,7 +223,7 @@ public class SkillGroupController {
 					row.getStyleClass().remove("valid");
 					row.getStyleClass().add("invalid");
 					final Tooltip tooltip = new Tooltip();
-					tooltip.setOnShowing(o -> {
+					tooltip.setOnShowing(_ -> {
 						tooltip.setText(row.getItem().getInvalidReason(hero));
 					});
 					row.setTooltip(tooltip);
@@ -232,7 +232,7 @@ public class SkillGroupController {
 		});
 
 		cheaperColumn.setCellValueFactory(new PropertyValueFactory<>("cheaper"));
-		cheaperColumn.setCellFactory(tableColumn -> new TableCell<>() {
+		cheaperColumn.setCellFactory(_ -> new TableCell<>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
@@ -247,14 +247,14 @@ public class SkillGroupController {
 			}
 		});
 
-		table.setRowFactory(t -> {
+		table.setRowFactory(_ -> {
 			final TableRow<SkillEnhancement> row = new TableRow<>();
 
 			final ContextMenu contextMenu = new ContextMenu();
 
 			final MenuItem applyItem = new MenuItem("Erlernen");
 			contextMenu.getItems().add(applyItem);
-			applyItem.setOnAction(o -> {
+			applyItem.setOnAction(_ -> {
 				final SkillEnhancement item = row.getItem();
 				final ProOrCon skill = item.getSkill();
 				if (skill.firstChoiceOrText() == ChoiceOrTextEnum.NONE) {
@@ -266,7 +266,7 @@ public class SkillGroupController {
 
 			final MenuItem planItem = new MenuItem("Vormerken");
 			contextMenu.getItems().add(planItem);
-			planItem.setOnAction(o -> {
+			planItem.setOnAction(_ -> {
 				final SkillEnhancement item = row.getItem();
 				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
 				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
@@ -278,7 +278,7 @@ public class SkillGroupController {
 			return row;
 		});
 
-		valid.addListener((final SetChangeListener.Change<?> o) -> {
+		valid.addListener((final SetChangeListener.Change<?> _) -> {
 			final boolean hasItems = !valid.isEmpty();
 			pane.setVisible(hasItems);
 			pane.setManaged(hasItems);
@@ -291,7 +291,7 @@ public class SkillGroupController {
 
 		GUIUtil.autosizeTable(table);
 
-		showAll.addListener((o, oldV, newV) -> {
+		showAll.addListener((_, _, newV) -> {
 			if (newV) {
 				allItems.forEach(valid::add);
 			} else {
@@ -310,7 +310,7 @@ public class SkillGroupController {
 
 		final JSONObject actual = hero.getObj("Sonderfertigkeiten");
 
-		DSAUtil.foreach(skill -> true, (skillName, skill) -> {
+		DSAUtil.foreach(_ -> true, (skillName, skill) -> {
 			if ((!actual.containsKey(skillName) || skill.containsKey("Auswahl") || skill.containsKey("Freitext"))
 					&& !List.of("Kontakt zum Großen Geist", "Spätweihe").contains(skillName)) {
 				final SkillEnhancement newEnhancement = new SkillEnhancement(new ProOrCon(skillName, hero, skill, new JSONObject(null)), hero);

@@ -44,7 +44,7 @@ public class TalentController extends EnhancementTabController {
 	private Node ritualKnowledge;
 	private Node liturgyKnowledge;
 
-	private final JSONListener listener = o -> updateVisibility();
+	private final JSONListener listener = _ -> updateVisibility();
 
 	public TalentController(final EnhancementController controller, final TabPane tabPane) {
 		super(tabPane);

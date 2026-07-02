@@ -95,7 +95,7 @@ public class QuirksController extends EnhancementTabController {
 		GUIUtil.autosizeTable(table);
 		GUIUtil.cellValueFactories(table, "description", "ses", "start", "target", "ap", "cheaper");
 
-		nameColumn.setCellFactory(c -> new TextFieldTableCell<>() {
+		nameColumn.setCellFactory(_ -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final String item, final boolean empty) {
 				super.updateItem(item, empty);
@@ -130,14 +130,14 @@ public class QuirksController extends EnhancementTabController {
 			}
 		});
 
-		table.setRowFactory(t -> {
+		table.setRowFactory(_ -> {
 			final TableRow<QuirkEnhancement> row = new TableRow<>();
 
 			final ContextMenu contextMenu = new ContextMenu();
 
 			final MenuItem lowerMenuItem = new MenuItem("Senken");
 			contextMenu.getItems().add(lowerMenuItem);
-			lowerMenuItem.setOnAction(o -> {
+			lowerMenuItem.setOnAction(_ -> {
 				final QuirkEnhancement item = row.getItem();
 				final String quirkName = item.getName();
 				final Map<JSONObject, Object> newSet = alreadyEnhanced.getOrDefault(quirkName, new IdentityHashMap<>());
@@ -149,7 +149,7 @@ public class QuirksController extends EnhancementTabController {
 
 			final MenuItem planItem = new MenuItem("Vormerken");
 			contextMenu.getItems().add(planItem);
-			planItem.setOnAction(o -> {
+			planItem.setOnAction(_ -> {
 				final QuirkEnhancement item = row.getItem();
 				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
 				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
@@ -162,7 +162,7 @@ public class QuirksController extends EnhancementTabController {
 			return row;
 		});
 
-		cheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
+		cheaperColumn.setCellFactory(_ -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);

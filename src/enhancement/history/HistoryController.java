@@ -109,14 +109,14 @@ public class HistoryController extends EnhancementTabController {
 
 		GUIUtil.cellValueFactories(table, "fullDescription", "cost", "ap", "date");
 
-		table.setRowFactory(t -> {
+		table.setRowFactory(_ -> {
 			final TableRow<Enhancement> row = new TableRow<>();
 
 			final ContextMenu contextMenu = new ContextMenu();
 
 			final MenuItem editItem = new MenuItem("Bearbeiten");
 			contextMenu.getItems().add(editItem);
-			editItem.setOnAction(o -> {
+			editItem.setOnAction(_ -> {
 				new AdventureDialog(root.getScene().getWindow(), hero, ((AdventureEnhancement) row.getItem()).getActual());
 			});
 			editItem.visibleProperty()
@@ -124,7 +124,7 @@ public class HistoryController extends EnhancementTabController {
 
 			final MenuItem undoItem = new MenuItem("Rückgängig");
 			contextMenu.getItems().add(undoItem);
-			undoItem.setOnAction(o -> {
+			undoItem.setOnAction(_ -> {
 				undo(row.getIndex());
 			});
 
@@ -133,11 +133,11 @@ public class HistoryController extends EnhancementTabController {
 			return row;
 		});
 
-		final FilteredList<Enhancement> filtered = items.filtered(i -> true);
+		final FilteredList<Enhancement> filtered = items.filtered(_ -> true);
 		table.setItems(filtered);
 		GUIUtil.autosizeTable(table);
 
-		filter.textProperty().addListener((o, oldV, newV) -> filtered.setPredicate(i -> i.getFullDescription().toLowerCase().contains(newV.toLowerCase())));
+		filter.textProperty().addListener((_, _, newV) -> filtered.setPredicate(i -> i.getFullDescription().toLowerCase().contains(newV.toLowerCase())));
 	}
 
 	@Override
@@ -203,7 +203,7 @@ public class HistoryController extends EnhancementTabController {
 		alert.setHeaderText(text);
 		alert.setContentText("Sollen die Steigerungen wirklich rückgängig gemacht werden?");
 		alert.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
-		alert.showAndWait().filter(response -> response.equals(ButtonType.OK)).ifPresent(response -> {
+		alert.showAndWait().filter(response -> response.equals(ButtonType.OK)).ifPresent(_ -> {
 			for (int i = 0; i <= index; ++i) {
 				table.getItems().get(i).unapply(hero);
 				history.removeAt(history.size() - 1);

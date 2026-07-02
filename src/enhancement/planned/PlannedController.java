@@ -116,7 +116,7 @@ public class PlannedController extends EnhancementTabController {
 		apColumn.setCellValueFactory(new PropertyValueFactory<>("ap"));
 
 		validColumn.setCellValueFactory(new PropertyValueFactory<>("valid"));
-		validColumn.setCellFactory(tableColumn -> new TableCell<>() {
+		validColumn.setCellFactory(_ -> new TableCell<>() {
 			@Override
 			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
@@ -128,7 +128,7 @@ public class PlannedController extends EnhancementTabController {
 					row.getStyleClass().remove("valid");
 					row.getStyleClass().add("invalid");
 					final Tooltip tooltip = new Tooltip();
-					tooltip.setOnShowing(o -> {
+					tooltip.setOnShowing(_ -> {
 						tooltip.setText(row.getItem().getInvalidReason(hero));
 					});
 					row.setTooltip(tooltip);
@@ -137,7 +137,7 @@ public class PlannedController extends EnhancementTabController {
 		});
 
 		cheaperColumn.setCellValueFactory(new PropertyValueFactory<>("cheaper"));
-		cheaperColumn.setCellFactory(tableColumn -> new TableCell<>() {
+		cheaperColumn.setCellFactory(_ -> new TableCell<>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
@@ -152,14 +152,14 @@ public class PlannedController extends EnhancementTabController {
 			}
 		});
 
-		table.setRowFactory(t -> {
+		table.setRowFactory(_ -> {
 			final TableRow<Enhancement> row = new TableRow<>();
 
 			final ContextMenu contextMenu = new ContextMenu();
 
 			final MenuItem applyItem = new MenuItem("Steigern");
 			contextMenu.getItems().add(applyItem);
-			applyItem.setOnAction(o -> {
+			applyItem.setOnAction(_ -> {
 				final Enhancement item = row.getItem();
 				hero.getArr("Vorgemerkte Steigerungen").remove(itemObjectMap.get(item));
 				items.remove(item);
@@ -168,7 +168,7 @@ public class PlannedController extends EnhancementTabController {
 
 			final MenuItem removeItem = new MenuItem("Entfernen");
 			contextMenu.getItems().add(removeItem);
-			removeItem.setOnAction(o -> {
+			removeItem.setOnAction(_ -> {
 				final Enhancement removed = row.getItem();
 				hero.getArr("Vorgemerkte Steigerungen").remove(itemObjectMap.get(removed));
 				items.remove(removed);
@@ -179,11 +179,11 @@ public class PlannedController extends EnhancementTabController {
 			return row;
 		});
 
-		final FilteredList<Enhancement> filtered = items.filtered(i -> true);
+		final FilteredList<Enhancement> filtered = items.filtered(_ -> true);
 		table.setItems(filtered);
 		GUIUtil.autosizeTable(table);
 
-		filter.textProperty().addListener((o, oldV, newV) -> filtered.setPredicate(i -> i.getFullDescription().toLowerCase().contains(newV.toLowerCase())));
+		filter.textProperty().addListener((_, _, newV) -> filtered.setPredicate(i -> i.getFullDescription().toLowerCase().contains(newV.toLowerCase())));
 	}
 
 	@Override

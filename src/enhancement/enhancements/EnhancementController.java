@@ -101,10 +101,10 @@ public class EnhancementController extends HeroSelector {
 
 	private JSONObject hero;
 
-	private final JSONListener apListener = o -> availableApLabel
+	private final JSONListener apListener = _ -> availableApLabel
 			.setText(Integer.toString(hero.getObj("Biografie").getIntOrDefault("Abenteuerpunkte-Guthaben", 0)) + " AP");
 
-	private final JSONListener moneyListener = o -> {
+	private final JSONListener moneyListener = _ -> {
 		final JSONObject money = hero.getObj("Besitz").getObj("Geld");
 		int availableMoney = 0;
 		for (final String unit : new String[] { "Dukaten", "Silbertaler", "Heller", "Kreuzer" }) {
@@ -175,7 +175,7 @@ public class EnhancementController extends HeroSelector {
 		alert.setHeaderText(text);
 		alert.setContentText("Sollen die Steigerungen wirklich angewendet werden?");
 		alert.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
-		alert.showAndWait().filter(response -> response.equals(ButtonType.OK)).ifPresent(response -> {
+		alert.showAndWait().filter(response -> response.equals(ButtonType.OK)).ifPresent(_ -> {
 			final int index = Math.max(list.getSelectionModel().getSelectedIndex(), 0);
 			final JSONArray history = hero.getArr("Historie");
 			bio.put("Abenteuerpunkte-Guthaben", bio.getIntOrDefault("Abenteuerpunkte-Guthaben", 0) - ap);
@@ -221,7 +221,7 @@ public class EnhancementController extends HeroSelector {
 		alert.setTitle("Zurücksetzen");
 		alert.setHeaderText("Dies wird die ausgewählten Steigerungen löschen.");
 		alert.setContentText("Sollen die Steigerungen wirklich zurückgesetzt werden?");
-		alert.showAndWait().filter(response -> response == ButtonType.OK).ifPresent(response -> {
+		alert.showAndWait().filter(response -> response == ButtonType.OK).ifPresent(_ -> {
 			setHero(Math.max(list.getSelectionModel().getSelectedIndex(), 0));
 		});
 	}
@@ -259,7 +259,7 @@ public class EnhancementController extends HeroSelector {
 		descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("fullDescription"));
 
 		costColumn.setCellValueFactory(new PropertyValueFactory<>("cost"));
-		costColumn.setCellFactory(o -> new DoubleSpinnerTableCell<>(0, 9999, 0.1, false));
+		costColumn.setCellFactory(_ -> new DoubleSpinnerTableCell<>(0, 9999, 0.1, false));
 		costColumn.setOnEditCommit(t -> {
 			if (t.getRowValue() != null) {
 				t.getRowValue().setCost(t.getNewValue());
@@ -268,7 +268,7 @@ public class EnhancementController extends HeroSelector {
 		});
 
 		apColumn.setCellValueFactory(new PropertyValueFactory<>("ap"));
-		apColumn.setCellFactory(o -> new IntegerSpinnerTableCell<>(0, 9999));
+		apColumn.setCellFactory(_ -> new IntegerSpinnerTableCell<>(0, 9999));
 		apColumn.setOnEditCommit(t -> {
 			if (t.getRowValue() != null) {
 				t.getRowValue().setAP(t.getNewValue(), hero);
@@ -288,7 +288,7 @@ public class EnhancementController extends HeroSelector {
 					if (!empty && !enhancement.isValid()) {
 						getStyleClass().add("invalid");
 						final Tooltip tooltip = new Tooltip();
-						tooltip.setOnShowing(o -> {
+						tooltip.setOnShowing(_ -> {
 							tooltip.setText(getItem().getInvalidReason(hero));
 						});
 						setTooltip(tooltip);
@@ -306,14 +306,14 @@ public class EnhancementController extends HeroSelector {
 			final ContextMenu contextMenu = new ContextMenu();
 			final MenuItem resetItem = new MenuItem("Zurücksetzen");
 			contextMenu.getItems().add(resetItem);
-			resetItem.setOnAction(o -> {
+			resetItem.setOnAction(_ -> {
 				row.getItem().reset(hero);
 				recalculate(false);
 			});
 
 			final MenuItem planItem = new MenuItem("Vormerken");
 			contextMenu.getItems().add(planItem);
-			planItem.setOnAction(o -> {
+			planItem.setOnAction(_ -> {
 				final Enhancement item = row.getItem();
 				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
 				planned.add(item.toJSON(planned, true));
@@ -323,7 +323,7 @@ public class EnhancementController extends HeroSelector {
 
 			final MenuItem removeItem = new MenuItem("Entfernen");
 			contextMenu.getItems().add(removeItem);
-			removeItem.setOnAction(o -> {
+			removeItem.setOnAction(_ -> {
 				final Enhancement removed = row.getItem();
 				for (final HeroController controller : controllers) {
 					if (((EnhancementTabController) controller).removeEnhancement(removed)) {
@@ -341,7 +341,7 @@ public class EnhancementController extends HeroSelector {
 		apLabel.setText("0");
 		costLabel.setText("0.0");
 
-		enhancementTable.getItems().addListener((final Change<? extends Enhancement> c) -> {
+		enhancementTable.getItems().addListener((final Change<? extends Enhancement> _) -> {
 			if (!reordering[0]) {
 				recalculate(true);
 			}
@@ -355,7 +355,7 @@ public class EnhancementController extends HeroSelector {
 		tabPane.getTabs().get(0).setContent(firstPage.getControl());
 
 		usesChargenRules.bindBidirectional(chargenRules.selectedProperty());
-		usesChargenRules.addListener((o, oldV, newV) -> recalculate(false));
+		usesChargenRules.addListener((_, _, _) -> recalculate(false));
 	}
 
 	private void recalculate(final boolean recalculateValid) {

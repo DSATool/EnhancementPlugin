@@ -115,7 +115,7 @@ public class AttributesController extends EnhancementTabController {
 		GUIUtil.cellValueFactories(attributesTable, "description", "ses", "start", "target", "ap", "valid", "cheaper");
 
 		attributesSesColumn.setCellFactory(IntegerSpinnerTableCell.<AttributeEnhancement> forTableColumn(0, 0, 1, false,
-				(final IntegerSpinnerTableCell<AttributeEnhancement> cell, final Boolean empty) -> {
+				(final IntegerSpinnerTableCell<AttributeEnhancement> _, final Boolean empty) -> {
 					if (empty) return new Tuple<>(0, 0);
 					return new Tuple<>(0, 99);
 				}));
@@ -137,14 +137,14 @@ public class AttributesController extends EnhancementTabController {
 			}
 		});
 
-		attributesTable.setRowFactory(t -> {
+		attributesTable.setRowFactory(_ -> {
 			final TableRow<AttributeEnhancement> row = new TableRow<>();
 
 			final ContextMenu attributesContextMenu = new ContextMenu();
 
 			final MenuItem attributesApplyItem = new MenuItem("Steigern");
 			attributesContextMenu.getItems().add(attributesApplyItem);
-			attributesApplyItem.setOnAction(o -> {
+			attributesApplyItem.setOnAction(_ -> {
 				final AttributeEnhancement item = row.getItem();
 				alreadyEnhanced.add(item.getName());
 				EnhancementController.instance.addEnhancement(item.clone(hero, EnhancementController.instance.getEnhancements()));
@@ -153,7 +153,7 @@ public class AttributesController extends EnhancementTabController {
 
 			final MenuItem planItem = new MenuItem("Vormerken");
 			attributesContextMenu.getItems().add(planItem);
-			planItem.setOnAction(o -> {
+			planItem.setOnAction(_ -> {
 				final AttributeEnhancement item = row.getItem();
 				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
 				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
@@ -166,7 +166,7 @@ public class AttributesController extends EnhancementTabController {
 			return row;
 		});
 
-		attributesValidColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
+		attributesValidColumn.setCellFactory(_ -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
@@ -178,7 +178,7 @@ public class AttributesController extends EnhancementTabController {
 					row.getStyleClass().remove("valid");
 					row.getStyleClass().add("invalid");
 					final Tooltip tooltip = new Tooltip();
-					tooltip.setOnShowing(o -> {
+					tooltip.setOnShowing(_ -> {
 						tooltip.setText(row.getItem().getInvalidReason(hero));
 					});
 					row.setTooltip(tooltip);
@@ -186,7 +186,7 @@ public class AttributesController extends EnhancementTabController {
 			}
 		});
 
-		attributesCheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
+		attributesCheaperColumn.setCellFactory(_ -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
@@ -208,7 +208,7 @@ public class AttributesController extends EnhancementTabController {
 
 		energiesSesColumn.setCellFactory(
 				IntegerSpinnerTableCell.<EnergyEnhancement> forTableColumn(0, 0, 1, false,
-						(final IntegerSpinnerTableCell<EnergyEnhancement> cell, final Boolean empty) -> {
+						(final IntegerSpinnerTableCell<EnergyEnhancement> _, final Boolean empty) -> {
 							if (empty) return new Tuple<>(0, 0);
 							return new Tuple<>(0, 99);
 						}));
@@ -231,14 +231,14 @@ public class AttributesController extends EnhancementTabController {
 			energiesTable.refresh();
 		});
 
-		energiesTable.setRowFactory(t -> {
+		energiesTable.setRowFactory(_ -> {
 			final TableRow<EnergyEnhancement> row = new TableRow<>();
 
 			final ContextMenu energiesContextMenu = new ContextMenu();
 
 			final MenuItem energiesApplyItem = new MenuItem("Steigern");
 			energiesContextMenu.getItems().add(energiesApplyItem);
-			energiesApplyItem.setOnAction(o -> {
+			energiesApplyItem.setOnAction(_ -> {
 				final EnergyEnhancement item = row.getItem();
 				alreadyEnhanced.add(item.getName());
 				EnhancementController.instance.addEnhancement(item.clone(hero, EnhancementController.instance.getEnhancements()));
@@ -247,7 +247,7 @@ public class AttributesController extends EnhancementTabController {
 
 			final MenuItem planItem = new MenuItem("Vormerken");
 			energiesContextMenu.getItems().add(planItem);
-			planItem.setOnAction(o -> {
+			planItem.setOnAction(_ -> {
 				final EnergyEnhancement item = row.getItem();
 				final JSONArray planned = hero.getArr("Vorgemerkte Steigerungen");
 				planned.add(item.clone(hero, EnhancementController.instance.getEnhancements()).toJSON(planned, true));
@@ -260,7 +260,7 @@ public class AttributesController extends EnhancementTabController {
 			return row;
 		});
 
-		energiesValidColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
+		energiesValidColumn.setCellFactory(_ -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean valid, final boolean empty) {
 				super.updateItem(valid, empty);
@@ -272,7 +272,7 @@ public class AttributesController extends EnhancementTabController {
 					row.getStyleClass().remove("valid");
 					row.getStyleClass().add("invalid");
 					final Tooltip tooltip = new Tooltip();
-					tooltip.setOnShowing(o -> {
+					tooltip.setOnShowing(_ -> {
 						tooltip.setText(row.getItem().getInvalidReason(hero));
 					});
 					row.setTooltip(tooltip);
@@ -280,7 +280,7 @@ public class AttributesController extends EnhancementTabController {
 			}
 		});
 
-		energiesCheaperColumn.setCellFactory(tableColumn -> new TextFieldTableCell<>() {
+		energiesCheaperColumn.setCellFactory(_ -> new TextFieldTableCell<>() {
 			@Override
 			public void updateItem(final Boolean cheaper, final boolean empty) {
 				super.updateItem(cheaper, empty);
