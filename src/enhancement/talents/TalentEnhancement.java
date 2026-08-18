@@ -195,6 +195,7 @@ public class TalentEnhancement extends Enhancement {
 
 	@Override
 	public void apply(final JSONObject hero) {
+		suppressUpdate = true;
 		final int resultSes = Math.max(ses.get() - (target.get() - start.get()), 0);
 		talent.insertTalent(true);
 		talent.setValue(target.get());
